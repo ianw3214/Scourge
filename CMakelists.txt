@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.22)
+project(Scourge)
+
+option(BUILD_SHADE_ENGINE "Enable building shade engine" ON)
+option(BUILD_BREACH_GAME "Enable building breach game" ON)
+
+if (BUILD_SHADE_ENGINE)
+    add_subdirectory(shade)
+endif()
+if (BUILD_BREACH_GAME)
+    add_subdirectory(breach)
+endif()

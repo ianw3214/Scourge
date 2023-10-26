@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.22)
+project(Shade)
+
+set(Engine_VERSION_MAJOR 1)
+set(Engine_VERSION_MINOR 0)
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+add_library(Shade SHARED)
+target_link_libraries(Shade Opengl32.lib)
+
+set_property(TARGET Shade PROPERTY CXX_STANDARD 20)
+target_compile_definitions(Shade PRIVATE BUILD_DLL)
+
+# Windows specific definitions/settings
+if (WIN32)
+target_compile_definitions(Shade PRIVATE PLATFORM_windows)
+endif()
+
+add_subdirectory(src)

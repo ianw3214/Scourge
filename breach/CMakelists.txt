@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.22)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+project(Breach)
+add_executable(Breach)
+
+target_link_libraries(Breach Shade)
+set(SHADE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../shade)
+target_include_directories(Breach PRIVATE ${SHADE_PATH}/src)
+
+if (WIN32)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Breach)
+set_property(TARGET Breach PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+endif()
+
+add_subdirectory(src)
+target_include_directories(Breach PRIVATE src)
+
+if (WIN32)
+# copy the .dll file to the same folder as the executable
+add_custom_command(
+    TARGET Breach POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    $<TARGET_FILE_DIR:Shade>
+    $<TARGET_FILE_DIR:Breach>)
+endif()
