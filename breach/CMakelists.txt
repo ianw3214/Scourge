@@ -17,6 +17,8 @@ add_subdirectory(src)
 target_include_directories(Breach PRIVATE src)
 
 if (WIN32)
+# Set subsystem to windows for windowed application
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 # copy the .dll file to the same folder as the executable
 add_custom_command(
     TARGET Breach POST_BUILD

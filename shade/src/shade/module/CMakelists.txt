@@ -1,0 +1,2 @@
+target_sources(Shade PRIVATE module.h state.h)
+target_sources(Shade PRIVATE module.cpp state.cpp)
