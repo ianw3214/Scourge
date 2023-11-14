@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include <SDL2/SDL.h>
+#include <gl/glew.h>
 
 namespace Shade {
     // ======================================
@@ -18,6 +19,9 @@ Shade::Window::Window()
     mWindowImpl = std::make_unique<Window::WindowImpl>();
     mWindowImpl->mWindow = SDL_CreateWindow("Breach", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_OPENGL);
     mWindowImpl->mContext = SDL_GL_CreateContext(mWindowImpl->mWindow);
+
+    // Initialize GLEW
+	GLenum glewError = glewInit();
 }
 
 // ======================================

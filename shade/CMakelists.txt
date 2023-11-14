@@ -8,8 +8,10 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 add_library(Shade SHARED)
 find_package(SDL2 REQUIRED)
+find_package(GLEW 2.0 REQUIRED)
 target_link_libraries(Shade SDL2::SDL2)
 target_link_libraries(Shade Opengl32.lib)
+target_link_libraries(Shade GLEW::GLEW)
 
 set_property(TARGET Shade PROPERTY CXX_STANDARD 20)
 target_compile_definitions(Shade PRIVATE BUILD_DLL)
@@ -19,5 +21,6 @@ if (WIN32)
 target_compile_definitions(Shade PRIVATE PLATFORM_windows)
 endif()
 
-target_include_directories(Shade PRIVATE src)
+target_include_directories(Shade PRIVATE src vendor)
 add_subdirectory(src)
+add_subdirectory(vendor)

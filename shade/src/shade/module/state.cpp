@@ -1,18 +1,13 @@
 #include "state.h"
 
 #include "shade/module/module.h"
+#include "shade/graphics/command/command.h"
 
 // ======================================
-Shade::State::State()
-{
-
-}
+Shade::State::State() = default;
 
 // ======================================
-Shade::State::~State()
-{
-
-}
+Shade::State::~State() = default;
 
 // ======================================
 void Shade::State::UpdateModules(float DeltaSeconds)
@@ -23,16 +18,16 @@ void Shade::State::UpdateModules(float DeltaSeconds)
     }
 }
 
-void Shade::State::RenderModules()
+void Shade::State::RenderModules(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue)
 {
     for (const auto& Module : mModules)
     {
-        Module->Render();
+        Module->Render(CommandQueue);
     }
 }
 
 // ======================================
-void Shade::State::AddModule(Module&& NewModule)
+void Shade::State::AddModule(std::unique_ptr<Module> NewModule)
 {
-    mModules.emplace_back(std::make_unique<Module>(NewModule));
+    mModules.emplace_back(std::move(NewModule));
 }

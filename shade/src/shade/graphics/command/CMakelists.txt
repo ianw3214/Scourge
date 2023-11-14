@@ -1,0 +1,2 @@
+target_sources(Shade PRIVATE command.h drawRectangle.h drawLine.h drawTexture.h)
+target_sources(Shade PRIVATE command.cpp drawRectangle.cpp drawLine.cpp drawTexture.cpp)

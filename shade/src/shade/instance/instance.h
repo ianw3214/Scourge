@@ -8,7 +8,8 @@ namespace Shade {
 
     class Window;
     class InputHandler;
-    class Renderer;
+    class RendererBase;
+    class RenderCommand;
     class State;
 
     class GameInstance {
@@ -19,10 +20,11 @@ namespace Shade {
         void Run();
 
         void Notify(GameNotification Notification);
+        void NotifyRenderer(std::unique_ptr<RenderCommand> Command);
     private:
         std::unique_ptr<Window> mMainWindow = nullptr;
         std::unique_ptr<InputHandler> mInputHandler = nullptr;
-        std::unique_ptr<Renderer> mRenderer = nullptr;
+        std::unique_ptr<RendererBase> mRenderer = nullptr;
         std::unique_ptr<State> mCurrentState = nullptr;
 
         bool mRunning = false;

@@ -1,5 +1,9 @@
+add_subdirectory(common)
+
 add_subdirectory(instance)
 add_subdirectory(window)
 add_subdirectory(input)
 add_subdirectory(module)
 add_subdirectory(graphics)
+
+add_subdirectory(game)

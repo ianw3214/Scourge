@@ -1,14 +1,19 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+
 namespace Shade {
+
+    class RenderCommand;
 
     class Module {
     public:
         Module();
-        ~Module();
+        virtual ~Module();
 
-        void Update(float DeltaSeconds);
-        void Render();
+        virtual void Update(float DeltaSeconds);
+        virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue);
     };
 
 }

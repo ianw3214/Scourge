@@ -2,11 +2,12 @@
 
 #include "shade/instance/instance.h"
 #include "shade/module/state.h"
+#include "shade/game/world.h"
 
 class GameState : public Shade::State {
 public:
     GameState() {
-
+        AddModule(std::make_unique<Shade::GameWorldModule>());
     }
 };
 

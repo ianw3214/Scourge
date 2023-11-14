@@ -6,6 +6,7 @@
 namespace Shade {
 
     class Module;
+    class RenderCommand;
 
     class State {
     public:
@@ -13,9 +14,9 @@ namespace Shade {
         ~State();
 
         void UpdateModules(float DeltaSeconds);
-        void RenderModules();
+        void RenderModules(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue);
     protected:
-        void AddModule(Module&& NewModule);
+        void AddModule(std::unique_ptr<Module> NewModule);
     private:
         std::vector<std::unique_ptr<Module>> mModules;
     };
