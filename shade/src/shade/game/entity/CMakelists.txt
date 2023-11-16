@@ -1,0 +1,3 @@
+target_sources(Shade PRIVATE entity.h entity.cpp)
+
+add_subdirectory(component)

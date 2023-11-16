@@ -1,0 +1,6 @@
+target_sources(Shade PRIVATE 
+    component.h
+    spriteComponent.h)
+target_sources(Shade PRIVATE 
+    component.cpp
+    spriteComponent.cpp)
