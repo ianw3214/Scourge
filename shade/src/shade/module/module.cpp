@@ -19,3 +19,10 @@ void Shade::Module::Render(std::vector<std::unique_ptr<RenderCommand>>& CommandQ
 {
 
 }
+
+// ======================================
+bool Shade::Module::HandleEvent(const InputEvent& Event)
+{
+    // Could consider turning this into an enum so it's easier to reason with
+    return true;
+}

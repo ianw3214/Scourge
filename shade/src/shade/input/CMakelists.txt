@@ -1,1 +1,1 @@
-target_sources(Shade PRIVATE keys.h input.h input.cpp)
+target_sources(Shade PRIVATE keys.h event.h event.cpp input.h input.cpp)

@@ -18,11 +18,25 @@ void Shade::State::UpdateModules(float DeltaSeconds)
     }
 }
 
+// ======================================
 void Shade::State::RenderModules(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue)
 {
     for (const auto& Module : mModules)
     {
         Module->Render(CommandQueue);
+    }
+}
+
+// ======================================
+void Shade::State::HandleEvent(const InputEvent& Event)
+{
+    for (const auto& Module : mModules)
+    {
+        const bool ShouldContinue = Module->HandleEvent(Event);
+        if (!ShouldContinue)
+        {
+            break;
+        }
     }
 }
 

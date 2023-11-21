@@ -1,6 +1,9 @@
 #pragma once
 
-#include "shade/input/keys.h"
+#include <optional>
+#include <queue>
+
+#include "shade/input/event.h"
 #include "shade/instance/notifier.h"
 
 namespace Shade {
@@ -10,6 +13,10 @@ namespace Shade {
         InputHandler(GameInstance& Instance);
 
         void Update();
+        std::optional<InputEvent> GetNextEvent();
+
+    private:
+        std::queue<InputEvent> mEvents;
     };
 
 }

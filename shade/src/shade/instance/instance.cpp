@@ -32,6 +32,10 @@ void Shade::GameInstance::Run()
     while (mRunning)
     {
         mInputHandler->Update();
+        while (std::optional<InputEvent> NextEvent = mInputHandler->GetNextEvent())
+        {
+            mCurrentState->HandleEvent(*NextEvent);
+        }
         mCurrentState->UpdateModules(deltaSeconds);
 
         mRenderer->Clear();

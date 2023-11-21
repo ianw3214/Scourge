@@ -2,3 +2,4 @@ target_sources(Shade PRIVATE world.h)
 target_sources(Shade PRIVATE world.cpp)
 
 add_subdirectory(entity)
+add_subdirectory(event)

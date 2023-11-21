@@ -22,12 +22,24 @@ void Shade::InputHandler::Update()
         if (event.type == SDL_KEYDOWN)
         {
             const KeyCode PressedKey = static_cast<KeyCode>(event.key.keysym.scancode);
-            // TODO: Handle key press
+            mEvents.emplace(InputEvent::CreateKeyPress(PressedKey));
         }
         if (event.type == SDL_KEYUP)
         {
             const KeyCode ReleasedKey = static_cast<KeyCode>(event.key.keysym.scancode);
-            // TODO: Handle key release
+            mEvents.emplace(InputEvent::CreateKeyRelease(ReleasedKey));
         }
     }
+}
+
+// ======================================
+std::optional<Shade::InputEvent> Shade::InputHandler::GetNextEvent()
+{
+    if (!mEvents.empty())
+    {
+        InputEvent ResultEvent = mEvents.front();
+        mEvents.pop();
+        return ResultEvent;
+    }
+    return std::nullopt;
 }

@@ -5,6 +5,7 @@
 
 namespace Shade {
 
+    struct InputEvent;
     class Module;
     class RenderCommand;
 
@@ -15,6 +16,7 @@ namespace Shade {
 
         void UpdateModules(float DeltaSeconds);
         void RenderModules(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue);
+        void HandleEvent(const InputEvent& Event);
     protected:
         void AddModule(std::unique_ptr<Module> NewModule);
     private:

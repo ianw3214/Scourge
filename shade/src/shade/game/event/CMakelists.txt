@@ -1,0 +1,2 @@
+target_sources(Shade PRIVATE event.h mapping.h source.h)
+target_sources(Shade PRIVATE event.cpp mapping.cpp source.cpp)

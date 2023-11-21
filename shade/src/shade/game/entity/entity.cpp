@@ -2,9 +2,13 @@
 
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/spriteComponent.h"
+#include "shade/game/event/source.h"
 
 // ======================================
-Shade::Entity::Entity() = default;
+Shade::Entity::Entity(GameplayEventSource& GameWorldRef) : mGameEventSource(GameWorldRef) 
+{
+
+}
 
 // ======================================
 Shade::Entity::~Entity() = default;
@@ -67,4 +71,10 @@ void Shade::Entity::AddComponent(std::unique_ptr<Component> NewComponent)
 Shade::SpriteComponent* Shade::Entity::GetCachedSpriteComponent() const
 {
     return mCachedSprite.has_value() ? mCachedSprite->get() : nullptr;
+}
+
+// ======================================
+const Shade::BooleanGameplayEvent& Shade::Entity::GetBooleanEvent(const std::string& GameEvent) const
+{
+    return mGameEventSource.GetBooleanEvent(GameEvent);
 }

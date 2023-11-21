@@ -3,14 +3,18 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <string>
 
 namespace Shade {
 
+    struct BooleanGameplayEvent;
     class Component;
+    class GameplayEventSource;
     class SpriteComponent;
+
     class Entity {
     public:
-        Entity();
+        Entity(GameplayEventSource&);
         ~Entity();
 
         void Update(float DeltaSeconds);
@@ -22,6 +26,8 @@ namespace Shade {
 
         void AddComponent(std::unique_ptr<Component> NewComponent);
         SpriteComponent* GetCachedSpriteComponent() const;
+
+        const BooleanGameplayEvent& GetBooleanEvent(const std::string& GameEvent) const;
     private:
         // Default entity attributes
         float x = 0.f;
@@ -31,6 +37,9 @@ namespace Shade {
         std::vector<std::unique_ptr<Component>> mComponents;
         // Cached components are updated last
         std::optional<std::unique_ptr<SpriteComponent>> mCachedSprite;
+
+        // Store a reference to the game world
+        GameplayEventSource& mGameEventSource;
     };
 
 }
