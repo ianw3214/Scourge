@@ -28,5 +28,6 @@ namespace Shade {
         std::unique_ptr<State> mCurrentState = nullptr;
 
         bool mRunning = false;
+        float mDeltaSeconds = 1000.0 / 24.0;
     };
 }

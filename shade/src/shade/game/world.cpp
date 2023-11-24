@@ -12,7 +12,7 @@ public:
     void Update(float DeltaSeconds) override {
         if (mEntityRef.GetBooleanEvent("test").mHeld)
         {
-            mEntityRef.SetPositionX(mEntityRef.GetPositionX() + 0.1f);
+            mEntityRef.SetPositionX(mEntityRef.GetPositionX() + 200.f * DeltaSeconds);
         }
     }
 };

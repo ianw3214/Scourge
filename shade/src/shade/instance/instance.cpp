@@ -1,5 +1,6 @@
 #include "instance.h"
 
+#include <chrono>
 #include <vector>
 
 #include "shade/window/window.h"
@@ -25,29 +26,27 @@ Shade::GameInstance::~GameInstance() = default;
 // ======================================
 void Shade::GameInstance::Run()
 {
-    // TODO: Replace with actual delta time
-    constexpr float deltaSeconds = 1.0f / 24.0f;
-
     mRunning = true;
     while (mRunning)
     {
+        auto updateStart = std::chrono::system_clock::now();
+
         mInputHandler->Update();
         while (std::optional<InputEvent> NextEvent = mInputHandler->GetNextEvent())
         {
             mCurrentState->HandleEvent(*NextEvent);
         }
-        mCurrentState->UpdateModules(deltaSeconds);
+        mCurrentState->UpdateModules(mDeltaSeconds);
 
         mRenderer->Clear();
-
         std::vector<std::unique_ptr<RenderCommand>> RenderCommands;
         mCurrentState->RenderModules(RenderCommands);
-
         // TODO: Once this is multithreaded, should also check previous render queue is done
         mRenderer->SwapCommandQueue(RenderCommands);
         mRenderer->ProcessCommandQueue();
 
         mMainWindow->Update();
+        mDeltaSeconds = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - updateStart).count()) / 1000000.f;
     }
 }
 
