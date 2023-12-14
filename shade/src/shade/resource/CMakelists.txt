@@ -1,0 +1,9 @@
+target_sources(Shade PRIVATE 
+    resource.h
+    manager.h
+    handle.h)
+
+target_sources(Shade PRIVATE 
+    resource.cpp
+    manager.cpp
+    handle.cpp)

@@ -18,21 +18,21 @@ Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, const std::string& TexturePath)
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, ResourceHandle TextureResource)
     : mPosition(Position)
     , mWidth(Width)
     , mHeight(Height)
-    , mTexturePath(TexturePath)
+    , mResourceHandle(TextureResource)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, const std::string& TexturePath, bool Normalized)
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, ResourceHandle TextureResource, bool Normalized)
     : mPosition(Position)
     , mWidth(Width)
     , mHeight(Height)
-    , mTexturePath(TexturePath)
+    , mResourceHandle(TextureResource)
     , mNormalized(Normalized)
 {
 
@@ -48,21 +48,21 @@ Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, const std::string& TexturePath)
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, ResourceHandle TextureResource)
     : mPosition(xPosition, yPosition)
     , mWidth(Width)
     , mHeight(Height)
-    , mTexturePath(TexturePath)
+    , mResourceHandle(TextureResource)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, const std::string& TexturePath, bool Normalized)
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, ResourceHandle TextureResource, bool Normalized)
     : mPosition(xPosition, yPosition)
     , mWidth(Width)
     , mHeight(Height)
-    , mTexturePath(TexturePath)
+    , mResourceHandle(TextureResource)
     , mNormalized(Normalized)
 {
 
@@ -73,9 +73,9 @@ void Shade::DrawTextureCommand::Execute(RendererBase* Renderer)
 {
     if (mNormalized)
     {
-        Renderer->DrawTextureNormalized(mPosition, mWidth, mHeight, mTexturePath);
+        Renderer->DrawTextureNormalized(mPosition, mWidth, mHeight, mResourceHandle);
     }
     else {
-        Renderer->DrawTexture(mPosition, mWidth, mHeight, mTexturePath);
+        Renderer->DrawTexture(mPosition, mWidth, mHeight, mResourceHandle);
     }
 }

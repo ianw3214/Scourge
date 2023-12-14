@@ -1,2 +1,4 @@
 target_sources(Shade PRIVATE instance.h notifier.h notification.h)
 target_sources(Shade PRIVATE instance.cpp notifier.cpp)
+
+add_subdirectory(service)

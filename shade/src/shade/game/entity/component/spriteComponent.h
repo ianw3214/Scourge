@@ -4,6 +4,7 @@
 #include <string>
 
 #include "shade/game/entity/component/component.h"
+#include "shade/resource/handle.h"
 
 namespace Shade {
 
@@ -20,8 +21,7 @@ namespace Shade {
     private:
         float mRenderWidth = 0.f;
         float mRenderHeight = 0.f;
-        // TODO: This should be replaced with resource handle once implemented
-        std::string mTexturePath;
+        ResourceHandle mTextureHandle = ResourceHandle::Invalid;
     };
 
 }

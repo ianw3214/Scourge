@@ -3,6 +3,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project(Breach)
 add_executable(Breach)
+set_property(TARGET Breach PROPERTY CXX_STANDARD 20)
 
 target_link_libraries(Breach Shade)
 set(SHADE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../shade)

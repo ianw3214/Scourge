@@ -5,23 +5,37 @@
 
 #include "shade/window/window.h"
 #include "shade/input/input.h"
+#include "shade/instance/service/provider.h"
+#include "shade/resource/manager.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/renderer.h"
 #include "shade/module/state.h"
 
 // ======================================
-Shade::GameInstance::GameInstance(std::unique_ptr<State> InitialState) 
+Shade::GameInstance::GameInstance() 
 {
     mMainWindow = std::make_unique<Shade::Window>();
     mInputHandler = std::make_unique<Shade::InputHandler>(*this);
     mRenderer = std::make_unique<Shade::RendererBase>();
-    mCurrentState = std::move(InitialState);
+
+    ServiceProvider::RegisterProvider(this);
+    RegisterService(new ResourceManager());
 
     mRenderer->InitializeDefaultShaders();
 }
 
 // ======================================
 Shade::GameInstance::~GameInstance() = default;
+
+// ======================================
+void Shade::GameInstance::SetState(std::unique_ptr<State> NewState)
+{
+    if (mCurrentState != nullptr)
+    {
+        // TODO: Might want to handle this somehow
+    }
+    mCurrentState = std::move(NewState);
+}
 
 // ======================================
 void Shade::GameInstance::Run()

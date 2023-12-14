@@ -1,4 +1,4 @@
-target_sources(Shade PRIVATE renderer.h)
-target_sources(Shade PRIVATE renderer.cpp)
+target_sources(Shade PRIVATE renderer.h texture.h)
+target_sources(Shade PRIVATE renderer.cpp texture.cpp)
 
 add_subdirectory(command)

@@ -3,11 +3,12 @@
 // Temporary include to support texture loading
 #include <unordered_map>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include <gl/glew.h>
 
 #include "shade/graphics/command/command.h"
+#include "shade/graphics/texture.h"
+#include "shade/instance/service/provider.h"
+#include "shade/resource/manager.h"
 
 // ======================================
 // This file contains an OpenGL implementation of the renderer
@@ -71,34 +72,9 @@ namespace {
 }
 
 // ======================================
-// Temporary code for loading textures from file
-// TODO: This should be replaced by a resource system once that is implemented
-namespace {
-    std::unordered_map<std::string, GLuint> TextureMap;
+Shade::RendererBase::RendererBase()
+{
 
-    // ======================================
-    GLuint GetTextureID(const std::string& TexturePath)
-    {
-        if (TextureMap.find(TexturePath) != TextureMap.end())
-        {
-            return TextureMap[TexturePath];
-        }
-
-        GLuint TextureID;
-        // Temporarily generating texture data here
-        int width, height, numChannels;
-        unsigned char* data = stbi_load(TexturePath.c_str(), &width, &height, &numChannels, 0);
-        glGenTextures(1, &TextureID);
-        glBindTexture(GL_TEXTURE_2D, TextureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        stbi_image_free(data);
-
-        TextureMap[TexturePath] = TextureID;
-        return TextureID;
-    }
 }
 
 // ======================================
@@ -358,7 +334,7 @@ void Shade::RendererBase::DrawRectangleNormalized(Vec2 Position, float w, float 
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, const std::string& TexturePath) const
+void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, ResourceHandle TextureResource) const
 {
     float vertices[] = {
         x,  y, 0.0f,        0.0, 1.0, // bottom left
@@ -367,13 +343,14 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, const 
         x + w, y + h, 0.0f, 1.0, 0.0  // top right 
     };
     
-    GLuint TextureID = GetTextureID(TexturePath);
+    ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
+    Texture* DrawTexture = Manager->GetResource<Texture>(TextureResource);
 
     glUseProgram(textureShaderProgram);
     glBindVertexArray(VAO_texture);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindTexture(GL_TEXTURE_2D, TextureID);
+    DrawTexture->BindTextureForRender();
     // TODO: Find a better place to set these uniforms and make them not hard coded
     GLint screenWidthUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenWidth");
     glUniform1f(screenWidthUniformLocation, 1280.f);
@@ -383,14 +360,14 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, const 
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, const std::string& TexturePath) const
+void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, ResourceHandle TextureResource) const
 {
-    DrawTexture(pos.x, pos.y, w, h, TexturePath);
+    DrawTexture(pos.x, pos.y, w, h, TextureResource);
 }
 
 
 // ======================================
-void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, const std::string& TexturePath) const
+void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle TextureResource) const
 {
     float vertices[] = {
         x,  y, 0.0f,        0.0, 1.0, // bottom left
@@ -399,17 +376,18 @@ void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float
         x + w, y + h, 0.0f, 1.0, 0.0  // top right 
     };
     
-    GLuint TextureID = GetTextureID(TexturePath);
+    ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
+    Texture* DrawTexture = Manager->GetResource<Texture>(TextureResource);
 
     glUseProgram(normalizedTextureShaderProgram);
     glBindVertexArray(VAO_texture);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindTexture(GL_TEXTURE_2D, TextureID);
+    DrawTexture->BindTextureForRender();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, const std::string& TexturePath) const
+void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle TextureResource) const
 {
-    DrawTextureNormalized(pos.x, pos.y, w, h, TexturePath);
+    DrawTextureNormalized(pos.x, pos.y, w, h, TextureResource);
 }

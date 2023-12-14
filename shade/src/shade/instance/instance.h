@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "shade/instance/notification.h"
+#include "shade/instance/service/provider.h"
 
 namespace Shade {
 
@@ -10,13 +11,15 @@ namespace Shade {
     class InputHandler;
     class RendererBase;
     class RenderCommand;
+    class ResourceManager;
     class State;
 
-    class GameInstance {
+    class GameInstance : public ServiceProvider {
     public:
-        GameInstance(std::unique_ptr<State> InitialState);
+        GameInstance();
         ~GameInstance();
 
+        void SetState(std::unique_ptr<State> NewState);
         void Run();
 
         void Notify(GameNotification Notification);
@@ -26,6 +29,7 @@ namespace Shade {
         std::unique_ptr<InputHandler> mInputHandler = nullptr;
         std::unique_ptr<RendererBase> mRenderer = nullptr;
         std::unique_ptr<State> mCurrentState = nullptr;
+        // std::unique_ptr<ResourceManager> mResourceManager = nullptr;
 
         bool mRunning = false;
         float mDeltaSeconds = 1000.0 / 24.0;

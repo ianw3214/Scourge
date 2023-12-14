@@ -6,6 +6,7 @@
 
 #include "shade/common/vec.h"
 #include "shade/common/colour.h"
+#include "shade/resource/handle.h"
 
 namespace Shade {
 
@@ -13,6 +14,7 @@ namespace Shade {
 
     class RendererBase {
     public:
+        RendererBase();
         ~RendererBase();
 
         void InitializeDefaultShaders();
@@ -35,10 +37,10 @@ namespace Shade {
         void DrawRectangleNormalized(float x, float y, float w, float h, Colour RectColour) const;
         void DrawRectangleNormalized(Vec2 pos, float w, float h, Colour RectColour) const;
         // These string will eventually become texture resource handles in the engine
-        void DrawTexture(float x, float y, float w, float h, const std::string& TexturePath) const;
-        void DrawTexture(Vec2 pos, float w, float h, const std::string& TexturePath) const;
-        void DrawTextureNormalized(float x, float y, float w, float h, const std::string& TexturePath) const;
-        void DrawTextureNormalized(Vec2 pos, float w, float h, const std::string& TexturePath) const;
+        void DrawTexture(float x, float y, float w, float h, ResourceHandle TextureResource) const;
+        void DrawTexture(Vec2 pos, float w, float h, ResourceHandle TextureResource) const;
+        void DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle TextureResource) const;
+        void DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle TextureResource) const;
     private:
         // Food for thought - does this need to be a unique_ptr?
         //  Can this be turned into a struct w/o inheritance

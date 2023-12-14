@@ -1,0 +1,7 @@
+target_sources(Shade PRIVATE 
+    service.h 
+    provider.h)
+
+target_sources(Shade PRIVATE 
+    service.cpp 
+    provider.cpp)

@@ -2,6 +2,9 @@
 
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/command/drawTexture.h"
+#include "shade/instance/service/provider.h"
+#include "shade/resource/manager.h"
+#include "shade/graphics/texture.h"
 
 // ======================================
 Shade::SpriteComponent::SpriteComponent(Entity& Owner)
@@ -15,9 +18,10 @@ Shade::SpriteComponent::SpriteComponent(Entity& Owner, float RenderWidth, float 
     : Component(Owner)
     , mRenderWidth(RenderWidth)
     , mRenderHeight(RenderHeight)
-    , mTexturePath(TexturePath)
+    , mTextureHandle(ResourceHandle::Invalid)
 {
-
+    ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
+    mTextureHandle = Manager->LoadResource<Texture>(TexturePath);
 }
 
 // ======================================
@@ -37,5 +41,5 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::SpriteComponent::CreateRenderC
 {
     const float DrawX = mEntityRef.GetPositionX();
     const float DrawY = mEntityRef.GetPositionY();
-    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTexturePath);
+    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle);
 }

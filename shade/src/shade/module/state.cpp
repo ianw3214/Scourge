@@ -4,7 +4,10 @@
 #include "shade/graphics/command/command.h"
 
 // ======================================
-Shade::State::State() = default;
+Shade::State::State()
+{
+
+}
 
 // ======================================
 Shade::State::~State() = default;

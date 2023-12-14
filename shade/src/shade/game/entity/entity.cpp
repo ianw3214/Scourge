@@ -5,7 +5,8 @@
 #include "shade/game/event/source.h"
 
 // ======================================
-Shade::Entity::Entity(GameplayEventSource& GameWorldRef) : mGameEventSource(GameWorldRef) 
+Shade::Entity::Entity(GameplayEventSource& GameWorldRef) 
+    : mGameEventSource(GameWorldRef) 
 {
 
 }
