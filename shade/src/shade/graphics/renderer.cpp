@@ -334,13 +334,13 @@ void Shade::RendererBase::DrawRectangleNormalized(Vec2 Position, float w, float 
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, ResourceHandle TextureResource) const
+void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
 {
     float vertices[] = {
-        x,  y, 0.0f,        0.0, 1.0, // bottom left
-        x + w, y, 0.0f,     1.0, 1.0, // bottom right
-        x, y + h, 0.0f,     0.0, 0.0, // top left
-        x + w, y + h, 0.0f, 1.0, 0.0  // top right 
+        x,  y, 0.0f,        textureSource.x, textureSource.y + textureSource.h, // bottom left
+        x + w, y, 0.0f,     textureSource.x + textureSource.w, textureSource.y + textureSource.h, // bottom right
+        x, y + h, 0.0f,     textureSource.x, textureSource.y, // top left
+        x + w, y + h, 0.0f, textureSource.x + textureSource.w, textureSource.y  // top right 
     };
     
     ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
@@ -360,20 +360,20 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, Resour
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, ResourceHandle TextureResource) const
+void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
 {
-    DrawTexture(pos.x, pos.y, w, h, TextureResource);
+    DrawTexture(pos.x, pos.y, w, h, TextureResource, textureSource);
 }
 
 
 // ======================================
-void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle TextureResource) const
+void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
 {
     float vertices[] = {
-        x,  y, 0.0f,        0.0, 1.0, // bottom left
-        x + w, y, 0.0f,     1.0, 1.0, // bottom right
-        x, y + h, 0.0f,     0.0, 0.0, // top left
-        x + w, y + h, 0.0f, 1.0, 0.0  // top right 
+        x,  y, 0.0f,        textureSource.x, textureSource.y + textureSource.h, // bottom left
+        x + w, y, 0.0f,     textureSource.x + textureSource.w, textureSource.y + textureSource.h, // bottom right
+        x, y + h, 0.0f,     textureSource.x, textureSource.y, // top left
+        x + w, y + h, 0.0f, textureSource.x + textureSource.w, textureSource.y  // top right 
     };
     
     ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
@@ -387,7 +387,7 @@ void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle TextureResource) const
+void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
 {
-    DrawTextureNormalized(pos.x, pos.y, w, h, TextureResource);
+    DrawTextureNormalized(pos.x, pos.y, w, h, TextureResource, textureSource);
 }

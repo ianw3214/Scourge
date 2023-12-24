@@ -8,6 +8,12 @@
 
 namespace Shade {
 
+    class AnimDefinition {
+    public:
+        
+    private:
+    };
+
     class DrawTextureCommand;
     class SpriteComponent : public Component {
     public:
