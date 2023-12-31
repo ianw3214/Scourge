@@ -8,12 +8,6 @@
 
 namespace Shade {
 
-    class AnimDefinition {
-    public:
-        
-    private:
-    };
-
     class DrawTextureCommand;
     class SpriteComponent : public Component {
     public:
@@ -23,8 +17,8 @@ namespace Shade {
         float GetRenderWidth() const;
         float GetRenderHeight() const;
 
-        std::unique_ptr<DrawTextureCommand> CreateRenderCommand();
-    private:
+        virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand();
+    protected:
         float mRenderWidth = 0.f;
         float mRenderHeight = 0.f;
         ResourceHandle mTextureHandle = ResourceHandle::Invalid;

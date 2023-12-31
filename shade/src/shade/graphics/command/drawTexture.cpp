@@ -1,7 +1,5 @@
 #include "drawTexture.h"
 
-#include "shade/graphics/renderer.h"
-
 // ======================================
 Shade::DrawTextureCommand::DrawTextureCommand()
 {
@@ -39,6 +37,18 @@ Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float 
 }
 
 // ======================================
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, ResourceHandle TextureResource, bool Normalized, TextureSourceInfo TextureSource)
+    : mPosition(Position)
+    , mWidth(Width)
+    , mHeight(Height)
+    , mResourceHandle(TextureResource)
+    , mNormalized(Normalized)
+    , mTextureSource(TextureSource)
+{
+
+}
+
+// ======================================
 Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height)
     : mPosition(xPosition, yPosition)
     , mWidth(Width)
@@ -69,13 +79,25 @@ Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, 
 }
 
 // ======================================
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, ResourceHandle TextureResource, bool Normalized, TextureSourceInfo TextureSource)
+    : mPosition(xPosition, yPosition)
+    , mWidth(Width)
+    , mHeight(Height)
+    , mResourceHandle(TextureResource)
+    , mNormalized(Normalized)
+    , mTextureSource(TextureSource)
+{
+
+}
+
+// ======================================
 void Shade::DrawTextureCommand::Execute(RendererBase* Renderer) 
 {
     if (mNormalized)
     {
-        Renderer->DrawTextureNormalized(mPosition, mWidth, mHeight, mResourceHandle);
+        Renderer->DrawTextureNormalized(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource);
     }
     else {
-        Renderer->DrawTexture(mPosition, mWidth, mHeight, mResourceHandle);
+        Renderer->DrawTexture(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource);
     }
 }

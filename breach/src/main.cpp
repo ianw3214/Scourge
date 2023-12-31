@@ -4,6 +4,7 @@
 #include "shade/module/state.h"
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/spriteComponent.h"
+#include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
 #include "shade/game/world.h"
 
@@ -47,8 +48,11 @@ public:
         SetEventsFromMapping(mInputMapping);
 
         // Initialize a test entity
+        Shade::TilesheetInfo tileSheetInfo { 32, 32, 4, 4 };
+        std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
+        animStateInfo["test"] = { 0, 1 };
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
-        TestEntity->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestEntity.get(), 200.f, 200.f, "assets/textures/tiles.png"));
+        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 200.f, 200.f, "assets/textures/tiles.png", tileSheetInfo, animStateInfo, "test"));
         TestEntity->SetPositionX(200.f);
         TestEntity->SetPositionY(200.f);
         TestEntity->AddComponent(std::make_unique<TestComponent>(*TestEntity.get()));

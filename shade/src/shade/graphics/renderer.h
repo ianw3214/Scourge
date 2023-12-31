@@ -12,6 +12,7 @@ namespace Shade {
 
     class RenderCommand;
 
+    // TODO: This can probably live somewhere else so the entire renderer doesn't have to be alwyays included
     // Coordinates in the range [0.0, 1.0] that represents the part of a texture to draw
     struct TextureSourceInfo {
         float x = 0.0;
@@ -45,10 +46,10 @@ namespace Shade {
         void DrawRectangleNormalized(float x, float y, float w, float h, Colour RectColour) const;
         void DrawRectangleNormalized(Vec2 pos, float w, float h, Colour RectColour) const;
         // These string will eventually become texture resource handles in the engine
-        void DrawTexture(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource = TextureSourceInfo{}) const;
-        void DrawTexture(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource = TextureSourceInfo{}) const;
-        void DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource = TextureSourceInfo{}) const;
-        void DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource = TextureSourceInfo{}) const;
+        void DrawTexture(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const;
+        void DrawTexture(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const;
+        void DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const;
+        void DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const;
     private:
         // Food for thought - does this need to be a unique_ptr?
         //  Can this be turned into a struct w/o inheritance

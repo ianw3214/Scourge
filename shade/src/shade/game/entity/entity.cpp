@@ -57,6 +57,7 @@ float Shade::Entity::GetPositionY() const
 // This takes ownership of NewComponent
 void Shade::Entity::AddComponent(std::unique_ptr<Component> NewComponent)
 {
+    // TODO: Does it make sense to check if a sprite component already exists here?
     if (SpriteComponent* Sprite = dynamic_cast<SpriteComponent*>(NewComponent.get()))
     {
         NewComponent.release();
