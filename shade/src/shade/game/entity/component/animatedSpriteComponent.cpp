@@ -24,7 +24,9 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& Owner, float Ren
     , mStates(States)
     , mCurrentState(InitialState)
 {
-
+    // TODO: Crash if the current state isn't an actual valid state
+    // Update current frame based on the initial state
+    mCurrentFrame = mStates[mCurrentState].mStartFrame;
 }
 
 // ======================================
@@ -58,4 +60,12 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
     const float DrawX = mEntityRef.GetPositionX();
     const float DrawY = mEntityRef.GetPositionY();
     return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle, false, SourceInfo);
+}
+
+// ======================================
+void Shade::AnimatedSpriteComponent::ChangeAnimationState(const std::string& NewState)
+{
+    mCurrentState = NewState;
+    mCurrentFrame = mStates[mCurrentState].mStartFrame;
+    mElapsedTime = 0.f;
 }

@@ -27,8 +27,9 @@ namespace Shade {
         AnimatedSpriteComponent(Entity& Owner, float RenderWidth, float RenderHeight, std::string TexturePath, TilesheetInfo TileInfo, std::unordered_map<std::string, AnimationStateInfo> States, const std::string& InitialState );
 
         virtual void Update(float DeltaSeconds) override;
-
         virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand() override;
+
+        void ChangeAnimationState(const std::string& NewState);
     public:
         // Animation definition
         TilesheetInfo mTileSheetInfo;

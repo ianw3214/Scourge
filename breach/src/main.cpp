@@ -8,26 +8,57 @@
 #include "shade/game/entity/entity.h"
 #include "shade/game/world.h"
 
-class TestComponent : public Shade::Component
+enum class FacingDirection {
+    LEFT,
+    RIGHT
+};
+
+// TODO: Extract base movement component, allow player controlled vs AI controlled
+class MovementComponent : public Shade::Component
 {
 public:
-    TestComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
+    FacingDirection mFacing = FacingDirection::RIGHT;
+    bool mWasMoving = false;
+public:
+    MovementComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
     void Update(float DeltaSeconds) override {
+        FacingDirection NewFacingDir = mFacing;
+        bool bMoving = false;
         if (mEntityRef.GetBooleanEvent("move_up").mHeld)
         {
             mEntityRef.SetPositionY(mEntityRef.GetPositionY() + 200.f * DeltaSeconds);
+            bMoving = true;
         }
         if (mEntityRef.GetBooleanEvent("move_down").mHeld)
         {
             mEntityRef.SetPositionY(mEntityRef.GetPositionY() - 200.f * DeltaSeconds);
+            bMoving = true;
         }
         if (mEntityRef.GetBooleanEvent("move_right").mHeld)
         {
             mEntityRef.SetPositionX(mEntityRef.GetPositionX() + 200.f * DeltaSeconds);
+            bMoving = true;
+            NewFacingDir = FacingDirection::RIGHT;
         }
         if (mEntityRef.GetBooleanEvent("move_left").mHeld)
         {
             mEntityRef.SetPositionX(mEntityRef.GetPositionX() - 200.f * DeltaSeconds);
+            bMoving = true;
+            NewFacingDir = FacingDirection::LEFT;
+        }
+        // Update animation if any of the movement related states were changed
+        if (NewFacingDir != mFacing || bMoving != mWasMoving)
+        {
+            mWasMoving = bMoving;
+            mFacing = NewFacingDir;
+            if (bMoving)
+            {
+                mEntityRef.GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "run_right" : "run_left");
+            }
+            else
+            {
+                mEntityRef.GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "idle_right" : "idle_left");
+            }
         }
     }
 };
@@ -35,9 +66,6 @@ public:
 class CustomGameWorld : public Shade::GameWorldModule
 {
 public:
-    // TODO: This might have to be moved to its own initialization
-    //  - since the modules can be created before the game instance is created
-    //  - otherwise, we might have to defer the state/module creation to after instance init
     CustomGameWorld() : Shade::GameWorldModule()
     {
         // Initialize input mappings
@@ -48,14 +76,17 @@ public:
         SetEventsFromMapping(mInputMapping);
 
         // Initialize a test entity
-        Shade::TilesheetInfo tileSheetInfo { 32, 32, 4, 4 };
+        Shade::TilesheetInfo tileSheetInfo { 128, 128, 5, 4 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
-        animStateInfo["test"] = { 0, 1 };
+        animStateInfo["idle_right"] = { 0, 3 };
+        animStateInfo["idle_left"] = { 4, 7 };
+        animStateInfo["run_right"] = { 8, 13 };
+        animStateInfo["run_left"] = { 14, 19 };
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
-        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 200.f, 200.f, "assets/textures/tiles.png", tileSheetInfo, animStateInfo, "test"));
+        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right"));
         TestEntity->SetPositionX(200.f);
         TestEntity->SetPositionY(200.f);
-        TestEntity->AddComponent(std::make_unique<TestComponent>(*TestEntity.get()));
+        TestEntity->AddComponent(std::make_unique<MovementComponent>(*TestEntity.get()));
         AddEntity(std::move(TestEntity));
     }
 };

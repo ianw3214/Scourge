@@ -40,6 +40,9 @@ void Shade::GameInstance::SetState(std::unique_ptr<State> NewState)
 // ======================================
 void Shade::GameInstance::Run()
 {
+    // TODO: Temp code - remove soon
+    mRenderer->SetClearColor(1.0, 1.0, 1.0, 1.0);
+
     mRunning = true;
     while (mRunning)
     {

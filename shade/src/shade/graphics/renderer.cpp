@@ -83,6 +83,11 @@ Shade::RendererBase::~RendererBase() = default;
 // ======================================
 void Shade::RendererBase::InitializeDefaultShaders()
 {
+    // TODO: Find a better place for this perhaps?
+    // Also setup openGL blending
+    glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     GLuint vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &pixelVertexShaderSource, NULL);

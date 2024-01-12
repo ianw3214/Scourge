@@ -8,6 +8,7 @@
 namespace Shade {
 
     struct BooleanGameplayEvent;
+    class AnimatedSpriteComponent;
     class Component;
     class GameplayEventSource;
     class SpriteComponent;
@@ -26,6 +27,7 @@ namespace Shade {
 
         void AddComponent(std::unique_ptr<Component> NewComponent);
         SpriteComponent* GetCachedSpriteComponent() const;
+        AnimatedSpriteComponent* GetCachedAnimatedSprite() const;
 
         const BooleanGameplayEvent& GetBooleanEvent(const std::string& GameEvent) const;
     private:

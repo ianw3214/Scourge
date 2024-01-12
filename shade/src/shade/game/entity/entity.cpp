@@ -1,6 +1,7 @@
 #include "entity.h"
 
 #include "shade/game/entity/component/component.h"
+#include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/event/source.h"
 
@@ -73,6 +74,12 @@ void Shade::Entity::AddComponent(std::unique_ptr<Component> NewComponent)
 Shade::SpriteComponent* Shade::Entity::GetCachedSpriteComponent() const
 {
     return mCachedSprite.has_value() ? mCachedSprite->get() : nullptr;
+}
+
+// ======================================
+Shade::AnimatedSpriteComponent* Shade::Entity::GetCachedAnimatedSprite() const
+{
+    return mCachedSprite.has_value() ? dynamic_cast<AnimatedSpriteComponent*>(mCachedSprite->get()) : nullptr;
 }
 
 // ======================================
