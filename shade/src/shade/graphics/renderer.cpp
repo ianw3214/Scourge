@@ -74,20 +74,18 @@ namespace {
 // ======================================
 Shade::RendererBase::RendererBase()
 {
-
+    glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 // ======================================
 Shade::RendererBase::~RendererBase() = default;
 
 // ======================================
+// TODO: Need to handle shader compilation errors
+//  - Probably just want to crash, since shaders should never fail to compile
 void Shade::RendererBase::InitializeDefaultShaders()
 {
-    // TODO: Find a better place for this perhaps?
-    // Also setup openGL blending
-    glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     GLuint vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &pixelVertexShaderSource, NULL);
@@ -112,11 +110,25 @@ void Shade::RendererBase::InitializeDefaultShaders()
     glAttachShader(colourShaderProgram, vertexShader);
     glAttachShader(colourShaderProgram, fragmentShader);
     glLinkProgram(colourShaderProgram);
+    {
+        glUseProgram(colourShaderProgram);
+        GLint screenWidthUniformLocation = glGetUniformLocation(colourShaderProgram, "ScreenWidth");
+        glUniform1f(screenWidthUniformLocation, 1280.f);
+        GLint screenHeightUniformLocation = glGetUniformLocation(colourShaderProgram, "ScreenHeight");
+        glUniform1f(screenHeightUniformLocation, 720.f);
+    }
 
     textureShaderProgram = glCreateProgram();
     glAttachShader(textureShaderProgram, vertexShader);
     glAttachShader(textureShaderProgram, textureShader);
     glLinkProgram(textureShaderProgram);
+    {
+        glUseProgram(textureShaderProgram);
+        GLint screenWidthUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenWidth");
+        glUniform1f(screenWidthUniformLocation, 1280.f);
+        GLint screenHeightUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenHeight");
+        glUniform1f(screenHeightUniformLocation, 720.f);
+    }
 
     normalizedColourShaderProgram = glCreateProgram();
     glAttachShader(normalizedColourShaderProgram, normalizedVertexShader);
@@ -246,11 +258,6 @@ void Shade::RendererBase::DrawLine(float Point1x, float Point1y, float Point2x, 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, LineColour.r, LineColour.g, LineColour.b, 1.f);
-    // TODO: Find a better place to set these uniforms and make them not hard coded
-    GLint screenWidthUniformLocation = glGetUniformLocation(colourShaderProgram, "ScreenWidth");
-    glUniform1f(screenWidthUniformLocation, 1280.f);
-    GLint screenHeightUniformLocation = glGetUniformLocation(colourShaderProgram, "ScreenHeight");
-    glUniform1f(screenHeightUniformLocation, 720.f);
     glDrawArrays(GL_LINES, 0, 2);
 }
 
@@ -299,11 +306,6 @@ void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colo
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, RectColour.r, RectColour.g, RectColour.b, 1.f);
-    // TODO: Find a better place to set these uniforms and make them not hard coded
-    GLint screenWidthUniformLocation = glGetUniformLocation(colourShaderProgram, "ScreenWidth");
-    glUniform1f(screenWidthUniformLocation, 1280.f);
-    GLint screenHeightUniformLocation = glGetUniformLocation(colourShaderProgram, "ScreenHeight");
-    glUniform1f(screenHeightUniformLocation, 720.f);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -356,11 +358,6 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, Resour
     glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     DrawTexture->BindTextureForRender();
-    // TODO: Find a better place to set these uniforms and make them not hard coded
-    GLint screenWidthUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenWidth");
-    glUniform1f(screenWidthUniformLocation, 1280.f);
-    GLint screenHeightUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenHeight");
-    glUniform1f(screenHeightUniformLocation, 720.f);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 

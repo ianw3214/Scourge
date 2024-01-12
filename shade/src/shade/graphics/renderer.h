@@ -6,20 +6,12 @@
 
 #include "shade/common/vec.h"
 #include "shade/common/colour.h"
+#include "shade/graphics/common.h"
 #include "shade/resource/handle.h"
 
 namespace Shade {
 
     class RenderCommand;
-
-    // TODO: This can probably live somewhere else so the entire renderer doesn't have to be alwyays included
-    // Coordinates in the range [0.0, 1.0] that represents the part of a texture to draw
-    struct TextureSourceInfo {
-        float x = 0.0;
-        float y = 0.0;
-        float w = 1.0;
-        float h = 1.0;
-    };
 
     class RendererBase {
     public:

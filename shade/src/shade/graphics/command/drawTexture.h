@@ -3,7 +3,7 @@
 #include <string>
 
 #include "shade/graphics/command/command.h"
-#include "shade/graphics/renderer.h"
+#include "shade/graphics/common.h"
 #include "shade/resource/handle.h"
 
 #include "shade/common/vec.h"

@@ -1,5 +1,7 @@
 #include "drawTexture.h"
 
+#include "shade/graphics/renderer.h"
+
 // ======================================
 Shade::DrawTextureCommand::DrawTextureCommand()
 {
