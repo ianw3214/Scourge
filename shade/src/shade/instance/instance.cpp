@@ -9,6 +9,7 @@
 #include "shade/resource/manager.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/renderer.h"
+#include "shade/logging/logService.h"
 #include "shade/module/state.h"
 
 // ======================================
@@ -20,6 +21,7 @@ Shade::GameInstance::GameInstance()
 
     ServiceProvider::RegisterProvider(this);
     RegisterService(new ResourceManager());
+    RegisterService(new LogService());
 
     mRenderer->InitializeDefaultShaders();
 }

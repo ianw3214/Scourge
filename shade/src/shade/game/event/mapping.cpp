@@ -1,5 +1,10 @@
 #include "mapping.h"
 
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
+#include "shade/logging/logger.h"
+
+
 // ======================================
 bool Shade::InputMapping::AddKeyEventMapping(KeyCode Key, const std::string& Event)
 {
@@ -16,7 +21,8 @@ const std::string& Shade::InputMapping::GetKeyEvent(KeyCode Key)
 {
     if (mKeyEvents.find(Key) == mKeyEvents.end())
     {
-        // TODO: Maybe error here? not sure
+        LogService* LogServiceInst = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        LogServiceInst->LogError("Could not map input key {0} to gameplay event");
     }
     return mKeyEvents[Key];
 }

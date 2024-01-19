@@ -1,0 +1,2 @@
+target_sources(Shade PRIVATE logger.h logService.h)
+target_sources(Shade PRIVATE logger.cpp logService.cpp)

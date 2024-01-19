@@ -7,4 +7,6 @@ add_subdirectory(module)
 add_subdirectory(graphics)
 add_subdirectory(resource)
 
+add_subdirectory(logging)
+
 add_subdirectory(game)
