@@ -18,18 +18,18 @@ namespace Shade {
         Entity(GameplayEventSource&);
         ~Entity();
 
-        void Update(float DeltaSeconds);
+        void Update(float deltaSeconds);
 
         void SetPositionX(float newX);
         void SetPositionY(float newY);
         float GetPositionX() const;
         float GetPositionY() const;
 
-        void AddComponent(std::unique_ptr<Component> NewComponent);
+        void AddComponent(std::unique_ptr<Component> newComponent);
         SpriteComponent* GetCachedSpriteComponent() const;
         AnimatedSpriteComponent* GetCachedAnimatedSprite() const;
 
-        const BooleanGameplayEvent& GetBooleanEvent(const std::string& GameEvent) const;
+        const BooleanGameplayEvent& GetBooleanEvent(const std::string& gameEvent) const;
     private:
         // Default entity attributes
         float x = 0.f;

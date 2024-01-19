@@ -26,8 +26,8 @@ namespace Shade {
         // TODO: Working on this...
 
         // Constructors for convenience
-        static InputEvent CreateKeyPress(KeyCode Key);
-        static InputEvent CreateKeyRelease(KeyCode Key);
+        static InputEvent CreateKeyPress(KeyCode key);
+        static InputEvent CreateKeyRelease(KeyCode key);
     };
 
 }

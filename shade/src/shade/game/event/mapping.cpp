@@ -6,25 +6,25 @@
 
 
 // ======================================
-bool Shade::InputMapping::AddKeyEventMapping(KeyCode Key, const std::string& Event)
+bool Shade::InputMapping::AddKeyEventMapping(KeyCode key, const std::string& event)
 {
-    if (mKeyEvents.find(Key) == mKeyEvents.end())
+    if (mKeyEvents.find(key) == mKeyEvents.end())
     {
-        mKeyEvents.emplace(Key, Event);
+        mKeyEvents.emplace(key, event);
         return true;
     }
     return false;
 }
 
 // ======================================
-const std::string& Shade::InputMapping::GetKeyEvent(KeyCode Key)
+const std::string& Shade::InputMapping::GetKeyEvent(KeyCode key)
 {
-    if (mKeyEvents.find(Key) == mKeyEvents.end())
+    if (mKeyEvents.find(key) == mKeyEvents.end())
     {
-        LogService* LogServiceInst = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
-        LogServiceInst->LogError("Could not map input key {0} to gameplay event");
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Could not map input key {0} to gameplay event");
     }
-    return mKeyEvents[Key];
+    return mKeyEvents[key];
 }
 
 // ======================================

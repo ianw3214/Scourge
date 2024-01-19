@@ -13,19 +13,19 @@ Shade::Logger::~Logger()
 }
 
 // ======================================
-void Shade::Logger::LogInfo(const std::string& InfoMessage)
+void Shade::Logger::LogInfo(const std::string& infoMessage)
 {
 
 }
 
 // ======================================
-void Shade::Logger::LogWarning(const std::string& WarningMessage)
+void Shade::Logger::LogWarning(const std::string& warningMessage)
 {
 
 }
 
 // ======================================
-void Shade::Logger::LogError(const std::string& ErrorMessage)
+void Shade::Logger::LogError(const std::string& errorMessage)
 {
 
 }

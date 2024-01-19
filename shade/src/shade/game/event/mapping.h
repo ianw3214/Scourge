@@ -10,9 +10,9 @@ namespace Shade {
     // `InputMapping` converts engine input events into engine gameplay events
     class InputMapping {
     public:
-        bool AddKeyEventMapping(KeyCode Key, const std::string& Event);
+        bool AddKeyEventMapping(KeyCode key, const std::string& event);
 
-        const std::string& GetKeyEvent(KeyCode Key);
+        const std::string& GetKeyEvent(KeyCode key);
 
         const std::unordered_map<KeyCode, std::string>& GetKeyEventMappings() const;
     private:

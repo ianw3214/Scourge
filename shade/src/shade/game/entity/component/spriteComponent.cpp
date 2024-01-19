@@ -7,39 +7,39 @@
 #include "shade/graphics/texture.h"
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(Entity& Owner)
-    : Component(Owner)
+Shade::SpriteComponent::SpriteComponent(Entity& owner)
+    : Component(owner)
 {
 
 }
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(Entity& Owner, float RenderWidth, float RenderHeight, std::string TexturePath)
-    : Component(Owner)
-    , mRenderWidth(RenderWidth)
-    , mRenderHeight(RenderHeight)
+Shade::SpriteComponent::SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath)
+    : Component(owner)
+    , mrenderWidth(renderWidth)
+    , mrenderHeight(renderHeight)
     , mTextureHandle(ResourceHandle::Invalid)
 {
-    ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
-    mTextureHandle = Manager->LoadResource<Texture>(TexturePath);
+    ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
+    mTextureHandle = resourceManager->LoadResource<Texture>(texturePath);
 }
 
 // ======================================
-float Shade::SpriteComponent::GetRenderWidth() const
+float Shade::SpriteComponent::GetrenderWidth() const
 {
-    return mRenderWidth;
+    return mrenderWidth;
 }
 
 // ======================================
-float Shade::SpriteComponent::GetRenderHeight() const
+float Shade::SpriteComponent::GetrenderHeight() const
 {
-    return mRenderHeight;
+    return mrenderHeight;
 }
 
 // ======================================
 std::unique_ptr<Shade::DrawTextureCommand> Shade::SpriteComponent::CreateRenderCommand()
 {
-    const float DrawX = mEntityRef.GetPositionX();
-    const float DrawY = mEntityRef.GetPositionY();
-    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle);
+    const float drawX = mEntityRef.GetPositionX();
+    const float drawY = mEntityRef.GetPositionY();
+    return std::make_unique<DrawTextureCommand>(drawX, drawY, mrenderWidth, mrenderHeight, mTextureHandle);
 }

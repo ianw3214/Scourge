@@ -8,7 +8,7 @@ namespace Shade {
     public:
         RenderCommand();
         virtual ~RenderCommand();
-        virtual void Execute(RendererBase* Renderer) = 0;
+        virtual void Execute(RendererBase* renderer) = 0;
     };
 
 }

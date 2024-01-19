@@ -9,97 +9,97 @@ Shade::DrawTextureCommand::DrawTextureCommand()
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height)
-    : mPosition(Position)
-    , mWidth(Width)
-    , mHeight(Height)
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 position, float width, float height)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, ResourceHandle TextureResource)
-    : mPosition(Position)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mResourceHandle(TextureResource)
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, ResourceHandle TextureResource, bool Normalized)
-    : mPosition(Position)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mResourceHandle(TextureResource)
-    , mNormalized(Normalized)
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, bool normalized)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
+    , mNormalized(normalized)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(Vec2 Position, float Width, float Height, ResourceHandle TextureResource, bool Normalized, TextureSourceInfo TextureSource)
-    : mPosition(Position)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mResourceHandle(TextureResource)
-    , mNormalized(Normalized)
-    , mTextureSource(TextureSource)
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, bool normalized, textureSourceInfo textureSource)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
+    , mNormalized(normalized)
+    , mTextureSource(textureSource)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height)
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float width, float height)
     : mPosition(xPosition, yPosition)
-    , mWidth(Width)
-    , mHeight(Height)
+    , mWidth(width)
+    , mHeight(height)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, ResourceHandle TextureResource)
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource)
     : mPosition(xPosition, yPosition)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mResourceHandle(TextureResource)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, ResourceHandle TextureResource, bool Normalized)
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized)
     : mPosition(xPosition, yPosition)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mResourceHandle(TextureResource)
-    , mNormalized(Normalized)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
+    , mNormalized(normalized)
 {
 
 }
 
 // ======================================
-Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float Width, float Height, ResourceHandle TextureResource, bool Normalized, TextureSourceInfo TextureSource)
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized, textureSourceInfo textureSource)
     : mPosition(xPosition, yPosition)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mResourceHandle(TextureResource)
-    , mNormalized(Normalized)
-    , mTextureSource(TextureSource)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
+    , mNormalized(normalized)
+    , mTextureSource(textureSource)
 {
 
 }
 
 // ======================================
-void Shade::DrawTextureCommand::Execute(RendererBase* Renderer) 
+void Shade::DrawTextureCommand::Execute(RendererBase* renderer) 
 {
     if (mNormalized)
     {
-        Renderer->DrawTextureNormalized(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource);
+        renderer->DrawTextureNormalized(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource);
     }
     else {
-        Renderer->DrawTexture(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource);
+        renderer->DrawTexture(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource);
     }
 }

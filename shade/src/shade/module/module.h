@@ -13,9 +13,9 @@ namespace Shade {
         Module();
         virtual ~Module();
 
-        virtual void Update(float DeltaSeconds);
-        virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue);
-        virtual bool HandleEvent(const InputEvent& Event);
+        virtual void Update(float deltaSeconds);
+        virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue);
+        virtual bool HandleEvent(const InputEvent& event);
     };
 
 }

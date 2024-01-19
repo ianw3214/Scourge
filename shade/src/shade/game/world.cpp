@@ -15,44 +15,44 @@ Shade::GameWorldModule::~GameWorldModule() = default;
 void Shade::GameWorldModule::Update(float deltaSeconds)
 {
     UpdateEventStates();
-    for (std::unique_ptr<Entity>& CurrentEntity : mEntities)
+    for (std::unique_ptr<Entity>& entity : mEntities)
     {
-        CurrentEntity->Update(deltaSeconds);
+        entity->Update(deltaSeconds);
     }
 }
 
 // ======================================
-void Shade::GameWorldModule::Render(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue)
+void Shade::GameWorldModule::Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue)
 {
-    for (std::unique_ptr<Entity>& CurrentEntity : mEntities)
+    for (std::unique_ptr<Entity>& entity : mEntities)
     {
-        if (SpriteComponent* Sprite = CurrentEntity->GetCachedSpriteComponent())
+        if (SpriteComponent* sprite = entity->GetCachedSpriteComponent())
         {
-            CommandQueue.emplace_back(Sprite->CreateRenderCommand());
+            commandQueue.emplace_back(sprite->CreateRenderCommand());
         }
     }
 }
 
 // ======================================
-bool Shade::GameWorldModule::HandleEvent(const InputEvent& Event) 
+bool Shade::GameWorldModule::HandleEvent(const InputEvent& event) 
 {
-    if (Event.mType == InputEventType::KEY)
+    if (event.mType == InputEventType::KEY)
     {
-        const std::string GameEvent = mInputMapping.GetKeyEvent(Event.mKeyCode);
-        if (Event.mKeyEvent == KeyEventType::PRESS)
+        const std::string gameEvent = mInputMapping.GetKeyEvent(event.mKeyCode);
+        if (event.mKeyEvent == KeyEventType::PRESS)
         {
-            StartBooleanEvent(GameEvent);
+            StartBooleanEvent(gameEvent);
         }
-        if (Event.mKeyEvent == KeyEventType::RELEASE)
+        if (event.mKeyEvent == KeyEventType::RELEASE)
         {
-            StopBooleanEvent(GameEvent);
+            StopBooleanEvent(gameEvent);
         }
     }
     return true;
 }
 
 // ======================================
-void Shade::GameWorldModule::AddEntity(std::unique_ptr<Entity> NewEntity)
+void Shade::GameWorldModule::AddEntity(std::unique_ptr<Entity> entity)
 {
-    mEntities.emplace_back(std::move(NewEntity));
+    mEntities.emplace_back(std::move(entity));
 }

@@ -9,74 +9,74 @@ Shade::DrawRectangleCommand::DrawRectangleCommand()
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 Position, float Width, float Height)
-    : mPosition(Position)
-    , mWidth(Width)
-    , mHeight(Height)
+Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 position, float width, float height)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
 {
 
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 Position, float Width, float Height, Colour RectColour)
-    : mPosition(Position)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mColour(RectColour)
+Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 position, float width, float height, Colour colour)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
+    , mColour(colour)
 {
 
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 Position, float Width, float Height, Colour RectColour, bool Normalized)
-    : mPosition(Position)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mColour(RectColour)
-    , mNormalized(Normalized)
+Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool normalized)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
+    , mColour(colour)
+    , mNormalized(normalized)
 {
 
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float Width, float Height)
+Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float width, float height)
     : mPosition(xPosition, yPosition)
-    , mWidth(Width)
-    , mHeight(Height)
+    , mWidth(width)
+    , mHeight(height)
 {
 
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float Width, float Height, Colour RectColour)
+Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour)
     : mPosition(xPosition, yPosition)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mColour(RectColour)
+    , mWidth(width)
+    , mHeight(height)
+    , mColour(colour)
 {
 
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float Width, float Height, Colour RectColour, bool Normalized)
+Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool normalized)
     : mPosition(xPosition, yPosition)
-    , mWidth(Width)
-    , mHeight(Height)
-    , mColour(RectColour)
-    , mNormalized(Normalized)
+    , mWidth(width)
+    , mHeight(height)
+    , mColour(colour)
+    , mNormalized(normalized)
 {
 
 }
 
 
 // ======================================
-void Shade::DrawRectangleCommand::Execute(RendererBase* Renderer) 
+void Shade::DrawRectangleCommand::Execute(RendererBase* renderer) 
 {
     if (mNormalized)
     {
-        Renderer->DrawRectangleNormalized(mPosition, mWidth, mHeight, mColour);
+        renderer->DrawRectangleNormalized(mPosition, mWidth, mHeight, mColour);
     }
     else {
-        Renderer->DrawRectangle(mPosition, mWidth, mHeight, mColour);
+        renderer->DrawRectangle(mPosition, mWidth, mHeight, mColour);
     }
 }

@@ -10,12 +10,12 @@ namespace Shade {
     class DrawRectangleCommand : public RenderCommand {
     public:
         DrawRectangleCommand();
-        DrawRectangleCommand(Vec2 Position, float Width, float Height);
-        DrawRectangleCommand(Vec2 Position, float Width, float Height, Colour RectColour);
-        DrawRectangleCommand(Vec2 Position, float Width, float Height, Colour RectColour, bool Normalized);
-        DrawRectangleCommand(float xPosition, float yPosition, float Width, float Height);
-        DrawRectangleCommand(float xPosition, float yPosition, float Width, float Height, Colour RectColour);
-        DrawRectangleCommand(float xPosition, float yPosition, float Width, float Height, Colour RectColour, bool Normalized);
+        DrawRectangleCommand(Vec2 position, float width, float height);
+        DrawRectangleCommand(Vec2 position, float width, float height, Colour colour);
+        DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool normalized);
+        DrawRectangleCommand(float xPosition, float yPosition, float width, float height);
+        DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour);
+        DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool normalized);
 
         virtual void Execute(RendererBase* Renderer) override;
     private:

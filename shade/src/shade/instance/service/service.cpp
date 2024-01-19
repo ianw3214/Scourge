@@ -1,8 +1,8 @@
 #include "service.h"
 
 // ======================================
-Shade::Service::Service(const std::string& Name)
-    : mName(Name)
+Shade::Service::Service(const std::string& name)
+    : mName(name)
 {
 
 }

@@ -11,11 +11,11 @@ namespace Shade {
 
     class GameInstanceNotifier {
     public:
-        GameInstanceNotifier(GameInstance& Instance);
+        GameInstanceNotifier(GameInstance& instance);
         ~GameInstanceNotifier();
 
-        void NotifyGame(GameNotification Notification);
-        void NotifyRenderer(std::unique_ptr<RenderCommand> Command);
+        void NotifyGame(GameNotification notification);
+        void NotifyRenderer(std::unique_ptr<RenderCommand> command);
     private:
         GameInstance& mGameInstanceRef;
     };

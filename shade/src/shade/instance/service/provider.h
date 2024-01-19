@@ -15,13 +15,13 @@ namespace Shade {
         ServiceProvider();
         ~ServiceProvider();
 
-        bool RegisterService(Service* NewService);
+        bool RegisterService(Service* service);
         template<class T>
         T* GetService() const;
 
         // Using statics for now as easy solution
         //  - If things start getting multithreaded, may need a more elegant solution
-        static void RegisterProvider(ServiceProvider* Provider);
+        static void RegisterProvider(ServiceProvider* provider);
         static ServiceProvider* GetCurrentProvider();
         static inline ServiceProvider* sProvider = nullptr;
     private:
@@ -35,12 +35,12 @@ namespace Shade {
     template<class T>
     T* ServiceProvider::GetService() const 
     {
-        for (const std::unique_ptr<Service>& ServiceIt : mServices)
+        for (const std::unique_ptr<Service>& service : mServices)
         {
-            T* DerivedService = dynamic_cast<T*>(ServiceIt.get());
-            if (DerivedService != nullptr)
+            T* derivedService = dynamic_cast<T*>(service.get());
+            if (derivedService != nullptr)
             {
-                return DerivedService;
+                return derivedService;
             }
         }
         return nullptr;

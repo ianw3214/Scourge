@@ -5,10 +5,10 @@ namespace Shade {
     class Entity;
     class Component {
     public:
-        Component(Entity& Owner);
+        Component(Entity& owner);
         virtual ~Component();
 
-        virtual void Update(float DeltaSeconds);
+        virtual void Update(float deltaSeconds);
     protected:
         Entity& mEntityRef;
     };

@@ -224,32 +224,32 @@ void Shade::RendererBase::SetWireframeMode(bool wireframeMode)
 }
 
 // ======================================
-void Shade::RendererBase::QueueCommand(std::unique_ptr<RenderCommand> Command)
+void Shade::RendererBase::QueueCommand(std::unique_ptr<RenderCommand> command)
 {
-    mCommandQueue.emplace_back(std::move(Command));
+    mCommandQueue.emplace_back(std::move(command));
 }
 
 // ======================================
 void Shade::RendererBase::ProcessCommandQueue()
 {
-    for (std::unique_ptr<RenderCommand>& Command : mCommandQueue)
+    for (std::unique_ptr<RenderCommand>& command : mCommandQueue)
     {
-        Command->Execute(this);
+        command->Execute(this);
     }
 }
 
 // ======================================
-void Shade::RendererBase::SwapCommandQueue(std::vector<std::unique_ptr<RenderCommand>>& NewCommandQueue)
+void Shade::RendererBase::SwapCommandQueue(std::vector<std::unique_ptr<RenderCommand>>& newCommandQueue)
 {
-    std::swap(mCommandQueue, NewCommandQueue);
+    std::swap(mCommandQueue, newCommandQueue);
 }
 
 // ======================================
-void Shade::RendererBase::DrawLine(float Point1x, float Point1y, float Point2x, float Point2y, Colour LineColour) const
+void Shade::RendererBase::DrawLine(float point1x, float point1y, float point2x, float point2y, Colour colour) const
 {
     float vertices[] = {
-        Point1x, Point1y, 0.0f,
-        Point2x, Point2y, 0.0f
+        point1x, point1y, 0.0f,
+        point2x, point2y, 0.0f
     };
 
     glUseProgram(colourShaderProgram);
@@ -257,22 +257,22 @@ void Shade::RendererBase::DrawLine(float Point1x, float Point1y, float Point2x, 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_line);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
-    glUniform4f(positionUniformLocation, LineColour.r, LineColour.g, LineColour.b, 1.f);
+    glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
     glDrawArrays(GL_LINES, 0, 2);
 }
 
 // ======================================
-void Shade::RendererBase::DrawLine(Vec2 Point1, Vec2 Point2, Colour LineColour) const
+void Shade::RendererBase::DrawLine(Vec2 point1, Vec2 point2, Colour colour) const
 {
-    DrawLine(Point1.x, Point1.y, Point2.x, Point2.y, LineColour);
+    DrawLine(point1.x, point1.y, point2.x, point2.y, colour);
 }
 
 // ======================================
-void Shade::RendererBase::DrawLineNormalized(float Point1x, float Point1y, float Point2x, float Point2y, Colour LineColour) const
+void Shade::RendererBase::DrawLineNormalized(float point1x, float point1y, float point2x, float point2y, Colour colour) const
 {
     float vertices[] = {
-        Point1x, Point1y, 0.0f,
-        Point2x, Point2y, 0.0f
+        point1x, point1y, 0.0f,
+        point2x, point2y, 0.0f
     };
 
     glUseProgram(normalizedColourShaderProgram);
@@ -280,18 +280,18 @@ void Shade::RendererBase::DrawLineNormalized(float Point1x, float Point1y, float
     glBindBuffer(GL_ARRAY_BUFFER, VBO_line);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "InputColor");
-    glUniform4f(positionUniformLocation, LineColour.r, LineColour.g, LineColour.b, 1.f);
+    glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
     glDrawArrays(GL_LINES, 0, 2);
 }
 
 // ======================================
-void Shade::RendererBase::DrawLineNormalized(Vec2 Point1, Vec2 Point2, Colour LineColour) const
+void Shade::RendererBase::DrawLineNormalized(Vec2 point1, Vec2 point2, Colour colour) const
 {
-    DrawLineNormalized(Point1.x, Point1.y, Point2.x, Point2.y, LineColour);
+    DrawLineNormalized(point1.x, point1.y, point2.x, point2.y, colour);
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colour RectColour) const
+void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colour colour) const
 {
     float vertices[] = {
         x,  y, 0.0f,  // bottom left
@@ -305,18 +305,18 @@ void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colo
     glBindBuffer(GL_ARRAY_BUFFER, VBO_rect);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
-    glUniform4f(positionUniformLocation, RectColour.r, RectColour.g, RectColour.b, 1.f);
+    glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangle(Vec2 pos, float w, float h, Colour RectColour) const
+void Shade::RendererBase::DrawRectangle(Vec2 pos, float w, float h, Colour colour) const
 {
-    DrawRectangle(pos.x, pos.y, w, h, RectColour);
+    DrawRectangle(pos.x, pos.y, w, h, colour);
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangleNormalized(float x, float y, float w, float h, Colour RectColour) const
+void Shade::RendererBase::DrawRectangleNormalized(float x, float y, float w, float h, Colour colour) const
 {
     float vertices[] = {
         x,  y, 0.0f,  // bottom left
@@ -330,18 +330,18 @@ void Shade::RendererBase::DrawRectangleNormalized(float x, float y, float w, flo
     glBindBuffer(GL_ARRAY_BUFFER, VBO_rect);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "InputColor");
-    glUniform4f(positionUniformLocation, RectColour.r, RectColour.g, RectColour.b, 1.f);
+    glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangleNormalized(Vec2 Position, float w, float h, Colour RectColour) const
+void Shade::RendererBase::DrawRectangleNormalized(Vec2 position, float w, float h, Colour colour) const
 {
-    DrawRectangleNormalized(Position.x, Position.y, w, h, RectColour);
+    DrawRectangleNormalized(position.x, position.y, w, h, colour);
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
 {
     float vertices[] = {
         x,  y, 0.0f,        textureSource.x, textureSource.y + textureSource.h, // bottom left
@@ -351,7 +351,7 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, Resour
     };
     
     ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
-    Texture* DrawTexture = Manager->GetResource<Texture>(TextureResource);
+    Texture* DrawTexture = Manager->GetResource<Texture>(textureResource);
 
     glUseProgram(textureShaderProgram);
     glBindVertexArray(VAO_texture);
@@ -362,14 +362,14 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, Resour
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
 {
-    DrawTexture(pos.x, pos.y, w, h, TextureResource, textureSource);
+    DrawTexture(pos.x, pos.y, w, h, textureResource, textureSource);
 }
 
 
 // ======================================
-void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
 {
     float vertices[] = {
         x,  y, 0.0f,        textureSource.x, textureSource.y + textureSource.h, // bottom left
@@ -379,7 +379,7 @@ void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float
     };
     
     ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
-    Texture* DrawTexture = Manager->GetResource<Texture>(TextureResource);
+    Texture* DrawTexture = Manager->GetResource<Texture>(textureResource);
 
     glUseProgram(normalizedTextureShaderProgram);
     glBindVertexArray(VAO_texture);
@@ -389,7 +389,7 @@ void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle TextureResource, TextureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
 {
-    DrawTextureNormalized(pos.x, pos.y, w, h, TextureResource, textureSource);
+    DrawTextureNormalized(pos.x, pos.y, w, h, textureResource, textureSource);
 }

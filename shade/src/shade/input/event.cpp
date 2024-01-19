@@ -1,21 +1,21 @@
 #include "event.h"
 
 // ======================================
-Shade::InputEvent Shade::InputEvent::CreateKeyPress(KeyCode Key)
+Shade::InputEvent Shade::InputEvent::CreateKeyPress(KeyCode key)
 {
-    InputEvent Result;
-    Result.mType = InputEventType::KEY;
-    Result.mKeyEvent = KeyEventType::PRESS;
-    Result.mKeyCode = Key;
-    return Result;
+    InputEvent result;
+    result.mType = InputEventType::KEY;
+    result.mKeyEvent = KeyEventType::PRESS;
+    result.mKeyCode = key;
+    return result;
 }
 
 // ======================================
-Shade::InputEvent Shade::InputEvent::CreateKeyRelease(KeyCode Key)
+Shade::InputEvent Shade::InputEvent::CreateKeyRelease(KeyCode key)
 {
-    InputEvent Result;
-    Result.mType = InputEventType::KEY;
-    Result.mKeyEvent = KeyEventType::RELEASE;
-    Result.mKeyCode = Key;
-    return Result;
+    InputEvent result;
+    result.mType = InputEventType::KEY;
+    result.mKeyEvent = KeyEventType::RELEASE;
+    result.mKeyCode = key;
+    return result;
 }

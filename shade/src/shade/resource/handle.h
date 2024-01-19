@@ -6,7 +6,7 @@ namespace Shade {
 
     class ResourceHandle {
     public:
-        ResourceHandle(size_t Index, uint32_t Id);
+        ResourceHandle(size_t index, uint32_t id);
 
         size_t GetIndex() const;
         uint32_t GetID() const;

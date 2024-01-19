@@ -15,24 +15,24 @@ Shade::ServiceProvider::~ServiceProvider()
 }
 
 // ======================================
-bool Shade::ServiceProvider::RegisterService(Service* NewService)
+bool Shade::ServiceProvider::RegisterService(Service* service)
 {
     // TODO: Assert that 'NewService' is not nullptr
-    for (std::unique_ptr<Service>& ServiceIt : mServices)
+    for (std::unique_ptr<Service>& serviceIT : mServices)
     {
-        if (ServiceIt->GetName() == NewService->GetName())
+        if (serviceIT->GetName() == service->GetName())
         {
             return false;
         }
     }
-    mServices.emplace_back(std::unique_ptr<Service>(NewService));
+    mServices.emplace_back(std::unique_ptr<Service>(service));
     return true;
 }
 
 // ======================================
-void Shade::ServiceProvider::RegisterProvider(ServiceProvider* Provider)
+void Shade::ServiceProvider::RegisterProvider(ServiceProvider* provider)
 {
-    sProvider = Provider;
+    sProvider = provider;
 }
 
 // ======================================

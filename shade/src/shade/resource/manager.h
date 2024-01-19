@@ -18,10 +18,10 @@ namespace Shade {
         ~ResourceManager();
 
         template<class T>
-        ResourceHandle LoadResource(const std::string& Path);
+        ResourceHandle LoadResource(const std::string& path);
 
         template<class T>
-        T* GetResource(ResourceHandle Handle) const;
+        T* GetResource(ResourceHandle handle) const;
 
     private:
         // Map of path string to handle for easy lookup without searching through all resources
@@ -37,31 +37,31 @@ namespace Shade {
 namespace Shade {
 
     template<class T>
-    ResourceHandle ResourceManager::LoadResource(const std::string& Path)
+    ResourceHandle ResourceManager::LoadResource(const std::string& path)
     {
-        auto it = mHandleMap.find(Path);
+        auto it = mHandleMap.find(path);
         if (it == mHandleMap.end())
         {
-            const size_t Index = mResources.size();
-            mResources.emplace_back(T::Load(Path));
-            const uint32_t Id = mResources.back()->GetResourceID();
-            ResourceHandle Handle(Index, Id);
-            mHandleMap.emplace(Path, Handle);
+            const size_t index = mResources.size();
+            mResources.emplace_back(T::Load(path));
+            const uint32_t id = mResources.back()->GetResourceID();
+            ResourceHandle Handle(index, id);
+            mHandleMap.emplace(path, Handle);
             return Handle;
         }
         return it->second;
     }
 
     template<class T>
-    T* ResourceManager::GetResource(ResourceHandle Handle) const
+    T* ResourceManager::GetResource(ResourceHandle handle) const
     {
         // TODO: Warnings/errors can be added here for easier debugging
-        if (Handle.GetIndex() >= mResources.size())
+        if (handle.GetIndex() >= mResources.size())
         {
             return nullptr;
         }
-        Resource* Result = mResources[Handle.GetIndex()].get();
-        if (Result->GetResourceID() != Handle.GetID())
+        Resource* Result = mResources[handle.GetIndex()].get();
+        if (Result->GetResourceID() != handle.GetID())
         {
             return nullptr;
         }

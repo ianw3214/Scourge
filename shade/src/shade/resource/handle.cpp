@@ -3,9 +3,9 @@
 Shade::ResourceHandle Shade::ResourceHandle::Invalid = Shade::ResourceHandle(-1, -1);
 
 // ======================================
-Shade::ResourceHandle::ResourceHandle(size_t Index, uint32_t Id)
-    : mIndex(Index)
-    , mId(Id)
+Shade::ResourceHandle::ResourceHandle(size_t index, uint32_t id)
+    : mIndex(index)
+    , mId(id)
 {
 
 }

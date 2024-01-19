@@ -30,13 +30,13 @@ Shade::GameInstance::GameInstance()
 Shade::GameInstance::~GameInstance() = default;
 
 // ======================================
-void Shade::GameInstance::SetState(std::unique_ptr<State> NewState)
+void Shade::GameInstance::SetState(std::unique_ptr<State> state)
 {
     if (mCurrentState != nullptr)
     {
         // TODO: Might want to handle this somehow
     }
-    mCurrentState = std::move(NewState);
+    mCurrentState = std::move(state);
 }
 
 // ======================================
@@ -55,7 +55,7 @@ void Shade::GameInstance::Run()
         {
             mCurrentState->HandleEvent(*NextEvent);
         }
-        mCurrentState->UpdateModules(mDeltaSeconds);
+        mCurrentState->UpdateModules(mdeltaSeconds);
 
         mRenderer->Clear();
         std::vector<std::unique_ptr<RenderCommand>> RenderCommands;
@@ -65,21 +65,21 @@ void Shade::GameInstance::Run()
         mRenderer->ProcessCommandQueue();
 
         mMainWindow->Update();
-        mDeltaSeconds = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - updateStart).count()) / 1000000.f;
+        mdeltaSeconds = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - updateStart).count()) / 1000000.f;
     }
 }
 
 // ======================================
-void Shade::GameInstance::Notify(GameNotification Notification)
+void Shade::GameInstance::Notify(GameNotification notification)
 {
-    if (Notification == GameNotification::Quit)
+    if (notification == GameNotification::Quit)
     {
         mRunning = false;
     }
 }
 
 // ======================================
-void Shade::GameInstance::NotifyRenderer(std::unique_ptr<RenderCommand> Command)
+void Shade::GameInstance::NotifyRenderer(std::unique_ptr<RenderCommand> command)
 {
-    mRenderer->QueueCommand(std::move(Command));
+    mRenderer->QueueCommand(std::move(command));
 }

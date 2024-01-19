@@ -4,25 +4,25 @@
 #include "shade/graphics/command/drawTexture.h"
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& Owner)
-    : SpriteComponent(Owner)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner)
+    : SpriteComponent(owner)
 {
 
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& Owner, float RenderWidth, float RenderHeight, std::string TexturePath)
-    : SpriteComponent(Owner, RenderWidth, RenderHeight, TexturePath)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath)
+    : SpriteComponent(owner, renderWidth, renderHeight, texturePath)
 {
 
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& Owner, float RenderWidth, float RenderHeight, std::string TexturePath, TilesheetInfo TileInfo, std::unordered_map<std::string, AnimationStateInfo> States, const std::string& InitialState)
-    : SpriteComponent(Owner, RenderWidth, RenderHeight, TexturePath)
-    , mTileSheetInfo(TileInfo)
-    , mStates(States)
-    , mCurrentState(InitialState)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState)
+    : SpriteComponent(owner, renderWidth, renderHeight, texturePath)
+    , mTileSheetInfo(tileInfo)
+    , mStates(states)
+    , mCurrentState(initialState)
 {
     // TODO: Crash if the current state isn't an actual valid state
     // Update current frame based on the initial state
@@ -30,11 +30,11 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& Owner, float Ren
 }
 
 // ======================================
-void Shade::AnimatedSpriteComponent::Update(float DeltaSeconds) 
+void Shade::AnimatedSpriteComponent::Update(float deltaSeconds) 
 {
-    mElapsedTime += DeltaSeconds;
-    constexpr float FrameTime = 1.f / 12.f;
-    if (mElapsedTime > FrameTime)
+    mElapsedTime += deltaSeconds;
+    constexpr float frameTime = 1.f / 12.f;
+    if (mElapsedTime > frameTime)
     {
         mElapsedTime = 0.f;
         // TODO: Crash if the current state isn't an actual valid state
@@ -49,7 +49,7 @@ void Shade::AnimatedSpriteComponent::Update(float DeltaSeconds)
 // ======================================
 std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::CreateRenderCommand()
 {
-    TextureSourceInfo SourceInfo;
+    textureSourceInfo SourceInfo;
     const float FrameWidth = 1.0 / mTileSheetInfo.mColumns;
     const float FrameHeight = 1.0 / mTileSheetInfo.mRows;
     SourceInfo.w = FrameWidth;
@@ -59,13 +59,13 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
     
     const float DrawX = mEntityRef.GetPositionX();
     const float DrawY = mEntityRef.GetPositionY();
-    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle, false, SourceInfo);
+    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mrenderWidth, mrenderHeight, mTextureHandle, false, SourceInfo);
 }
 
 // ======================================
-void Shade::AnimatedSpriteComponent::ChangeAnimationState(const std::string& NewState)
+void Shade::AnimatedSpriteComponent::ChangeAnimationState(const std::string& newState)
 {
-    mCurrentState = NewState;
+    mCurrentState = newState;
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
     mElapsedTime = 0.f;
 }

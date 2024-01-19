@@ -20,16 +20,16 @@ namespace Shade {
 
     class AnimatedSpriteComponent : public SpriteComponent {
     public:
-        AnimatedSpriteComponent(Entity& Owner);
-        AnimatedSpriteComponent(Entity& Owner, float RenderWidth, float RenderHeight, std::string TexturePath);
+        AnimatedSpriteComponent(Entity& owner);
+        AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath);
         // TODO: This is a super long constructor
         //  - try to trim it down by separating out the initialization
-        AnimatedSpriteComponent(Entity& Owner, float RenderWidth, float RenderHeight, std::string TexturePath, TilesheetInfo TileInfo, std::unordered_map<std::string, AnimationStateInfo> States, const std::string& InitialState );
+        AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState);
 
-        virtual void Update(float DeltaSeconds) override;
+        virtual void Update(float deltaSeconds) override;
         virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand() override;
 
-        void ChangeAnimationState(const std::string& NewState);
+        void ChangeAnimationState(const std::string& newState);
     public:
         // Animation definition
         TilesheetInfo mTileSheetInfo;

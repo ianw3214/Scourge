@@ -13,34 +13,34 @@ Shade::LogService::LogService()
 Shade::LogService::~LogService() = default;
 
 // ======================================
-void Shade::LogService::LogInfo(const std::string& InfoMessage)
+void Shade::LogService::LogInfo(const std::string& infoMessage)
 {
     for (std::unique_ptr<Logger>& CurrLogger : mLoggers)
     {
-        CurrLogger->LogInfo(InfoMessage);
+        CurrLogger->LogInfo(infoMessage);
     }
 }
 
 // ======================================
-void Shade::LogService::LogWarning(const std::string& WarningMessage)
+void Shade::LogService::LogWarning(const std::string& warningMessage)
 {
     for (std::unique_ptr<Logger>& CurrLogger : mLoggers)
     {
-        CurrLogger->LogWarning(WarningMessage);
+        CurrLogger->LogWarning(warningMessage);
     }
 }
 
 // ======================================
-void Shade::LogService::LogError(const std::string& ErrorMessage)
+void Shade::LogService::LogError(const std::string& errorMessage)
 {
     for (std::unique_ptr<Logger>& CurrLogger : mLoggers)
     {
-        CurrLogger->LogError(ErrorMessage);
+        CurrLogger->LogError(errorMessage);
     }
 }
 
 // ======================================
-void Shade::LogService::RegisterLogger(std::unique_ptr<Logger>&& NewLogger)
+void Shade::LogService::RegisterLogger(std::unique_ptr<Logger>&& logger)
 {
-    mLoggers.emplace_back(std::move(NewLogger));
+    mLoggers.emplace_back(std::move(logger));
 }

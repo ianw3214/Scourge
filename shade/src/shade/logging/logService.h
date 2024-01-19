@@ -14,11 +14,11 @@ namespace Shade {
         LogService();
         ~LogService();
 
-        void LogInfo(const std::string& InfoMessage);
-        void LogWarning(const std::string& WarningMessage);
-        void LogError(const std::string& ErrorMessage);
+        void LogInfo(const std::string& infoMessage);
+        void LogWarning(const std::string& warningMessage);
+        void LogError(const std::string& errorMessage);
 
-        void RegisterLogger(std::unique_ptr<Logger>&& NewLogger);
+        void RegisterLogger(std::unique_ptr<Logger>&& logger);
     private:
         std::vector<std::unique_ptr<Logger>> mLoggers;
     };

@@ -10,14 +10,14 @@ namespace Shade {
     class DrawLineCommand : public RenderCommand {
     public:
         DrawLineCommand();
-        DrawLineCommand(Vec2 Point1, Vec2 Point2);
-        DrawLineCommand(Vec2 Point1, Vec2 Point2, Colour LineColour);
-        DrawLineCommand(Vec2 Point1, Vec2 Point2, Colour LineColour, bool Normalized);
-        DrawLineCommand(float Point1x, float Point1y, float Point2x, float Point2y);
-        DrawLineCommand(float Point1x, float Point1y, float Point2x, float Point2y, Colour LineColour);
-        DrawLineCommand(float Point1x, float Point1y, float Point2x, float Point2y, Colour LineColour, bool Normalized);
+        DrawLineCommand(Vec2 point1, Vec2 point2);
+        DrawLineCommand(Vec2 point1, Vec2 point2, Colour colour);
+        DrawLineCommand(Vec2 point1, Vec2 point2, Colour colour, bool normalized);
+        DrawLineCommand(float point1x, float point1y, float point2x, float point2y);
+        DrawLineCommand(float point1x, float point1y, float point2x, float point2y, Colour colour);
+        DrawLineCommand(float point1x, float point1y, float point2x, float point2y, Colour colour, bool normalized);
 
-        virtual void Execute(RendererBase* Renderer) override;
+        virtual void Execute(RendererBase* renderer) override;
     private:
         Vec2 mPoint1;
         Vec2 mPoint2;

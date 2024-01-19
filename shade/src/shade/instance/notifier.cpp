@@ -4,8 +4,8 @@
 #include "shade/graphics/command/command.h"
 
 // ======================================
-Shade::GameInstanceNotifier::GameInstanceNotifier(GameInstance& Instance)
-    : mGameInstanceRef(Instance)
+Shade::GameInstanceNotifier::GameInstanceNotifier(GameInstance& instance)
+    : mGameInstanceRef(instance)
 {
 
 }
@@ -14,13 +14,13 @@ Shade::GameInstanceNotifier::GameInstanceNotifier(GameInstance& Instance)
 Shade::GameInstanceNotifier::~GameInstanceNotifier() = default;
 
 // ======================================
-void Shade::GameInstanceNotifier::NotifyGame(GameNotification Notification)
+void Shade::GameInstanceNotifier::NotifyGame(GameNotification notification)
 {
-    mGameInstanceRef.Notify(Notification);
+    mGameInstanceRef.Notify(notification);
 }
 
 // ======================================
-void Shade::GameInstanceNotifier::NotifyRenderer(std::unique_ptr<RenderCommand> Command)
+void Shade::GameInstanceNotifier::NotifyRenderer(std::unique_ptr<RenderCommand> command)
 {
-    mGameInstanceRef.NotifyRenderer(std::move(Command));
+    mGameInstanceRef.NotifyRenderer(std::move(command));
 }

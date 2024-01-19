@@ -14,11 +14,11 @@ namespace Shade {
         State();
         ~State();
 
-        void UpdateModules(float DeltaSeconds);
-        void RenderModules(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue);
-        void HandleEvent(const InputEvent& Event);
+        void UpdateModules(float deltaSeconds);
+        void RenderModules(std::vector<std::unique_ptr<RenderCommand>>& commandQueue);
+        void HandleEvent(const InputEvent& event);
     protected:
-        void AddModule(std::unique_ptr<Module> NewModule);
+        void AddModule(std::unique_ptr<Module> module);
     private:
         std::vector<std::unique_ptr<Module>> mModules;
     };

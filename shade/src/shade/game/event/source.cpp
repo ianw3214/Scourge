@@ -3,9 +3,9 @@
 #include "shade/game/event/mapping.h"
 
 // ======================================
-const Shade::BooleanGameplayEvent& Shade::GameplayEventSource::GetBooleanEvent(const std::string& EventName) const
+const Shade::BooleanGameplayEvent& Shade::GameplayEventSource::GetBooleanEvent(const std::string& eventName) const
 {
-    auto it = mBooleanEvents.find(EventName);
+    auto it = mBooleanEvents.find(eventName);
     if (it == mBooleanEvents.end())
     {
         // TODO: Error...
@@ -14,9 +14,9 @@ const Shade::BooleanGameplayEvent& Shade::GameplayEventSource::GetBooleanEvent(c
 }
 
 // ======================================
-void Shade::GameplayEventSource::SetEventsFromMapping(const InputMapping& Mapping)
+void Shade::GameplayEventSource::SetEventsFromMapping(const InputMapping& mapping)
 {
-    for (const auto& it : Mapping.GetKeyEventMappings())
+    for (const auto& it : mapping.GetKeyEventMappings())
     {
         mBooleanEvents.emplace(it.second, BooleanGameplayEvent{});
     }
@@ -33,9 +33,9 @@ void Shade::GameplayEventSource::UpdateEventStates()
 }
 
 // ======================================
-void Shade::GameplayEventSource::StartBooleanEvent(const std::string& EventName)
+void Shade::GameplayEventSource::StartBooleanEvent(const std::string& eventName)
 {
-    auto it = mBooleanEvents.find(EventName);
+    auto it = mBooleanEvents.find(eventName);
     if (it == mBooleanEvents.end())
     {
         // TODO: Error...
@@ -46,9 +46,9 @@ void Shade::GameplayEventSource::StartBooleanEvent(const std::string& EventName)
 }
 
 // ======================================
-void Shade::GameplayEventSource::StopBooleanEvent(const std::string& EventName)
+void Shade::GameplayEventSource::StopBooleanEvent(const std::string& eventName)
 {
-    auto it = mBooleanEvents.find(EventName);
+    auto it = mBooleanEvents.find(eventName);
     if (it == mBooleanEvents.end())
     {
         // TODO: Error...

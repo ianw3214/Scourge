@@ -9,9 +9,9 @@ namespace Shade {
         Logger();
         virtual ~Logger();
 
-        virtual void LogInfo(const std::string& InfoMessage);
-        virtual void LogWarning(const std::string& WarningMessage);
-        virtual void LogError(const std::string& ErrorMessage);
+        virtual void LogInfo(const std::string& infoMessage);
+        virtual void LogWarning(const std::string& warningMessage);
+        virtual void LogError(const std::string& errorMessage);
     };
 
 }

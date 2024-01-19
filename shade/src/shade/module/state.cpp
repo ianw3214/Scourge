@@ -13,30 +13,30 @@ Shade::State::State()
 Shade::State::~State() = default;
 
 // ======================================
-void Shade::State::UpdateModules(float DeltaSeconds)
+void Shade::State::UpdateModules(float deltaSeconds)
 {
     for (const auto& Module : mModules)
     {
-        Module->Update(DeltaSeconds);
+        Module->Update(deltaSeconds);
     }
 }
 
 // ======================================
-void Shade::State::RenderModules(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue)
+void Shade::State::RenderModules(std::vector<std::unique_ptr<RenderCommand>>& commandQueue)
 {
     for (const auto& Module : mModules)
     {
-        Module->Render(CommandQueue);
+        Module->Render(commandQueue);
     }
 }
 
 // ======================================
-void Shade::State::HandleEvent(const InputEvent& Event)
+void Shade::State::HandleEvent(const InputEvent& event)
 {
-    for (const auto& Module : mModules)
+    for (const auto& module : mModules)
     {
-        const bool ShouldContinue = Module->HandleEvent(Event);
-        if (!ShouldContinue)
+        const bool shouldContinue = module->HandleEvent(event);
+        if (!shouldContinue)
         {
             break;
         }
@@ -44,7 +44,7 @@ void Shade::State::HandleEvent(const InputEvent& Event)
 }
 
 // ======================================
-void Shade::State::AddModule(std::unique_ptr<Module> NewModule)
+void Shade::State::AddModule(std::unique_ptr<Module> module)
 {
-    mModules.emplace_back(std::move(NewModule));
+    mModules.emplace_back(std::move(module));
 }

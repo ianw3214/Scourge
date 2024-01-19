@@ -9,68 +9,68 @@ Shade::DrawLineCommand::DrawLineCommand()
 }
 
 // ======================================
-Shade::DrawLineCommand::DrawLineCommand(Vec2 Point1, Vec2 Point2)
-    : mPoint1(Point1)
-    , mPoint2(Point2)
+Shade::DrawLineCommand::DrawLineCommand(Vec2 point1, Vec2 point2)
+    : mPoint1(point1)
+    , mPoint2(point2)
 {
 
 }
 
 // ======================================
-Shade::DrawLineCommand::DrawLineCommand(Vec2 Point1, Vec2 Point2, Colour LineColour)
-    : mPoint1(Point1)
-    , mPoint2(Point2)
-    , mColour(LineColour)
+Shade::DrawLineCommand::DrawLineCommand(Vec2 point1, Vec2 point2, Colour colour)
+    : mPoint1(point1)
+    , mPoint2(point2)
+    , mColour(colour)
 {
 
 }
 
 // ======================================
-Shade::DrawLineCommand::DrawLineCommand(Vec2 Point1, Vec2 Point2, Colour LineColour, bool Normalized)
-    : mPoint1(Point1)
-    , mPoint2(Point2)
-    , mColour(LineColour)
-    , mNormalized(Normalized)
+Shade::DrawLineCommand::DrawLineCommand(Vec2 point1, Vec2 point2, Colour colour, bool normalized)
+    : mPoint1(point1)
+    , mPoint2(point2)
+    , mColour(colour)
+    , mNormalized(normalized)
 {
 
 }
 
 // ======================================
-Shade::DrawLineCommand::DrawLineCommand(float Point1x, float Point1y, float Point2x, float Point2y)
-    : mPoint1(Point1x, Point1y)
-    , mPoint2(Point2x, Point2y)
+Shade::DrawLineCommand::DrawLineCommand(float point1x, float point1y, float point2x, float point2y)
+    : mPoint1(point1x, point1y)
+    , mPoint2(point2x, point2y)
 {
 
 }
 
 // ======================================
-Shade::DrawLineCommand::DrawLineCommand(float Point1x, float Point1y, float Point2x, float Point2y, Colour LineColour)
-    : mPoint1(Point1x, Point1y)
-    , mPoint2(Point2x, Point2y)
-    , mColour(LineColour)
+Shade::DrawLineCommand::DrawLineCommand(float point1x, float point1y, float point2x, float point2y, Colour colour)
+    : mPoint1(point1x, point1y)
+    , mPoint2(point2x, point2y)
+    , mColour(colour)
 {
 
 }
 
 // ======================================
-Shade::DrawLineCommand::DrawLineCommand(float Point1x, float Point1y, float Point2x, float Point2y, Colour LineColour, bool Normalized)
-    : mPoint1(Point1x, Point1y)
-    , mPoint2(Point2x, Point2y)
-    , mColour(LineColour)
-    , mNormalized(Normalized)
+Shade::DrawLineCommand::DrawLineCommand(float point1x, float point1y, float point2x, float point2y, Colour colour, bool normalized)
+    : mPoint1(point1x, point1y)
+    , mPoint2(point2x, point2y)
+    , mColour(colour)
+    , mNormalized(normalized)
 {
 
 }
 
 // ======================================
-void Shade::DrawLineCommand::Execute(RendererBase* Renderer) 
+void Shade::DrawLineCommand::Execute(RendererBase* renderer) 
 {
     if (mNormalized)
     {
-        Renderer->DrawLineNormalized(mPoint1, mPoint2, mColour);
+        renderer->DrawLineNormalized(mPoint1, mPoint2, mColour);
     }
     else
     {
-        Renderer->DrawLine(mPoint1, mPoint2, mColour);
+        renderer->DrawLine(mPoint1, mPoint2, mColour);
     }
 }

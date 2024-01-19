@@ -21,28 +21,28 @@ public:
     bool mWasMoving = false;
 public:
     MovementComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
-    void Update(float DeltaSeconds) override {
+    void Update(float deltaSeconds) override {
         FacingDirection NewFacingDir = mFacing;
         bool bMoving = false;
         if (mEntityRef.GetBooleanEvent("move_up").mHeld)
         {
-            mEntityRef.SetPositionY(mEntityRef.GetPositionY() + 200.f * DeltaSeconds);
+            mEntityRef.SetPositionY(mEntityRef.GetPositionY() + 200.f * deltaSeconds);
             bMoving = true;
         }
         if (mEntityRef.GetBooleanEvent("move_down").mHeld)
         {
-            mEntityRef.SetPositionY(mEntityRef.GetPositionY() - 200.f * DeltaSeconds);
+            mEntityRef.SetPositionY(mEntityRef.GetPositionY() - 200.f * deltaSeconds);
             bMoving = true;
         }
         if (mEntityRef.GetBooleanEvent("move_right").mHeld)
         {
-            mEntityRef.SetPositionX(mEntityRef.GetPositionX() + 200.f * DeltaSeconds);
+            mEntityRef.SetPositionX(mEntityRef.GetPositionX() + 200.f * deltaSeconds);
             bMoving = true;
             NewFacingDir = FacingDirection::RIGHT;
         }
         if (mEntityRef.GetBooleanEvent("move_left").mHeld)
         {
-            mEntityRef.SetPositionX(mEntityRef.GetPositionX() - 200.f * DeltaSeconds);
+            mEntityRef.SetPositionX(mEntityRef.GetPositionX() - 200.f * deltaSeconds);
             bMoving = true;
             NewFacingDir = FacingDirection::LEFT;
         }

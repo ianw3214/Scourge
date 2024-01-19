@@ -15,11 +15,11 @@ namespace Shade {
         GameWorldModule();
         ~GameWorldModule();
 
-        virtual void Update(float DeltaSeconds) override;
-        virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& CommandQueue) override;
-        virtual bool HandleEvent(const InputEvent& Event) override;
+        virtual void Update(float deltaSeconds) override;
+        virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue) override;
+        virtual bool HandleEvent(const InputEvent& event) override;
 
-        void AddEntity(std::unique_ptr<Entity> NewEntity);
+        void AddEntity(std::unique_ptr<Entity> entity);
     protected:
         std::vector<std::unique_ptr<Entity>> mEntities;
 

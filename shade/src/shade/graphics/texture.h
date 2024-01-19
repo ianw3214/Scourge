@@ -9,10 +9,10 @@ namespace Shade {
     
     class Texture : public Resource {
     public:
-        static Resource* Load(const std::string& Path);
+        static Resource* Load(const std::string& path);
 
     public:
-        Texture(GLuint TextureID);
+        Texture(GLuint textureID);
     
         void BindTextureForRender();
     private:

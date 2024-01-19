@@ -19,19 +19,18 @@ namespace Shade {
         GameInstance();
         ~GameInstance();
 
-        void SetState(std::unique_ptr<State> NewState);
+        void SetState(std::unique_ptr<State> state);
         void Run();
 
-        void Notify(GameNotification Notification);
-        void NotifyRenderer(std::unique_ptr<RenderCommand> Command);
+        void Notify(GameNotification notification);
+        void NotifyRenderer(std::unique_ptr<RenderCommand> command);
     private:
         std::unique_ptr<Window> mMainWindow = nullptr;
         std::unique_ptr<InputHandler> mInputHandler = nullptr;
         std::unique_ptr<RendererBase> mRenderer = nullptr;
         std::unique_ptr<State> mCurrentState = nullptr;
-        // std::unique_ptr<ResourceManager> mResourceManager = nullptr;
 
         bool mRunning = false;
-        float mDeltaSeconds = 1000.0 / 24.0;
+        float mdeltaSeconds = 1000.0 / 24.0;
     };
 }

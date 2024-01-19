@@ -16,15 +16,15 @@ Shade::Entity::Entity(GameplayEventSource& GameWorldRef)
 Shade::Entity::~Entity() = default;
 
 // ======================================
-void Shade::Entity::Update(float DeltaSeconds)
+void Shade::Entity::Update(float deltaSeconds)
 {
     for (std::unique_ptr<Component>& CurrentComponent : mComponents)
     {
-        CurrentComponent->Update(DeltaSeconds);
+        CurrentComponent->Update(deltaSeconds);
     }
     if (mCachedSprite.has_value())
     {
-        mCachedSprite->get()->Update(DeltaSeconds);
+        mCachedSprite->get()->Update(deltaSeconds);
     }
 }
 
@@ -55,18 +55,18 @@ float Shade::Entity::GetPositionY() const
 
 
 // ======================================
-// This takes ownership of NewComponent
-void Shade::Entity::AddComponent(std::unique_ptr<Component> NewComponent)
+// This takes ownership of newComponent
+void Shade::Entity::AddComponent(std::unique_ptr<Component> newComponent)
 {
     // TODO: Does it make sense to check if a sprite component already exists here?
-    if (SpriteComponent* Sprite = dynamic_cast<SpriteComponent*>(NewComponent.get()))
+    if (SpriteComponent* sprite = dynamic_cast<SpriteComponent*>(newComponent.get()))
     {
-        NewComponent.release();
-        mCachedSprite = std::unique_ptr<SpriteComponent>(Sprite);
+        newComponent.release();
+        mCachedSprite = std::unique_ptr<SpriteComponent>(sprite);
     }
     else
     {
-        mComponents.emplace_back(std::move(NewComponent));
+        mComponents.emplace_back(std::move(newComponent));
     }
 }
 
@@ -83,7 +83,7 @@ Shade::AnimatedSpriteComponent* Shade::Entity::GetCachedAnimatedSprite() const
 }
 
 // ======================================
-const Shade::BooleanGameplayEvent& Shade::Entity::GetBooleanEvent(const std::string& GameEvent) const
+const Shade::BooleanGameplayEvent& Shade::Entity::GetBooleanEvent(const std::string& gameEvent) const
 {
-    return mGameEventSource.GetBooleanEvent(GameEvent);
+    return mGameEventSource.GetBooleanEvent(gameEvent);
 }

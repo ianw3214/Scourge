@@ -11,16 +11,16 @@ namespace Shade {
     class DrawTextureCommand;
     class SpriteComponent : public Component {
     public:
-        SpriteComponent(Entity& Owner);
-        SpriteComponent(Entity& Owner, float RenderWidth, float RenderHeight, std::string TexturePath);
+        SpriteComponent(Entity& owner);
+        SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath);
 
-        float GetRenderWidth() const;
-        float GetRenderHeight() const;
+        float GetrenderWidth() const;
+        float GetrenderHeight() const;
 
         virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand();
     protected:
-        float mRenderWidth = 0.f;
-        float mRenderHeight = 0.f;
+        float mrenderWidth = 0.f;
+        float mrenderHeight = 0.f;
         ResourceHandle mTextureHandle = ResourceHandle::Invalid;
     };
 
