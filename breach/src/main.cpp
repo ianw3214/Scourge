@@ -8,6 +8,13 @@
 #include "shade/game/entity/entity.h"
 #include "shade/game/world.h"
 
+// ======================================
+enum class RenderLayer : int {
+    BACKGROUND = -5,
+    DEFAULT = 0
+};
+
+// ======================================
 enum class FacingDirection {
     LEFT,
     RIGHT
@@ -20,7 +27,9 @@ public:
     FacingDirection mFacing = FacingDirection::RIGHT;
     bool mWasMoving = false;
 public:
+    // ======================================
     MovementComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
+    // ======================================
     void Update(float deltaSeconds) override {
         FacingDirection NewFacingDir = mFacing;
         bool bMoving = false;
@@ -66,6 +75,7 @@ public:
 class CustomGameWorld : public Shade::GameWorldModule
 {
 public:
+    // ======================================
     CustomGameWorld() : Shade::GameWorldModule()
     {
         // Initialize input mappings
@@ -75,6 +85,11 @@ public:
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_D, "move_right");
         SetEventsFromMapping(mInputMapping);
 
+        // Initialize a background
+        std::unique_ptr<Shade::Entity> TestBackground = std::make_unique<Shade::Entity>(*this);
+        TestBackground->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground.get(), 1280.f, 720.f, "assets/textures/background.png", static_cast<int>(RenderLayer::BACKGROUND)));
+        AddEntity(std::move(TestBackground));
+
         // Initialize a test entity
         Shade::TilesheetInfo tileSheetInfo { 128, 128, 5, 4 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
@@ -83,7 +98,7 @@ public:
         animStateInfo["run_right"] = { 8, 13 };
         animStateInfo["run_left"] = { 14, 19 };
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
-        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right"));
+        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT)));
         TestEntity->SetPositionX(200.f);
         TestEntity->SetPositionY(200.f);
         TestEntity->AddComponent(std::make_unique<MovementComponent>(*TestEntity.get()));

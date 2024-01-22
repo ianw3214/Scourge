@@ -11,15 +11,15 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner)
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath)
-    : SpriteComponent(owner, renderWidth, renderHeight, texturePath)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer)
+    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer)
 {
 
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState)
-    : SpriteComponent(owner, renderWidth, renderHeight, texturePath)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer)
+    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer)
     , mTileSheetInfo(tileInfo)
     , mStates(states)
     , mCurrentState(initialState)
@@ -59,7 +59,7 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
     
     const float DrawX = mEntityRef.GetPositionX();
     const float DrawY = mEntityRef.GetPositionY();
-    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mrenderWidth, mrenderHeight, mTextureHandle, false, SourceInfo);
+    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle, false, SourceInfo, mRenderLayer);
 }
 
 // ======================================

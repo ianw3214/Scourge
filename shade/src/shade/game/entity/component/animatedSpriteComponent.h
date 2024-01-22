@@ -21,10 +21,10 @@ namespace Shade {
     class AnimatedSpriteComponent : public SpriteComponent {
     public:
         AnimatedSpriteComponent(Entity& owner);
-        AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath);
+        AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0);
         // TODO: This is a super long constructor
         //  - try to trim it down by separating out the initialization
-        AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState);
+        AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer = 0);
 
         virtual void Update(float deltaSeconds) override;
         virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand() override;

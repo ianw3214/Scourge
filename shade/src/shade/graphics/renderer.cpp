@@ -13,8 +13,9 @@
 // ======================================
 // This file contains an OpenGL implementation of the renderer
 // As things get abstracted, specific openGL constructs may need to be factored out
+
+// ======================================
 namespace {
-    // ======================================
     GLuint VAO_rect;
     GLuint VBO_rect;
     GLuint VAO_line;
@@ -75,6 +76,7 @@ namespace {
 Shade::RendererBase::RendererBase()
 {
     glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);  
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -245,11 +247,11 @@ void Shade::RendererBase::SwapCommandQueue(std::vector<std::unique_ptr<RenderCom
 }
 
 // ======================================
-void Shade::RendererBase::DrawLine(float point1x, float point1y, float point2x, float point2y, Colour colour) const
+void Shade::RendererBase::DrawLine(float point1x, float point1y, float point2x, float point2y, Colour colour, float depth) const
 {
     float vertices[] = {
-        point1x, point1y, 0.0f,
-        point2x, point2y, 0.0f
+        point1x, point1y, depth,
+        point2x, point2y, depth
     };
 
     glUseProgram(colourShaderProgram);
@@ -262,17 +264,17 @@ void Shade::RendererBase::DrawLine(float point1x, float point1y, float point2x, 
 }
 
 // ======================================
-void Shade::RendererBase::DrawLine(Vec2 point1, Vec2 point2, Colour colour) const
+void Shade::RendererBase::DrawLine(Vec2 point1, Vec2 point2, Colour colour, float depth) const
 {
-    DrawLine(point1.x, point1.y, point2.x, point2.y, colour);
+    DrawLine(point1.x, point1.y, point2.x, point2.y, colour, depth);
 }
 
 // ======================================
-void Shade::RendererBase::DrawLineNormalized(float point1x, float point1y, float point2x, float point2y, Colour colour) const
+void Shade::RendererBase::DrawLineNormalized(float point1x, float point1y, float point2x, float point2y, Colour colour, float depth) const
 {
     float vertices[] = {
-        point1x, point1y, 0.0f,
-        point2x, point2y, 0.0f
+        point1x, point1y, depth,
+        point2x, point2y, depth
     };
 
     glUseProgram(normalizedColourShaderProgram);
@@ -285,19 +287,19 @@ void Shade::RendererBase::DrawLineNormalized(float point1x, float point1y, float
 }
 
 // ======================================
-void Shade::RendererBase::DrawLineNormalized(Vec2 point1, Vec2 point2, Colour colour) const
+void Shade::RendererBase::DrawLineNormalized(Vec2 point1, Vec2 point2, Colour colour, float depth) const
 {
-    DrawLineNormalized(point1.x, point1.y, point2.x, point2.y, colour);
+    DrawLineNormalized(point1.x, point1.y, point2.x, point2.y, colour, depth);
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colour colour) const
+void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colour colour, float depth) const
 {
     float vertices[] = {
-        x,  y, 0.0f,  // bottom left
-        x + w, y, 0.0f,  // bottom right
-        x, y + h, 0.0f,  // top left
-        x + w, y + h, 0.0f   // top right 
+        x,  y, depth,       // bottom left
+        x + w, y, depth,    // bottom right
+        x, y + h, depth,    // top left
+        x + w, y + h, depth // top right 
     };
     
     glUseProgram(colourShaderProgram);
@@ -310,19 +312,19 @@ void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colo
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangle(Vec2 pos, float w, float h, Colour colour) const
+void Shade::RendererBase::DrawRectangle(Vec2 pos, float w, float h, Colour colour, float depth) const
 {
-    DrawRectangle(pos.x, pos.y, w, h, colour);
+    DrawRectangle(pos.x, pos.y, w, h, colour, depth);
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangleNormalized(float x, float y, float w, float h, Colour colour) const
+void Shade::RendererBase::DrawRectangleNormalized(float x, float y, float w, float h, Colour colour, float depth) const
 {
     float vertices[] = {
-        x,  y, 0.0f,  // bottom left
-        x + w, y, 0.0f,  // bottom right
-        x, y + h, 0.0f,  // top left
-        x + w, y + h, 0.0f   // top right 
+        x,  y, depth,       // bottom left
+        x + w, y, depth,    // bottom right
+        x, y + h, depth,    // top left
+        x + w, y + h, depth // top right 
     };
     
     glUseProgram(normalizedColourShaderProgram);
@@ -335,19 +337,19 @@ void Shade::RendererBase::DrawRectangleNormalized(float x, float y, float w, flo
 }
 
 // ======================================
-void Shade::RendererBase::DrawRectangleNormalized(Vec2 position, float w, float h, Colour colour) const
+void Shade::RendererBase::DrawRectangleNormalized(Vec2 position, float w, float h, Colour colour, float depth) const
 {
-    DrawRectangleNormalized(position.x, position.y, w, h, colour);
+    DrawRectangleNormalized(position.x, position.y, w, h, colour, depth);
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth) const
 {
     float vertices[] = {
-        x,  y, 0.0f,        textureSource.x, textureSource.y + textureSource.h, // bottom left
-        x + w, y, 0.0f,     textureSource.x + textureSource.w, textureSource.y + textureSource.h, // bottom right
-        x, y + h, 0.0f,     textureSource.x, textureSource.y, // top left
-        x + w, y + h, 0.0f, textureSource.x + textureSource.w, textureSource.y  // top right 
+        x,  y, depth,           textureSource.x, textureSource.y + textureSource.h, // bottom left
+        x + w, y, depth,        textureSource.x + textureSource.w, textureSource.y + textureSource.h, // bottom right
+        x, y + h, depth,        textureSource.x, textureSource.y, // top left
+        x + w, y + h, depth,    textureSource.x + textureSource.w, textureSource.y  // top right 
     };
     
     ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
@@ -362,20 +364,20 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, Resour
 }
 
 // ======================================
-void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTexture(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth) const
 {
-    DrawTexture(pos.x, pos.y, w, h, textureResource, textureSource);
+    DrawTexture(pos.x, pos.y, w, h, textureResource, textureSource, depth);
 }
 
 
 // ======================================
-void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth) const
 {
     float vertices[] = {
-        x,  y, 0.0f,        textureSource.x, textureSource.y + textureSource.h, // bottom left
-        x + w, y, 0.0f,     textureSource.x + textureSource.w, textureSource.y + textureSource.h, // bottom right
-        x, y + h, 0.0f,     textureSource.x, textureSource.y, // top left
-        x + w, y + h, 0.0f, textureSource.x + textureSource.w, textureSource.y  // top right 
+        x,  y, depth,           textureSource.x, textureSource.y + textureSource.h, // bottom left
+        x + w, y, depth,        textureSource.x + textureSource.w, textureSource.y + textureSource.h, // bottom right
+        x, y + h, depth,        textureSource.x, textureSource.y, // top left
+        x + w, y + h, depth,    textureSource.x + textureSource.w, textureSource.y  // top right 
     };
     
     ResourceManager* Manager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
@@ -389,7 +391,7 @@ void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource) const
+void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth) const
 {
-    DrawTextureNormalized(pos.x, pos.y, w, h, textureResource, textureSource);
+    DrawTextureNormalized(pos.x, pos.y, w, h, textureResource, textureSource, depth);
 }

@@ -14,10 +14,11 @@ Shade::SpriteComponent::SpriteComponent(Entity& owner)
 }
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath)
+Shade::SpriteComponent::SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer)
     : Component(owner)
-    , mrenderWidth(renderWidth)
-    , mrenderHeight(renderHeight)
+    , mRenderWidth(renderWidth)
+    , mRenderHeight(renderHeight)
+    , mRenderLayer(renderLayer)
     , mTextureHandle(ResourceHandle::Invalid)
 {
     ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
@@ -27,13 +28,13 @@ Shade::SpriteComponent::SpriteComponent(Entity& owner, float renderWidth, float 
 // ======================================
 float Shade::SpriteComponent::GetrenderWidth() const
 {
-    return mrenderWidth;
+    return mRenderWidth;
 }
 
 // ======================================
 float Shade::SpriteComponent::GetrenderHeight() const
 {
-    return mrenderHeight;
+    return mRenderHeight;
 }
 
 // ======================================
@@ -41,5 +42,5 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::SpriteComponent::CreateRenderC
 {
     const float drawX = mEntityRef.GetPositionX();
     const float drawY = mEntityRef.GetPositionY();
-    return std::make_unique<DrawTextureCommand>(drawX, drawY, mrenderWidth, mrenderHeight, mTextureHandle);
+    return std::make_unique<DrawTextureCommand>(drawX, drawY, mRenderWidth, mRenderHeight, mTextureHandle, mRenderLayer);
 }
