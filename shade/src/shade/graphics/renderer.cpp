@@ -5,6 +5,7 @@
 
 #include <gl/glew.h>
 
+#include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/texture.h"
 #include "shade/instance/service/provider.h"
@@ -234,9 +235,10 @@ void Shade::RendererBase::QueueCommand(std::unique_ptr<RenderCommand> command)
 // ======================================
 void Shade::RendererBase::ProcessCommandQueue()
 {
+    CameraService* camera = ServiceProvider::GetCurrentProvider()->GetService<CameraService>();
     for (std::unique_ptr<RenderCommand>& command : mCommandQueue)
     {
-        command->Execute(this);
+        command->Execute(this, camera->GetCameraInfo());
     }
 }
 

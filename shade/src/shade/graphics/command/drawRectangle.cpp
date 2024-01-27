@@ -1,6 +1,7 @@
 #include "drawRectangle.h"
 
 #include "shade/graphics/renderer.h"
+#include "shade/graphics/camera/camera.h"
 
 // ======================================
 Shade::DrawRectangleCommand::DrawRectangleCommand()
@@ -70,13 +71,15 @@ Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPositi
 
 
 // ======================================
-void Shade::DrawRectangleCommand::Execute(RendererBase* renderer) 
+void Shade::DrawRectangleCommand::Execute(RendererBase* renderer, const CameraInfo& camera) 
 {
+    const float x = mPosition.x + camera.mOffsetX;
+    const float y = mPosition.y + camera.mOffsetY;
     if (mNormalized)
     {
-        renderer->DrawRectangleNormalized(mPosition, mWidth, mHeight, mColour);
+        renderer->DrawRectangleNormalized(x, y, mWidth, mHeight, mColour);
     }
     else {
-        renderer->DrawRectangle(mPosition, mWidth, mHeight, mColour);
+        renderer->DrawRectangle(x, y, mWidth, mHeight, mColour);
     }
 }

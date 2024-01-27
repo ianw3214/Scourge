@@ -1,6 +1,7 @@
 #include "drawTexture.h"
 
 #include "shade/graphics/renderer.h"
+#include "shade/graphics/camera/camera.h"
 
 // ======================================
 // Layering constants
@@ -136,16 +137,18 @@ Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, 
 }
 
 // ======================================
-void Shade::DrawTextureCommand::Execute(RendererBase* renderer) 
+void Shade::DrawTextureCommand::Execute(RendererBase* renderer, const CameraInfo& camera) 
 {
+    const float x = mPosition.x + camera.mOffsetX;
+    const float y = mPosition.y + camera.mOffsetY;
     // Calculate depth based on the layer
     //  - Consider taking y position into consideration here as well, or perhaps that sorting should be done on gameplay side
     const float depth = -mLayer * LAYER_CHUNK;
     if (mNormalized)
     {
-        renderer->DrawTextureNormalized(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource, depth);
+        renderer->DrawTextureNormalized(x, y, mWidth, mHeight, mResourceHandle, mTextureSource, depth);
     }
     else {
-        renderer->DrawTexture(mPosition, mWidth, mHeight, mResourceHandle, mTextureSource, depth);
+        renderer->DrawTexture(x, y, mWidth, mHeight, mResourceHandle, mTextureSource, depth);
     }
 }

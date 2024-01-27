@@ -1,6 +1,7 @@
 #include "drawLine.h"
 
 #include "shade/graphics/renderer.h"
+#include "shade/graphics/camera/camera.h"
 
 // ======================================
 Shade::DrawLineCommand::DrawLineCommand()
@@ -63,14 +64,18 @@ Shade::DrawLineCommand::DrawLineCommand(float point1x, float point1y, float poin
 }
 
 // ======================================
-void Shade::DrawLineCommand::Execute(RendererBase* renderer) 
+void Shade::DrawLineCommand::Execute(RendererBase* renderer, const CameraInfo& camera) 
 {
+    const float point1x = mPoint1.x + camera.mOffsetX;
+    const float point1y = mPoint1.y + camera.mOffsetY;
+    const float point2x = mPoint2.x + camera.mOffsetX;
+    const float point2y = mPoint2.y + camera.mOffsetY;
     if (mNormalized)
     {
-        renderer->DrawLineNormalized(mPoint1, mPoint2, mColour);
+        renderer->DrawLineNormalized(point1x, point1y, point2x, point2y, mColour);
     }
     else
     {
-        renderer->DrawLine(mPoint1, mPoint2, mColour);
+        renderer->DrawLine(point1x, point1y, point2x, point2y, mColour);
     }
 }

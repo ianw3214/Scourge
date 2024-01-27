@@ -17,7 +17,7 @@ namespace Shade {
         DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour);
         DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool normalized);
 
-        virtual void Execute(RendererBase* Renderer) override;
+        virtual void Execute(RendererBase* Renderer, const CameraInfo& camera) override;
     private:
             Vec2 mPosition;
             float mWidth = 1.f;

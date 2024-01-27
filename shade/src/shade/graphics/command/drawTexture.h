@@ -26,7 +26,7 @@ namespace Shade {
         DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized, textureSourceInfo textureSource);
         DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized, textureSourceInfo textureSource, int layer);
 
-        virtual void Execute(RendererBase* renderer) override;
+        virtual void Execute(RendererBase* renderer, const CameraInfo& camera) override;
     private:
             Vec2 mPosition;
             float mWidth = 1.f;

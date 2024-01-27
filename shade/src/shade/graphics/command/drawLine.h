@@ -17,7 +17,7 @@ namespace Shade {
         DrawLineCommand(float point1x, float point1y, float point2x, float point2y, Colour colour);
         DrawLineCommand(float point1x, float point1y, float point2x, float point2y, Colour colour, bool normalized);
 
-        virtual void Execute(RendererBase* renderer) override;
+        virtual void Execute(RendererBase* renderer, const CameraInfo& camera) override;
     private:
         Vec2 mPoint1;
         Vec2 mPoint2;

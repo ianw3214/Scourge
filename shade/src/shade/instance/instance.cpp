@@ -7,6 +7,7 @@
 #include "shade/input/input.h"
 #include "shade/instance/service/provider.h"
 #include "shade/resource/manager.h"
+#include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/renderer.h"
 #include "shade/logging/logService.h"
@@ -21,6 +22,7 @@ Shade::GameInstance::GameInstance()
 
     ServiceProvider::RegisterProvider(this);
     RegisterService(new ResourceManager());
+    RegisterService(new CameraService());
     RegisterService(new LogService());
 
     mRenderer->InitializeDefaultShaders();
