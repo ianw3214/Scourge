@@ -14,10 +14,11 @@ Shade::SpriteComponent::SpriteComponent(Entity& owner)
 }
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer)
+Shade::SpriteComponent::SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
     : Component(owner)
     , mRenderWidth(renderWidth)
     , mRenderHeight(renderHeight)
+    , mRenderAnchor(renderAnchor)
     , mRenderLayer(renderLayer)
     , mTextureHandle(ResourceHandle::Invalid)
 {
@@ -26,21 +27,56 @@ Shade::SpriteComponent::SpriteComponent(Entity& owner, float renderWidth, float 
 }
 
 // ======================================
-float Shade::SpriteComponent::GetrenderWidth() const
+float Shade::SpriteComponent::GetRenderWidth() const
 {
     return mRenderWidth;
 }
 
 // ======================================
-float Shade::SpriteComponent::GetrenderHeight() const
+float Shade::SpriteComponent::GetRenderHeight() const
 {
     return mRenderHeight;
 }
 
 // ======================================
+float Shade::SpriteComponent::GetRenderX() const
+{
+    switch(mRenderAnchor) {
+        case RenderAnchor::BOTTOM_LEFT: {
+            return mEntityRef.GetPositionX();
+        } break;
+        case RenderAnchor::BOTTOM_MIDDLE:
+        case RenderAnchor::MIDDLE: {
+            return mEntityRef.GetPositionX() - mRenderWidth / 2.0f;
+        } break;
+        default: {
+            return mEntityRef.GetPositionX();
+        } break;
+    }
+}
+
+// ======================================
+float Shade::SpriteComponent::GetRenderY() const
+{
+    switch(mRenderAnchor) {
+        case RenderAnchor::BOTTOM_LEFT: 
+        case RenderAnchor::BOTTOM_MIDDLE: {
+            return mEntityRef.GetPositionY();
+        } break;
+        case RenderAnchor::MIDDLE: {
+            return mEntityRef.GetPositionY() - mRenderHeight / 2.0f;
+        } break;
+        default: {
+            return mEntityRef.GetPositionX();
+        } break;
+    }
+}
+
+
+// ======================================
 std::unique_ptr<Shade::DrawTextureCommand> Shade::SpriteComponent::CreateRenderCommand()
 {
-    const float drawX = mEntityRef.GetPositionX();
-    const float drawY = mEntityRef.GetPositionY();
+    const float drawX = GetRenderX();
+    const float drawY = GetRenderY();
     return std::make_unique<DrawTextureCommand>(drawX, drawY, mRenderWidth, mRenderHeight, mTextureHandle, mRenderLayer);
 }

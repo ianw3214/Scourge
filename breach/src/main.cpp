@@ -103,7 +103,7 @@ public:
 
         // Initialize a background
         std::unique_ptr<Shade::Entity> TestBackground = std::make_unique<Shade::Entity>(*this);
-        TestBackground->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground.get(), 1280.f, 720.f, "assets/textures/background.png", static_cast<int>(RenderLayer::BACKGROUND)));
+        TestBackground->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground.get(), 1280.f, 720.f, "assets/textures/background.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_LEFT));
         AddEntity(std::move(TestBackground));
 
         // Initialize a test entity
@@ -114,7 +114,7 @@ public:
         animStateInfo["run_right"] = { 8, 13 };
         animStateInfo["run_left"] = { 14, 19 };
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
-        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT)));
+        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestEntity->SetPositionX(200.f);
         TestEntity->SetPositionY(200.f);
         TestEntity->AddComponent(std::make_unique<MovementComponent>(*TestEntity.get()));

@@ -11,15 +11,15 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner)
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer)
-    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
+    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
 {
 
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer)
-    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
     , mTileSheetInfo(tileInfo)
     , mStates(states)
     , mCurrentState(initialState)
@@ -57,8 +57,8 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
     SourceInfo.x = FrameWidth * static_cast<float>(mCurrentFrame % mTileSheetInfo.mColumns);
     SourceInfo.y = FrameHeight * static_cast<float>(mCurrentFrame / mTileSheetInfo.mColumns);
     
-    const float DrawX = mEntityRef.GetPositionX();
-    const float DrawY = mEntityRef.GetPositionY();
+    const float DrawX = GetRenderX();
+    const float DrawY = GetRenderY();
     return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle, false, SourceInfo, mRenderLayer);
 }
 

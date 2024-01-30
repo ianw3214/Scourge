@@ -8,19 +8,31 @@
 
 namespace Shade {
 
+    // Defines which point of the sprite counts as the position of the sprite
+    //  - might not be needed once custom offsets are implemented
+    enum class RenderAnchor {
+        BOTTOM_LEFT,
+        BOTTOM_MIDDLE,
+        MIDDLE
+    };
+
     class DrawTextureCommand;
     class SpriteComponent : public Component {
     public:
         SpriteComponent(Entity& owner);
-        SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0);
+        SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
 
-        float GetrenderWidth() const;
-        float GetrenderHeight() const;
+        float GetRenderWidth() const;
+        float GetRenderHeight() const;
+        // These take into account the rendering offsets of a sprite based on the entity position
+        float GetRenderX() const;
+        float GetRenderY() const;
 
         virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand();
     protected:
         float mRenderWidth = 0.f;
         float mRenderHeight = 0.f;
+        RenderAnchor mRenderAnchor = RenderAnchor::MIDDLE;
         int mRenderLayer = 0;
         ResourceHandle mTextureHandle = ResourceHandle::Invalid;
     };
