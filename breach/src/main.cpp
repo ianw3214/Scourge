@@ -7,6 +7,7 @@
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
 #include "shade/game/world.h"
+#include "shade/graphics/camera/camera.h"
 
 // ======================================
 enum class RenderLayer : int {
@@ -20,6 +21,7 @@ enum class FacingDirection {
     RIGHT
 };
 
+// ======================================
 // TODO: Extract base movement component, allow player controlled vs AI controlled
 class MovementComponent : public Shade::Component
 {
@@ -72,6 +74,20 @@ public:
     }
 };
 
+// ======================================
+class CameraFollowComponent : public Shade::Component
+{
+public:
+    // ======================================
+    CameraFollowComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
+    // ======================================
+    void Update(float deltaSeconds) override {
+        Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
+        // TODO: y position update should come from a better place
+        camera->SetCameraPosition(mEntityRef.GetPositionX(), 360.f);
+    }
+};
+
 class CustomGameWorld : public Shade::GameWorldModule
 {
 public:
@@ -102,6 +118,7 @@ public:
         TestEntity->SetPositionX(200.f);
         TestEntity->SetPositionY(200.f);
         TestEntity->AddComponent(std::make_unique<MovementComponent>(*TestEntity.get()));
+        TestEntity->AddComponent(std::make_unique<CameraFollowComponent>(*TestEntity.get()));
         AddEntity(std::move(TestEntity));
     }
 };
