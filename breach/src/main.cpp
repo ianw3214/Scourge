@@ -12,10 +12,7 @@
 // ======================================
 enum class RenderLayer : int {
     // Hacky solution
-    //  TODO: (high prio) add rendering offset to avoid hardcoding render layers to separate
-    BACKGROUND1 = -5,
-    BACKGROUND2 = -4,
-    BACKGROUND3 = -3,
+    BACKGROUND = -5,
     DEFAULT = 0
 };
 
@@ -104,9 +101,6 @@ class HorizontalParallaxComponent : public Shade::Component
         //  - if this needs to change, need to separate concept between world x/y and rendering x/y
         //  - or camera needs to somehow know to not use world x/y for parallax entities
         Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
-        // at parallax 0: sprite x is always same as camera x
-        // at parallax 1: sprite x is always 0
-        // at parallax 2: sprite x is always 
         mEntityRef.SetPositionX(camera->GetCameraInfo().x - mParallaxFactor * (camera->GetCameraInfo().x));
         // Assume the sprite for parallax components always have anchor set to the bottom middle
         mEntityRef.SetPositionY(0.f);
@@ -130,17 +124,17 @@ public:
 
         // Initialize background images
         std::unique_ptr<Shade::Entity> TestBackground1 = std::make_unique<Shade::Entity>(*this);
-        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground1.get(), 1280.f, 720.f, "assets/textures/sky.png", static_cast<int>(RenderLayer::BACKGROUND1), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground1.get(), 1280.f, 720.f, "assets/textures/sky.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground1->AddComponent(std::make_unique<HorizontalParallaxComponent>(*TestBackground1.get(), 0.f));
         AddEntity(std::move(TestBackground1));
 
         std::unique_ptr<Shade::Entity> TestBackground2 = std::make_unique<Shade::Entity>(*this);
-        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground2.get(), 1280.f, 720.f, "assets/textures/clouds.png", static_cast<int>(RenderLayer::BACKGROUND2), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground2.get(), 1280.f, 720.f, "assets/textures/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground2->AddComponent(std::make_unique<HorizontalParallaxComponent>(*TestBackground2.get(), 0.5f));
         AddEntity(std::move(TestBackground2));
 
         std::unique_ptr<Shade::Entity> TestBackground3 = std::make_unique<Shade::Entity>(*this);
-        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground3.get(), 1280.f, 720.f, "assets/textures/background2.png", static_cast<int>(RenderLayer::BACKGROUND3), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground3.get(), 1280.f, 720.f, "assets/textures/background2.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(*TestBackground3.get(), 1.0f));
         AddEntity(std::move(TestBackground3));
 
@@ -153,8 +147,8 @@ public:
         animStateInfo["run_left"] = { 14, 19 };
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
         TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        // TestEntity->SetPositionX(200.f);
-        // TestEntity->SetPositionY(200.f);
+        TestEntity->SetPositionX(200.f);
+        TestEntity->SetPositionY(200.f);x
         TestEntity->AddComponent(std::make_unique<MovementComponent>(*TestEntity.get()));
         TestEntity->AddComponent(std::make_unique<CameraFollowComponent>(*TestEntity.get()));
         AddEntity(std::move(TestEntity));
