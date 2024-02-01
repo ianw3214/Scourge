@@ -9,6 +9,7 @@
 #include "shade/resource/manager.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
+#include "shade/graphics/imgui/wrapper.h"
 #include "shade/graphics/renderer.h"
 #include "shade/logging/logService.h"
 #include "shade/module/state.h"
@@ -60,6 +61,7 @@ void Shade::GameInstance::Run()
         mCurrentState->UpdateModules(mdeltaSeconds);
 
         mRenderer->Clear();
+        ImGuiWrapper::StartFrame();
         std::vector<std::unique_ptr<RenderCommand>> RenderCommands;
         mCurrentState->RenderModules(RenderCommands);
         // TODO: Once this is multithreaded, should also check previous render queue is done

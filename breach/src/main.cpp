@@ -148,7 +148,7 @@ public:
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
         TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestEntity->SetPositionX(200.f);
-        TestEntity->SetPositionY(200.f);x
+        TestEntity->SetPositionY(200.f);
         TestEntity->AddComponent(std::make_unique<MovementComponent>(*TestEntity.get()));
         TestEntity->AddComponent(std::make_unique<CameraFollowComponent>(*TestEntity.get()));
         AddEntity(std::move(TestEntity));

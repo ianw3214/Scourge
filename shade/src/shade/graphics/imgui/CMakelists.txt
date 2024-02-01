@@ -1,0 +1,1 @@
+target_sources(Shade PRIVATE wrapper.h wrapper.cpp)

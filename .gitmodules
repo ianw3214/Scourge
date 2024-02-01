@@ -1,0 +1,6 @@
+[submodule "shade/vendor/imgui"]
+	path = shade/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "shade/vendor/stb"]
+	path = shade/vendor/stb
+	url = https://github.com/nothings/stb.git

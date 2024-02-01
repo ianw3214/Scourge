@@ -3,6 +3,8 @@
 #include <SDL2/SDL.h>
 #include <gl/glew.h>
 
+#include "shade/graphics/imgui/wrapper.h"
+
 namespace Shade {
     // ======================================
     struct Window::WindowImpl {
@@ -23,16 +25,20 @@ Shade::Window::Window()
 
     // Initialize GLEW
 	GLenum glewError = glewInit();
+
+    // Initialize ImGui
+    ImGuiWrapper::Initialize(mWindowImpl->mWindow, mWindowImpl->mContext);
 }
 
 // ======================================
 Shade::Window::~Window()
 {
-
+    
 }   
 
 // ======================================
 void Shade::Window::Update()
 {
+    ImGuiWrapper::EndFrame();
     SDL_GL_SwapWindow(mWindowImpl->mWindow);
 }
