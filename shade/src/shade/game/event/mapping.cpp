@@ -22,6 +22,7 @@ const std::string& Shade::InputMapping::GetKeyEvent(KeyCode key)
     if (mKeyEvents.find(key) == mKeyEvents.end())
     {
         LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        // TODO: Message formatting
         logService->LogError("Could not map input key {0} to gameplay event");
     }
     return mKeyEvents[key];

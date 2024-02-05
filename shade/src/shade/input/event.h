@@ -25,6 +25,9 @@ namespace Shade {
         // MOUSE EVENT INFO
         // TODO: Working on this...
 
+        // CONTROLLER EVENT INFO
+        // TODO: Working on this...
+
         // Constructors for convenience
         static InputEvent CreateKeyPress(KeyCode key);
         static InputEvent CreateKeyRelease(KeyCode key);

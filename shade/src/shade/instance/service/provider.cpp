@@ -17,7 +17,7 @@ Shade::ServiceProvider::~ServiceProvider()
 // ======================================
 bool Shade::ServiceProvider::RegisterService(Service* service)
 {
-    // TODO: Assert that 'NewService' is not nullptr
+    // TODO: Assert that 'service' is not nullptr
     for (std::unique_ptr<Service>& serviceIT : mServices)
     {
         if (serviceIT->GetName() == service->GetName())

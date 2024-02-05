@@ -4,6 +4,9 @@
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/event/source.h"
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
+#include "shade/logging/logger.h"
 
 // ======================================
 Shade::Entity::Entity(GameplayEventSource& GameWorldRef) 
@@ -58,9 +61,14 @@ float Shade::Entity::GetPositionY() const
 // This takes ownership of newComponent
 void Shade::Entity::AddComponent(std::unique_ptr<Component> newComponent)
 {
-    // TODO: Does it make sense to check if a sprite component already exists here?
     if (SpriteComponent* sprite = dynamic_cast<SpriteComponent*>(newComponent.get()))
     {
+        if (mCachedSprite)
+        {
+            LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+            logService->LogError("Sprite component already exists on entity: {0}");
+            return;
+        }
         newComponent.release();
         mCachedSprite = std::unique_ptr<SpriteComponent>(sprite);
     }
