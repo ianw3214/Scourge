@@ -138,19 +138,30 @@ public:
         TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(*TestBackground3.get(), 1.0f));
         AddEntity(std::move(TestBackground3));
 
-        // Initialize a test entity
+        // Initialize a player entity
         Shade::TilesheetInfo tileSheetInfo { 128, 128, 5, 4 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
         animStateInfo["idle_right"] = { 0, 3 };
         animStateInfo["idle_left"] = { 4, 7 };
         animStateInfo["run_right"] = { 8, 13 };
         animStateInfo["run_left"] = { 14, 19 };
+        std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this);
+        PlayerEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*PlayerEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        PlayerEntity->SetPositionX(200.f);
+        PlayerEntity->SetPositionY(200.f);
+        PlayerEntity->AddComponent(std::make_unique<MovementComponent>(*PlayerEntity.get()));
+        PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>(*PlayerEntity.get()));
+        AddEntity(std::move(PlayerEntity));
+
+        // Initialize a test entity
+        Shade::TilesheetInfo tileSheetInfo2 { 160, 160, 3, 3 };
+        std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo2;
+        animStateInfo2["idle"] = { 0, 0 };
+        animStateInfo2["run"] = { 1, 6 };
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
-        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestEntity->SetPositionX(200.f);
-        TestEntity->SetPositionY(200.f);
-        TestEntity->AddComponent(std::make_unique<MovementComponent>(*TestEntity.get()));
-        TestEntity->AddComponent(std::make_unique<CameraFollowComponent>(*TestEntity.get()));
+        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 160.f, 160.f, "assets/textures/knight.png", tileSheetInfo2, animStateInfo2, "run", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestEntity->SetPositionX(300.f);
+        TestEntity->SetPositionY(300.f);
         AddEntity(std::move(TestEntity));
     }
 };
