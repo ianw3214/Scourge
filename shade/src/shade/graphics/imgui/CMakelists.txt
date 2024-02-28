@@ -1,1 +1,1 @@
-target_sources(Shade PRIVATE wrapper.h wrapper.cpp)
+target_sources(Shade PRIVATE window.h wrapper.h service.h window.cpp wrapper.cpp service.cpp)

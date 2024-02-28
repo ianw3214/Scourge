@@ -9,9 +9,11 @@
 #include "shade/resource/manager.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
+#include "shade/graphics/imgui/service.h"
 #include "shade/graphics/imgui/wrapper.h"
 #include "shade/graphics/renderer.h"
 #include "shade/logging/logService.h"
+#include "shade/logging/logWindow.h"
 #include "shade/module/state.h"
 
 // ======================================
@@ -25,8 +27,17 @@ Shade::GameInstance::GameInstance()
     RegisterService(new ResourceManager());
     RegisterService(new CameraService());
     RegisterService(new LogService());
+    RegisterService(new ImGuiService());
+
+    // Temporarily register loggers here
+    //  - There's GOT TO be a better way to do this... QQ
+    ImGuiService* imguiService = GetService<ImGuiService>();
+    imguiService->RegisterWindow(std::make_unique<LogWindow>());
 
     mRenderer->InitializeDefaultShaders();
+
+    LogService* logService = GetService<LogService>();
+    logService->LogInfo("Shade engine initialized!");
 }
 
 // ======================================

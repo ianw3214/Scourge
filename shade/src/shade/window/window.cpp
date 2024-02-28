@@ -4,6 +4,8 @@
 #include <gl/glew.h>
 
 #include "shade/graphics/imgui/wrapper.h"
+#include "shade/graphics/imgui/service.h"
+#include "shade/instance/service/provider.h"
 
 namespace Shade {
     // ======================================
@@ -39,6 +41,9 @@ Shade::Window::~Window()
 // ======================================
 void Shade::Window::Update()
 {
+    ImGuiService* imgui = ServiceProvider::GetCurrentProvider()->GetService<ImGuiService>();
+    imgui->DrawWindows();
+
     ImGuiWrapper::EndFrame();
     SDL_GL_SwapWindow(mWindowImpl->mWindow);
 }
