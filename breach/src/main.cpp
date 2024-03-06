@@ -76,6 +76,56 @@ public:
 };
 
 // ======================================
+class RandomMovementComponent : public Shade::Component
+{
+public:
+    // TODO: This stuff can easily be extracted into a common movement component
+    FacingDirection mFacing = FacingDirection::RIGHT;
+    bool mWasMoving = false;
+    // This is not really random, but just switch between moving left/right
+    float mMoveDelta = 0.f;
+public:
+    // ======================================
+    RandomMovementComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
+    // ======================================
+    void Update(float deltaSeconds) override {
+        mMoveDelta += deltaSeconds;
+        if (mMoveDelta > 4.f) 
+        {
+            mMoveDelta = 0.f;
+            mFacing = mFacing == FacingDirection::RIGHT ? FacingDirection::LEFT : FacingDirection::RIGHT;
+        }
+        const bool moving = mMoveDelta > 1.5f;
+        FacingDirection NewFacingDir = mFacing;
+        bool bMoving = false;
+        if (mFacing == FacingDirection::RIGHT && moving)
+        {
+            mEntityRef.SetPositionX(mEntityRef.GetPositionX() + 100.f * deltaSeconds);
+            bMoving = true;
+        }
+        if (mFacing == FacingDirection::LEFT && moving)
+        {
+            mEntityRef.SetPositionX(mEntityRef.GetPositionX() - 100.f * deltaSeconds);
+            bMoving = true;
+        }
+        // Update animation if any of the movement related states were changed
+        if (NewFacingDir != mFacing || bMoving != mWasMoving)
+        {
+            mWasMoving = bMoving;
+            mFacing = NewFacingDir;
+            if (bMoving)
+            {
+                mEntityRef.GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "run_right" : "run_left");
+            }
+            else
+            {
+                mEntityRef.GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "idle_right" : "idle_left");
+            }
+        }
+    }
+};
+
+// ======================================
 class CameraFollowComponent : public Shade::Component
 {
 public:
@@ -163,6 +213,20 @@ public:
         TestEntity->SetPositionX(300.f);
         TestEntity->SetPositionY(300.f);
         AddEntity(std::move(TestEntity));
+
+        // Testing a knight entity
+        Shade::TilesheetInfo tileSheetInfo3 { 480, 240, 4, 3 };
+        std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo3;
+        animStateInfo3["idle_left"] = { 0, 0 };
+        animStateInfo3["idle_right"] = { 1, 1 };
+        animStateInfo3["run_left"] = { 2, 5 };
+        animStateInfo3["run_right"] = { 6, 9 };
+        std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this);
+        TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestKnight.get(), 480.f, 240.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestKnight->SetPositionX(-100.f);
+        TestKnight->SetPositionY(300.f);
+        TestKnight->AddComponent(std::make_unique<RandomMovementComponent>(*TestKnight.get()));
+        AddEntity(std::move(TestKnight));
     }
 };
 
