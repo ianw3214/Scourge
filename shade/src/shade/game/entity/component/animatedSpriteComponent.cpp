@@ -4,22 +4,15 @@
 #include "shade/graphics/command/drawTexture.h"
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner)
-    : SpriteComponent(owner)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
+    : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
 {
 
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
-    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
-{
-
-}
-
-// ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
-    : SpriteComponent(owner, renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+    : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
     , mTileSheetInfo(tileInfo)
     , mStates(states)
     , mCurrentState(initialState)

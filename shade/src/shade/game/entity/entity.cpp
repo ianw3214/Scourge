@@ -61,6 +61,7 @@ float Shade::Entity::GetPositionY() const
 // This takes ownership of newComponent
 void Shade::Entity::AddComponent(std::unique_ptr<Component> newComponent)
 {
+    newComponent->SetEntityRef(this);
     if (SpriteComponent* sprite = dynamic_cast<SpriteComponent*>(newComponent.get()))
     {
         if (mCachedSprite)

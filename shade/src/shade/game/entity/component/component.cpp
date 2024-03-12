@@ -1,10 +1,18 @@
 #include "component.h"
 
 // ======================================
-Shade::Component::Component(Entity& owner)
-    : mEntityRef(owner)
+Shade::Component::Component()
 {
 
+}
+
+// ======================================
+void Shade::Component::SetEntityRef(Entity* entityRef)
+{
+    // TODO: Maybe we should check here if entityRef is already set
+    //  - We should never expect the entity of a component to change
+    //  - If that assumption changes, then we would not need a check here
+    mEntityRef = entityRef;
 }
 
 // ======================================

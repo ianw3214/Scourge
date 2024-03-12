@@ -19,8 +19,7 @@ namespace Shade {
     class DrawTextureCommand;
     class SpriteComponent : public Component {
     public:
-        SpriteComponent(Entity& owner);
-        SpriteComponent(Entity& owner, float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
+        SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
 
         float GetRenderWidth() const;
         float GetRenderHeight() const;

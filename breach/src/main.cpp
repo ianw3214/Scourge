@@ -9,6 +9,8 @@
 #include "shade/game/world.h"
 #include "shade/graphics/camera/camera.h"
 
+#include "components/healthComponent.h"
+
 // ======================================
 enum class RenderLayer : int {
     // Hacky solution
@@ -38,31 +40,31 @@ public:
     float mSpeed = 200.f;
 public:
     // ======================================
-    BaseMovementComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
-    BaseMovementComponent(Shade::Entity& EntityRef, float speed) : Component(EntityRef), mSpeed(speed) {}
+    BaseMovementComponent() = default;
+    BaseMovementComponent(float speed) : mSpeed(speed) {}
     // ======================================
     void Update(float deltaSeconds) override {
         FacingDirection NewFacingDir = mFacing;
         bool bMoving = false;
         if (mMovingUp)
         {
-            mEntityRef.SetPositionY(mEntityRef.GetPositionY() + mSpeed * deltaSeconds);
+            mEntityRef->SetPositionY(mEntityRef->GetPositionY() + mSpeed * deltaSeconds);
             bMoving = true;
         }
         if (mMovingDown)
         {
-            mEntityRef.SetPositionY(mEntityRef.GetPositionY() - mSpeed * deltaSeconds);
+            mEntityRef->SetPositionY(mEntityRef->GetPositionY() - mSpeed * deltaSeconds);
             bMoving = true;
         }
         if (mMovingRight)
         {
-            mEntityRef.SetPositionX(mEntityRef.GetPositionX() + mSpeed * deltaSeconds);
+            mEntityRef->SetPositionX(mEntityRef->GetPositionX() + mSpeed * deltaSeconds);
             bMoving = true;
             NewFacingDir = FacingDirection::RIGHT;
         }
         if (mMovingLeft)
         {
-            mEntityRef.SetPositionX(mEntityRef.GetPositionX() - mSpeed * deltaSeconds);
+            mEntityRef->SetPositionX(mEntityRef->GetPositionX() - mSpeed * deltaSeconds);
             bMoving = true;
             NewFacingDir = FacingDirection::LEFT;
         }
@@ -73,11 +75,11 @@ public:
             mFacing = NewFacingDir;
             if (bMoving)
             {
-                mEntityRef.GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "run_right" : "run_left");
+                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "run_right" : "run_left");
             }
             else
             {
-                mEntityRef.GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "idle_right" : "idle_left");
+                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "idle_right" : "idle_left");
             }
         }
     }
@@ -91,19 +93,17 @@ public:
     bool mWasMoving = false;
 public:
     // ======================================
-    PlayerMoveControlComponenet(Shade::Entity& EntityRef) : Component(EntityRef) {}
-    // ======================================
     void Update(float deltaSeconds) override {
-        BaseMovementComponent* moveComponent = mEntityRef.GetComponent<BaseMovementComponent>();
+        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
         if (moveComponent == nullptr)
         {
             // TODO: Error here...
             return;
         }
-        moveComponent->mMovingUp = mEntityRef.GetBooleanEvent("move_up").mHeld;
-        moveComponent->mMovingDown = mEntityRef.GetBooleanEvent("move_down").mHeld;
-        moveComponent->mMovingRight = mEntityRef.GetBooleanEvent("move_right").mHeld;
-        moveComponent->mMovingLeft = mEntityRef.GetBooleanEvent("move_left").mHeld;
+        moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
+        moveComponent->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
+        moveComponent->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
+        moveComponent->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
     }
 };
 
@@ -116,10 +116,8 @@ public:
     bool mLeftRightToggle = false;
 public:
     // ======================================
-    RandomMovementComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
-    // ======================================
     void Update(float deltaSeconds) override {
-        BaseMovementComponent* moveComponent = mEntityRef.GetComponent<BaseMovementComponent>();
+        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
         if (moveComponent == nullptr)
         {
             // TODO: Error here...
@@ -143,12 +141,10 @@ class CameraFollowComponent : public Shade::Component
 {
 public:
     // ======================================
-    CameraFollowComponent(Shade::Entity& EntityRef) : Component(EntityRef) {}
-    // ======================================
     void Update(float deltaSeconds) override {
         Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
         // TODO: y position update should come from a better place
-        camera->SetCameraPosition(mEntityRef.GetPositionX(), 360.f);
+        camera->SetCameraPosition(mEntityRef->GetPositionX(), 360.f);
     }
 };
 
@@ -157,16 +153,16 @@ class HorizontalParallaxComponent : public Shade::Component
 {
     public:
     // ======================================
-    HorizontalParallaxComponent(Shade::Entity& EntityRef, float parallax) : Component(EntityRef), mParallaxFactor(parallax) {}
+    HorizontalParallaxComponent(float parallax) : mParallaxFactor(parallax) {}
     // ======================================
     void Update(float deltaSeconds) override {
         // Assume things with a parallax component just work from position x=0
         //  - if this needs to change, need to separate concept between world x/y and rendering x/y
         //  - or camera needs to somehow know to not use world x/y for parallax entities
         Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
-        mEntityRef.SetPositionX(camera->GetCameraInfo().x - mParallaxFactor * (camera->GetCameraInfo().x));
+        mEntityRef->SetPositionX(camera->GetCameraInfo().x - mParallaxFactor * (camera->GetCameraInfo().x));
         // Assume the sprite for parallax components always have anchor set to the bottom middle
-        mEntityRef.SetPositionY(0.f);
+        mEntityRef->SetPositionY(0.f);
     }
     private:
     float mParallaxFactor = 1.0f;
@@ -187,18 +183,18 @@ public:
 
         // Initialize background images
         std::unique_ptr<Shade::Entity> TestBackground1 = std::make_unique<Shade::Entity>(*this);
-        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground1.get(), 1280.f, 720.f, "assets/textures/sky.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground1->AddComponent(std::make_unique<HorizontalParallaxComponent>(*TestBackground1.get(), 0.f));
+        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/sky.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground1->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.f));
         AddEntity(std::move(TestBackground1));
 
         std::unique_ptr<Shade::Entity> TestBackground2 = std::make_unique<Shade::Entity>(*this);
-        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground2.get(), 1280.f, 720.f, "assets/textures/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground2->AddComponent(std::make_unique<HorizontalParallaxComponent>(*TestBackground2.get(), 0.5f));
+        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground2->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.5f));
         AddEntity(std::move(TestBackground2));
 
         std::unique_ptr<Shade::Entity> TestBackground3 = std::make_unique<Shade::Entity>(*this);
-        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(*TestBackground3.get(), 1280.f, 720.f, "assets/textures/background2.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(*TestBackground3.get(), 1.0f));
+        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/background2.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(1.0f));
         AddEntity(std::move(TestBackground3));
 
         // Initialize a player entity
@@ -209,12 +205,13 @@ public:
         animStateInfo["run_right"] = { 8, 13 };
         animStateInfo["run_left"] = { 14, 19 };
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this);
-        PlayerEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*PlayerEntity.get(), 128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        PlayerEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
-        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(*PlayerEntity.get()));
-        PlayerEntity->AddComponent(std::make_unique<PlayerMoveControlComponenet>(*PlayerEntity.get()));
-        PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>(*PlayerEntity.get()));
+        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>());
+        PlayerEntity->AddComponent(std::make_unique<PlayerMoveControlComponenet>());
+        PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
+        PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
         AddEntity(std::move(PlayerEntity));
 
         // Initialize a test entity
@@ -223,7 +220,7 @@ public:
         animStateInfo2["idle"] = { 0, 0 };
         animStateInfo2["run"] = { 1, 6 };
         std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
-        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestEntity.get(), 160.f, 160.f, "assets/textures/knight.png", tileSheetInfo2, animStateInfo2, "run", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(160.f, 160.f, "assets/textures/knight.png", tileSheetInfo2, animStateInfo2, "run", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestEntity->SetPositionX(300.f);
         TestEntity->SetPositionY(300.f);
         AddEntity(std::move(TestEntity));
@@ -240,11 +237,11 @@ public:
         animStateInfo3["recharge_left"] = { 18, 18 };
         animStateInfo3["recharge_right"] = { 19, 19 };
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this);
-        TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(*TestKnight.get(), 480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(300.f);
-        TestKnight->AddComponent(std::make_unique<BaseMovementComponent>(*TestKnight.get()));
-        TestKnight->AddComponent(std::make_unique<RandomMovementComponent>(*TestKnight.get()));
+        TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
+        TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
         AddEntity(std::move(TestKnight));
     }
 };
