@@ -208,7 +208,7 @@ public:
         PlayerEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
-        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>());
+        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
         PlayerEntity->AddComponent(std::make_unique<PlayerMoveControlComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
         PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
