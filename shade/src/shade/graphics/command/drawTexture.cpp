@@ -142,8 +142,12 @@ void Shade::DrawTextureCommand::Execute(RendererBase* renderer, const CameraInfo
     const float x = mPosition.x + camera.mOffsetX;
     const float y = mPosition.y + camera.mOffsetY;
     // Calculate depth based on the layer
-    //  - Consider taking y position into consideration here as well, or perhaps that sorting should be done on gameplay side
-    const float depth = -mLayer * LAYER_CHUNK;
+    //  - take y position into consideration here (The larger the y, the "deeper" the z)
+    //  - very janky current implementation, need to consider:
+    //      - What if textures want to "opt out" of this sorting
+    //      - What if a texture's y position is greater than 1000.f?
+    //      - What if a texture wants to offset from it's base y position?
+    const float depth = -mLayer * LAYER_CHUNK + (y / 10000.f);
     if (mNormalized)
     {
         renderer->DrawTextureNormalized(x, y, mWidth, mHeight, mResourceHandle, mTextureSource, depth);
