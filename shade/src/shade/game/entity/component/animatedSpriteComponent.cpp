@@ -34,7 +34,15 @@ void Shade::AnimatedSpriteComponent::Update(float deltaSeconds)
         AnimationStateInfo StateInfo = mStates[mCurrentState];
         if (++mCurrentFrame > StateInfo.mEndFrame) 
         {
-            mCurrentFrame = StateInfo.mStartFrame;
+            // If there is a transition, then go to that state
+            if (StateInfo.mTransition.empty())
+            {
+                mCurrentFrame = StateInfo.mStartFrame;
+            }
+            else
+            {
+                ChangeAnimationState(StateInfo.mTransition);
+            }
         }
     }
 }
@@ -58,6 +66,7 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
 // ======================================
 void Shade::AnimatedSpriteComponent::ChangeAnimationState(const std::string& newState)
 {
+    // TODO: Error/crash if the new state isn't an actual valid state
     mCurrentState = newState;
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
     mElapsedTime = 0.f;

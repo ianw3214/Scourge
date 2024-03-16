@@ -16,6 +16,7 @@ namespace Shade {
     struct AnimationStateInfo {
         uint16_t mStartFrame = 0;
         uint16_t mEndFrame = 0;
+        std::string mTransition = "";   // Empty default transition means the animation state will loop
     };
 
     class AnimatedSpriteComponent : public SpriteComponent {

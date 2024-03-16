@@ -28,8 +28,9 @@ enum class FacingDirection {
 class BaseMovementComponent : public Shade::Component
 {
 public:
-    FacingDirection mFacing = FacingDirection::RIGHT;   // This should probably live somewhere outside the base movement component
+    FacingDirection mFacing = FacingDirection::RIGHT;   // TODO: This should probably live somewhere outside the base movement component
     bool mWasMoving = false;
+    bool mDisable = false;
     // These variables are directly set to control the movement
     // TODO: Consider when to reset these variables, or if they should even be reset per frame?
     bool mMovingLeft = false;
@@ -44,6 +45,10 @@ public:
     BaseMovementComponent(float speed) : mSpeed(speed) {}
     // ======================================
     void Update(float deltaSeconds) override {
+        if (mDisable)
+        {
+            return;
+        }
         FacingDirection NewFacingDir = mFacing;
         bool bMoving = false;
         if (mMovingUp)
@@ -86,11 +91,12 @@ public:
 };
 
 // ======================================
-class PlayerMoveControlComponenet : public Shade::Component
+class PlayerInputComponenet : public Shade::Component
 {
 public:
-    FacingDirection mFacing = FacingDirection::RIGHT;
-    bool mWasMoving = false;
+    // Attack info
+    // TODO: This should be in a separate component
+    float mAttackTimer = 0.f;
 public:
     // ======================================
     void Update(float deltaSeconds) override {
@@ -98,6 +104,23 @@ public:
         if (moveComponent == nullptr)
         {
             // TODO: Error here...
+            return;
+        }
+        // TODO: Probably want to use a state machine to keep track of this
+        if (mAttackTimer > 0.f) {
+            mAttackTimer -= deltaSeconds;
+            if (mAttackTimer <= 0.f)
+            {
+                moveComponent->mDisable = false;
+            }
+            return;
+        }
+        if (mEntityRef->GetBooleanEvent("attack").mHeld)
+        {
+            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(moveComponent->mFacing == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            mAttackTimer = 0.5f;
+            moveComponent->mDisable = true;
+            moveComponent->mWasMoving = false;  // TODO: Hacky... fix soon
             return;
         }
         moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
@@ -179,6 +202,11 @@ public:
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_S, "move_down");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_A, "move_left");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_D, "move_right");
+        mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_UP, "move_up");
+        mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_DOWN, "move_down");
+        mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_LEFT, "move_left");
+        mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_RIGHT, "move_right");
+        mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_Z, "attack");
         SetEventsFromMapping(mInputMapping);
 
         // Initialize background images
@@ -198,18 +226,20 @@ public:
         AddEntity(std::move(TestBackground3));
 
         // Initialize a player entity
-        Shade::TilesheetInfo tileSheetInfo { 128, 128, 5, 4 };
+        Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 5 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
         animStateInfo["idle_right"] = { 0, 3 };
         animStateInfo["idle_left"] = { 4, 7 };
         animStateInfo["run_right"] = { 8, 13 };
         animStateInfo["run_left"] = { 14, 19 };
+        animStateInfo["attack_right"] = { 20, 22, "idle_right" };
+        animStateInfo["attack_left"] = { 23, 25, "idle_left" };
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this);
-        PlayerEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(128.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        PlayerEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
-        PlayerEntity->AddComponent(std::make_unique<PlayerMoveControlComponenet>());
+        PlayerEntity->AddComponent(std::make_unique<PlayerInputComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
         PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
         AddEntity(std::move(PlayerEntity));
