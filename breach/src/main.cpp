@@ -125,7 +125,7 @@ public:
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
             mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(moveComponent->mFacing == FacingDirection::RIGHT ? "attack_right" : "attack_left");
-            mAttackTimer = 0.5f;
+            mAttackTimer = 0.25f;
             moveComponent->mDisable = true;
             moveComponent->mWasMoving = false;  // TODO: Hacky... fix soon
             return;
