@@ -8,8 +8,15 @@
 #include "shade/game/entity/entity.h"
 #include "shade/game/world.h"
 #include "shade/graphics/camera/camera.h"
+#include "shade/graphics/command/command.h"
+#include "shade/graphics/command/drawLine.h"
 
 #include "components/healthComponent.h"
+
+#include "debug/debugModule.h"
+#include "debug/basicDebugComponent.h"
+
+#include <vector>
 
 // ======================================
 enum class RenderLayer : int {
@@ -242,6 +249,9 @@ public:
         PlayerEntity->AddComponent(std::make_unique<PlayerInputComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
         PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
+#ifdef DEBUG_BREACH
+        PlayerEntity->AddComponent(std::make_unique<BasicDebugComponent>());
+#endif
         AddEntity(std::move(PlayerEntity));
 
         // Initialize a test entity
@@ -272,6 +282,9 @@ public:
         TestKnight->SetPositionY(300.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
         TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
+#ifdef DEBUG_BREACH
+        TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
+#endif
         AddEntity(std::move(TestKnight));
     }
 };
@@ -280,6 +293,9 @@ class GameState : public Shade::State {
 public:
     GameState(Shade::ServiceProvider& ServiceProviderRef) : Shade::State() {
         AddModule(std::make_unique<CustomGameWorld>());
+#ifdef DEBUG_BREACH
+        AddModule(std::make_unique<CustomDebugModule>());
+#endif
     }
 };
 

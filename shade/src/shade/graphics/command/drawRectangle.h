@@ -24,6 +24,7 @@ namespace Shade {
             float mHeight = 1.f;
             Colour mColour;
             bool mNormalized = false;
+            // TODO: Filled option
     };
 
 }
