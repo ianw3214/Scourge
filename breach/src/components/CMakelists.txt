@@ -1,1 +1,2 @@
 target_sources(Breach PRIVATE healthComponent.h healthComponent.cpp)
+target_sources(Breach PRIVATE hitboxComponent.h hitboxComponent.cpp)

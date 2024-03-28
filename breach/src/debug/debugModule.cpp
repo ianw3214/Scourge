@@ -18,7 +18,7 @@ void CustomDebugModule::Render(std::vector<std::unique_ptr<Shade::RenderCommand>
     }
     for (const auto& line : mDebugLines)
     {
-        commandQueue.emplace_back(std::make_unique<Shade::DrawLineCommand>(line.mPos.x, line.mPos.y, line.mPos.x, line.mPos.y + line.mHeight, Shade::Colour{ 1.0, 1.0, 1.0 }));
+        commandQueue.emplace_back(std::make_unique<Shade::DrawLineCommand>(line.mPos1, line.mPos2, Shade::Colour{ 1.0, 1.0, 1.0 }));
     }
     mDebugRects.clear();
     mDebugLines.clear();

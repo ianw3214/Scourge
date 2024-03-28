@@ -13,6 +13,7 @@
 #include "shade/logging/logService.h"
 
 #include "components/healthComponent.h"
+#include "components/hitboxComponent.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"
@@ -245,9 +246,11 @@ public:
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this);
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         playerSprite->mEvents[21] = [](Shade::Entity* entity){ 
-            Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-            logService->LogInfo("Test Animation Event");
-         };
+            // Attack right
+        };
+        playerSprite->mEvents[24] = [](Shade::Entity* entity){ 
+            // Attack left
+        };
         PlayerEntity->AddComponent(std::move(playerSprite));
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
@@ -255,6 +258,7 @@ public:
         PlayerEntity->AddComponent(std::make_unique<PlayerInputComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
         PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
+        PlayerEntity->AddComponent(std::make_unique<HitboxComponent>(72.f, 128.f));
 #ifdef DEBUG_BREACH
         PlayerEntity->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
@@ -289,6 +293,7 @@ public:
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
         TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
+        TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif

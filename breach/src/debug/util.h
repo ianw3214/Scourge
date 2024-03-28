@@ -5,9 +5,9 @@
 
 namespace DebugUtils {
 
-    static void DrawDebugLine(Shade::Vec2 position, float height)
+    static void DrawDebugLine(Shade::Vec2 position1, Shade::Vec2 position2)
     {
-        CustomDebugModule::mDebugLines.emplace_back(CustomDebugModule::DebugLine{ position, height });
+        CustomDebugModule::mDebugLines.emplace_back(CustomDebugModule::DebugLine{ position1, position2 });
     }
 
     static void DrawDebugRect(Shade::Vec2 position, float width, float height, Shade::Colour colour)

@@ -15,8 +15,8 @@ public:
     virtual void Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue) override;
 
     struct DebugLine {
-        Shade::Vec2 mPos;
-        float mHeight = 0.f;
+        Shade::Vec2 mPos1;
+        Shade::Vec2 mPos2;
     };
     struct DebugRect {
         Shade::Vec2 mPos;
