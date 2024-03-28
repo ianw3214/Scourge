@@ -10,6 +10,11 @@ namespace DebugUtils {
         CustomDebugModule::mDebugLines.emplace_back(CustomDebugModule::DebugLine{ position, height });
     }
 
+    static void DrawDebugRect(Shade::Vec2 position, float width, float height, Shade::Colour colour)
+    {
+        CustomDebugModule::mDebugRects.emplace_back(CustomDebugModule::DebugRect{ position, width, height, colour });
+    }
+
 }
 
 #endif

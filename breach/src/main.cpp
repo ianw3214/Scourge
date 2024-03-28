@@ -282,6 +282,7 @@ public:
         TestKnight->SetPositionY(300.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
         TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
+        TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
