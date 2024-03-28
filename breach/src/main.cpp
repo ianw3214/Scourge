@@ -10,6 +10,7 @@
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/command/drawLine.h"
+#include "shade/logging/logService.h"
 
 #include "components/healthComponent.h"
 
@@ -242,7 +243,12 @@ public:
         animStateInfo["attack_right"] = { 20, 22, "idle_right" };
         animStateInfo["attack_left"] = { 23, 25, "idle_left" };
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this);
-        PlayerEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
+        playerSprite->mEvents[21] = [](Shade::Entity* entity){ 
+            Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+            logService->LogInfo("Test Animation Event");
+         };
+        PlayerEntity->AddComponent(std::move(playerSprite));
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));

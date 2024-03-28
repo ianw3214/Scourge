@@ -44,6 +44,12 @@ void Shade::AnimatedSpriteComponent::Update(float deltaSeconds)
                 ChangeAnimationState(StateInfo.mTransition);
             }
         }
+        // If the current frame has an event, run the callback
+        auto it = mEvents.find(mCurrentFrame);
+        if (it != mEvents.end())
+        {
+            it->second(mEntityRef);
+        }
     }
 }
 

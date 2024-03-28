@@ -1,10 +1,14 @@
 #pragma once
 
 #include <unordered_map>
+#include <functional>
+#include <memory>
 
 #include "shade/game/entity/component/spriteComponent.h"
 
 namespace Shade {
+
+    class Entity;
 
     struct TilesheetInfo {
         uint16_t mFrameWidth = 0;
@@ -34,6 +38,7 @@ namespace Shade {
         // Animation definition
         TilesheetInfo mTileSheetInfo;
         std::unordered_map<std::string, AnimationStateInfo> mStates;
+        std::unordered_map<uint16_t, std::function<void(Entity*)>> mEvents;
 
         // Runtime data
         uint16_t mCurrentFrame = 0;
