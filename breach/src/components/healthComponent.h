@@ -7,8 +7,10 @@ class HealthComponent : public Shade::Component
 public:
     HealthComponent(float maxHealth);
 
-    float getCurrentHealth() const { return mCurrHealth; }
-    float getMaxHealth() const { return mMaxHealth; }
+    float GetCurrentHealth() const { return mCurrHealth; }
+    float GetMaxHealth() const { return mMaxHealth; }
+
+    float DecrementHealth(float amount);
 private:
     float mCurrHealth = 0.f;
     float mMaxHealth = 0.f;

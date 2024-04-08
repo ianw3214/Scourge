@@ -56,3 +56,9 @@ void Shade::GameWorldModule::AddEntity(std::unique_ptr<Entity> entity)
 {
     mEntities.emplace_back(std::move(entity));
 }
+
+// ======================================
+std::vector<std::unique_ptr<Shade::Entity>>& Shade::GameWorldModule::GetEntities()
+{
+    return mEntities;
+}

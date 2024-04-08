@@ -1,1 +1,1 @@
-target_sources(Shade PRIVATE vec.h colour.h)
+target_sources(Shade PRIVATE vec.h colour.h collision.h)

@@ -23,7 +23,7 @@ public:
         {
             const float x = mEntityRef->GetPositionX() - 30.f;
             const float y = mEntityRef->GetPositionY() - 20.f;
-            const float width = 60.f * health->getCurrentHealth() / health->getMaxHealth();
+            const float width = 60.f * health->GetCurrentHealth() / health->GetMaxHealth();
             DebugUtils::DrawDebugRect(Shade::Vec2{ x, y }, 60.f, 10.f, Shade::Colour{ 0.15f, 0.15f, 0.15f});
             // TODO: Differentiate debug health colours between player and enemies
             DebugUtils::DrawDebugRect(Shade::Vec2{ x, y }, width, 10.f, Shade::Colour{ 1.f, 0.f, 0.f });

@@ -3,6 +3,7 @@ project(Scourge)
 
 option(BUILD_SHADE_ENGINE "Enable building shade engine" ON)
 option(BUILD_BREACH_GAME "Enable building breach game" ON)
+option(DEBUG_BREACH "Enable debug mode for breach game" ON)
 
 if (BUILD_SHADE_ENGINE)
     add_subdirectory(shade)

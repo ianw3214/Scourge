@@ -20,6 +20,7 @@ namespace Shade {
         virtual bool HandleEvent(const InputEvent& event) override;
 
         void AddEntity(std::unique_ptr<Entity> entity);
+        std::vector<std::unique_ptr<Entity>>& GetEntities();
     protected:
         std::vector<std::unique_ptr<Entity>> mEntities;
 

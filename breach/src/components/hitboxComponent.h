@@ -1,7 +1,9 @@
 #pragma once
 
-#include "shade/common/vec.h"
 #include "shade/game/entity/component/component.h"
+
+#include "shade/common/collision.h"
+#include "shade/common/vec.h"
 
 // Represents the hit box of an entity, used to test against attacks hitting a character
 //  - Currently assumes bottom middle of the box to be the position of the entity
@@ -14,6 +16,9 @@ public:
     float GetWidth() const;
     float GetHeight() const;
     Shade::Vec2 GetBottomLeftPos() const;
+    Shade::Box GetBox() const;
+
+    bool Intersects(const HitboxComponent& other) const;
 
 private:
     float mWidth = 10.f;

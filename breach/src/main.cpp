@@ -245,11 +245,53 @@ public:
         animStateInfo["attack_left"] = { 23, 25, "idle_left" };
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this);
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
-        playerSprite->mEvents[21] = [](Shade::Entity* entity){ 
+        playerSprite->mEvents[21] = [this](Shade::Entity* triggerEntity){ 
             // Attack right
+            // TODO: The attack details should probably be moved to their own component
+            for (const auto& entity : this->GetEntities())
+            {
+                if (entity.get() == triggerEntity)
+                {
+                    continue;
+                }
+                // TODO: This should use a different box that is specified by the "attack component"
+                //  - This should always exist, when asserts are added put one here
+                HitboxComponent* attackBox = triggerEntity->GetComponent<HitboxComponent>();
+                if (HitboxComponent* hitbox = entity->GetComponent<HitboxComponent>())
+                {
+                    if (attackBox->Intersects(*hitbox))
+                    {
+                        if (HealthComponent* health = entity->GetComponent<HealthComponent>())
+                        {
+                            health->DecrementHealth(10.f);
+                        }
+                    }
+                }
+            }
         };
-        playerSprite->mEvents[24] = [](Shade::Entity* entity){ 
+        playerSprite->mEvents[24] = [this](Shade::Entity* triggerEntity){ 
             // Attack left
+            // TODO: The attack details should probably be moved to their own component
+            for (const auto& entity : this->GetEntities())
+            {
+                if (entity.get() == triggerEntity)
+                {
+                    continue;
+                }
+                // TODO: This should use a different box that is specified by the "attack component"
+                //  - This should always exist, when asserts are added put one here
+                HitboxComponent* attackBox = triggerEntity->GetComponent<HitboxComponent>();
+                if (HitboxComponent* hitbox = entity->GetComponent<HitboxComponent>())
+                {
+                    if (attackBox->Intersects(*hitbox))
+                    {
+                        if (HealthComponent* health = entity->GetComponent<HealthComponent>())
+                        {
+                            health->DecrementHealth(10.f);
+                        }
+                    }
+                }
+            }
         };
         PlayerEntity->AddComponent(std::move(playerSprite));
         PlayerEntity->SetPositionX(200.f);
