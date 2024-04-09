@@ -1,6 +1,8 @@
 #include "source.h"
 
 #include "shade/game/event/mapping.h"
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
 
 // ======================================
 const Shade::BooleanGameplayEvent& Shade::GameplayEventSource::GetBooleanEvent(const std::string& eventName) const
@@ -8,7 +10,9 @@ const Shade::BooleanGameplayEvent& Shade::GameplayEventSource::GetBooleanEvent(c
     auto it = mBooleanEvents.find(eventName);
     if (it == mBooleanEvents.end())
     {
-        // TODO: Error...
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Trying to access non-existent boolean event: " + eventName);
+        return Shade::BooleanGameplayEvent{};   // <- This will basically crash the game anyways...
     }
     return it->second;
 }
@@ -38,7 +42,8 @@ void Shade::GameplayEventSource::StartBooleanEvent(const std::string& eventName)
     auto it = mBooleanEvents.find(eventName);
     if (it == mBooleanEvents.end())
     {
-        // TODO: Error...
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Trying to start boolean event that does not exist: " + eventName);
         return;
     }
     it->second.mTriggered = true;
@@ -51,7 +56,8 @@ void Shade::GameplayEventSource::StopBooleanEvent(const std::string& eventName)
     auto it = mBooleanEvents.find(eventName);
     if (it == mBooleanEvents.end())
     {
-        // TODO: Error...
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Trying to stop boolean event that does not exist: " + eventName);
         return;
     }
     it->second.mHeld = false;

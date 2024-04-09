@@ -28,7 +28,6 @@ add_custom_command(
     $<TARGET_FILE_DIR:Breach>)
 endif()
 
-# TODO: Make conditional based on passed in arguments
 if( DEBUG_BREACH ) 
 add_compile_definitions(Breach DEBUG_BREACH)
 endif()

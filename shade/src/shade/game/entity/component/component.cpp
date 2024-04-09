@@ -1,5 +1,8 @@
 #include "component.h"
 
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
+
 // ======================================
 Shade::Component::Component()
 {
@@ -9,9 +12,12 @@ Shade::Component::Component()
 // ======================================
 void Shade::Component::SetEntityRef(Entity* entityRef)
 {
-    // TODO: Maybe we should check here if entityRef is already set
-    //  - We should never expect the entity of a component to change
-    //  - If that assumption changes, then we would not need a check here
+    if (mEntityRef != nullptr)
+    {
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Component already attached to existing entity");
+        return;
+    }
     mEntityRef = entityRef;
 }
 

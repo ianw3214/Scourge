@@ -14,8 +14,6 @@ public:
     // ======================================
     void Update(float deltaSeconds) override {
         // Draw the position of the entity
-        // TODO: Draw this with a sphere shape
-        // DebugUtils::DrawDebugLine(Shade::Vec2{ mEntityRef->GetPositionX(), mEntityRef->GetPositionY()}, 10.f);
 
         // Draw entity health if applicable
         HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();

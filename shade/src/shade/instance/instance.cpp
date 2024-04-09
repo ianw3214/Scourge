@@ -19,17 +19,17 @@
 // ======================================
 Shade::GameInstance::GameInstance() 
 {
-    mMainWindow = std::make_unique<Shade::Window>();
-    mInputHandler = std::make_unique<Shade::InputHandler>(*this);
-    mRenderer = std::make_unique<Shade::RendererBase>();
-
     ServiceProvider::RegisterProvider(this);
     RegisterService(new ResourceManager());
     RegisterService(new CameraService());
     RegisterService(new LogService());
     RegisterService(new ImGuiService());
 
-    // Temporarily register loggers here
+    mMainWindow = std::make_unique<Shade::Window>();
+    mInputHandler = std::make_unique<Shade::InputHandler>(*this);
+    mRenderer = std::make_unique<Shade::RendererBase>();
+
+    // Temporarily register services
     //  - There's GOT TO be a better way to do this... QQ
     ImGuiService* imguiService = GetService<ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<LogWindow>());

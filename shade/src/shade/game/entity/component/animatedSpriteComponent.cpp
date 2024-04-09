@@ -2,6 +2,8 @@
 
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/command/drawTexture.h"
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
 
 // ======================================
 Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
@@ -72,7 +74,12 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
 // ======================================
 void Shade::AnimatedSpriteComponent::ChangeAnimationState(const std::string& newState)
 {
-    // TODO: Error/crash if the new state isn't an actual valid state
+    if (mStates.find(mCurrentState) == mStates.end())
+    {
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Tried to change to non-existent animation state: " + newState);
+        return;
+    }
     mCurrentState = newState;
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
     mElapsedTime = 0.f;
