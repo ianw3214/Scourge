@@ -9,6 +9,9 @@ namespace Shade {
         Vec2 mPosition;
         float mWidth;
         float mHeight;
+
+        Box(const Vec2& position, float width, float height)
+            : mPosition(position), mWidth(width), mHeight(height) {}
     };
 
     inline bool BoxIntersectsBox(const Box& box1, const Box& box2)

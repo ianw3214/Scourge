@@ -3,14 +3,16 @@
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/component/spriteComponent.h"
+#include "shade/game/entity/container.h"
 #include "shade/game/event/source.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
 #include "shade/logging/logger.h"
 
 // ======================================
-Shade::Entity::Entity(GameplayEventSource& GameWorldRef) 
-    : mGameEventSource(GameWorldRef) 
+Shade::Entity::Entity(GameplayEventSource& gameWorldRef, EntityContainer& entityContainer) 
+    : mGameEventSource(gameWorldRef)
+    , mEntityContainer(entityContainer) 
 {
 
 }
@@ -95,4 +97,10 @@ Shade::AnimatedSpriteComponent* Shade::Entity::GetCachedAnimatedSprite() const
 const Shade::BooleanGameplayEvent& Shade::Entity::GetBooleanEvent(const std::string& gameEvent) const
 {
     return mGameEventSource.GetBooleanEvent(gameEvent);
+}
+
+// ======================================
+std::vector<std::unique_ptr<Shade::Entity>>& Shade::Entity::GetWorldEntities() const
+{
+    return mEntityContainer.GetEntities();
 }

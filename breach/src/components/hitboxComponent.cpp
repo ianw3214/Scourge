@@ -35,6 +35,12 @@ Shade::Box HitboxComponent::GetBox() const
 }
 
 // ======================================
+bool HitboxComponent::Intersects(const Shade::Box& other) const
+{
+    return Shade::BoxIntersectsBox(GetBox(), other);
+}
+
+// ======================================
 bool HitboxComponent::Intersects(const HitboxComponent& other) const
 {
     // Never hit ourselves

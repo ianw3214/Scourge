@@ -32,13 +32,7 @@ public:
         if (hitbox)
         {
             const Shade::Vec2 bottomLeft = hitbox->GetBottomLeftPos();
-            const float width = hitbox->GetWidth();
-            const float height = hitbox->GetHeight();
-            const Shade::Vec2 topRight = bottomLeft.Right(width).Up(height);
-            DebugUtils::DrawDebugLine(bottomLeft, bottomLeft.Right(width));
-            DebugUtils::DrawDebugLine(bottomLeft, bottomLeft.Up(height));
-            DebugUtils::DrawDebugLine(topRight.Left(width), topRight);
-            DebugUtils::DrawDebugLine(topRight.Down(height), topRight);
+            DebugUtils::DrawDebugRectOutline(bottomLeft, hitbox->GetWidth(), hitbox->GetHeight(), Shade::Colour{});
         }
     }
 };

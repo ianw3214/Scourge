@@ -6,11 +6,12 @@
 #include "shade/module/module.h"
 #include "shade/game/event/mapping.h"
 #include "shade/game/event/source.h"
+#include "shade/game/entity/container.h"
 
 namespace Shade {
 
     class Entity;
-    class GameWorldModule : public Module, public GameplayEventSource {
+    class GameWorldModule : public Module, public GameplayEventSource, public EntityContainer {
     public:
         GameWorldModule();
         ~GameWorldModule();
@@ -19,11 +20,7 @@ namespace Shade {
         virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue) override;
         virtual bool HandleEvent(const InputEvent& event) override;
 
-        void AddEntity(std::unique_ptr<Entity> entity);
-        std::vector<std::unique_ptr<Entity>>& GetEntities();
     protected:
-        std::vector<std::unique_ptr<Entity>> mEntities;
-
         InputMapping mInputMapping;
     };
 

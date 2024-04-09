@@ -18,6 +18,7 @@ public:
     Shade::Vec2 GetBottomLeftPos() const;
     Shade::Box GetBox() const;
 
+    bool Intersects(const Shade::Box& other) const;
     bool Intersects(const HitboxComponent& other) const;
 
 private:

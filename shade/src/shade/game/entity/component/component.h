@@ -13,7 +13,7 @@ namespace Shade {
         virtual void Update(float deltaSeconds);
     protected:
         // This should be guaranteed to not be null in most use cases
-        Entity* mEntityRef;
+        Entity* mEntityRef = nullptr;
     };
 
 }

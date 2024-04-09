@@ -10,12 +10,13 @@ namespace Shade {
     struct BooleanGameplayEvent;
     class AnimatedSpriteComponent;
     class Component;
+    class EntityContainer;
     class GameplayEventSource;
     class SpriteComponent;
 
     class Entity {
     public:
-        Entity(GameplayEventSource&);
+        Entity(GameplayEventSource&, EntityContainer&);
         ~Entity();
 
         void Update(float deltaSeconds);
@@ -31,6 +32,8 @@ namespace Shade {
         AnimatedSpriteComponent* GetCachedAnimatedSprite() const;
 
         const BooleanGameplayEvent& GetBooleanEvent(const std::string& gameEvent) const;
+
+        std::vector<std::unique_ptr<Entity>>& GetWorldEntities() const;
     private:
         // Default entity attributes
         float x = 0.f;
@@ -43,6 +46,7 @@ namespace Shade {
 
         // Store a reference to the game world
         GameplayEventSource& mGameEventSource;
+        EntityContainer& mEntityContainer;
     };
 
 }

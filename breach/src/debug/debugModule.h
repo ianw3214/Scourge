@@ -11,18 +11,22 @@
 class CustomDebugModule : public Shade::Module
 {
 public:
-    // virtual void Update(float deltaSeconds) override;
+    virtual void Update(float deltaSeconds) override;
     virtual void Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue) override;
 
     struct DebugLine {
         Shade::Vec2 mPos1;
         Shade::Vec2 mPos2;
+
+        float mDelay = 0.f;
     };
     struct DebugRect {
         Shade::Vec2 mPos;
         float mWidth = 10.f;
         float mHeight = 10.f;
         Shade::Colour mColour;
+
+        float mDelay = 0.f;
     };
     // TODO: Consider the ordering here if that ever becomes relevant
     static std::vector<DebugLine> mDebugLines;

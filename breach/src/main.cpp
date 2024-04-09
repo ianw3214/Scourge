@@ -12,6 +12,7 @@
 #include "shade/graphics/command/drawLine.h"
 #include "shade/logging/logService.h"
 
+#include "components/attackComponent.h"
 #include "components/healthComponent.h"
 #include "components/hitboxComponent.h"
 
@@ -219,17 +220,17 @@ public:
         SetEventsFromMapping(mInputMapping);
 
         // Initialize background images
-        std::unique_ptr<Shade::Entity> TestBackground1 = std::make_unique<Shade::Entity>(*this);
+        std::unique_ptr<Shade::Entity> TestBackground1 = std::make_unique<Shade::Entity>(*this, *this);
         TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/sky.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground1->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.f));
         AddEntity(std::move(TestBackground1));
 
-        std::unique_ptr<Shade::Entity> TestBackground2 = std::make_unique<Shade::Entity>(*this);
+        std::unique_ptr<Shade::Entity> TestBackground2 = std::make_unique<Shade::Entity>(*this, *this);
         TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground2->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.5f));
         AddEntity(std::move(TestBackground2));
 
-        std::unique_ptr<Shade::Entity> TestBackground3 = std::make_unique<Shade::Entity>(*this);
+        std::unique_ptr<Shade::Entity> TestBackground3 = std::make_unique<Shade::Entity>(*this, *this);
         TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/background2.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(1.0f));
         AddEntity(std::move(TestBackground3));
@@ -243,57 +244,16 @@ public:
         animStateInfo["run_left"] = { 14, 19 };
         animStateInfo["attack_right"] = { 20, 22, "idle_right" };
         animStateInfo["attack_left"] = { 23, 25, "idle_left" };
-        std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this);
+        std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this, *this);
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
-        playerSprite->mEvents[21] = [this](Shade::Entity* triggerEntity){ 
-            // Attack right
-            // TODO: The attack details should probably be moved to their own component
-            for (const auto& entity : this->GetEntities())
-            {
-                if (entity.get() == triggerEntity)
-                {
-                    continue;
-                }
-                // TODO: This should use a different box that is specified by the "attack component"
-                //  - This should always exist, when asserts are added put one here
-                HitboxComponent* attackBox = triggerEntity->GetComponent<HitboxComponent>();
-                if (HitboxComponent* hitbox = entity->GetComponent<HitboxComponent>())
-                {
-                    if (attackBox->Intersects(*hitbox))
-                    {
-                        if (HealthComponent* health = entity->GetComponent<HealthComponent>())
-                        {
-                            health->DecrementHealth(10.f);
-                        }
-                    }
-                }
-            }
-        };
-        playerSprite->mEvents[24] = [this](Shade::Entity* triggerEntity){ 
-            // Attack left
-            // TODO: The attack details should probably be moved to their own component
-            for (const auto& entity : this->GetEntities())
-            {
-                if (entity.get() == triggerEntity)
-                {
-                    continue;
-                }
-                // TODO: This should use a different box that is specified by the "attack component"
-                //  - This should always exist, when asserts are added put one here
-                HitboxComponent* attackBox = triggerEntity->GetComponent<HitboxComponent>();
-                if (HitboxComponent* hitbox = entity->GetComponent<HitboxComponent>())
-                {
-                    if (attackBox->Intersects(*hitbox))
-                    {
-                        if (HealthComponent* health = entity->GetComponent<HealthComponent>())
-                        {
-                            health->DecrementHealth(10.f);
-                        }
-                    }
-                }
-            }
-        };
         PlayerEntity->AddComponent(std::move(playerSprite));
+        std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo(0.f, 30.f, 98.f, 90.f, 10.f));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo(-98.f, 30.f, 98.f, 90.f, 10.f));
+        PlayerEntity->AddComponent(std::move(playerAttack));
+        // TODO: Temp hacky code - find better fix
+        AttackComponent* playerAttackComp = PlayerEntity->GetComponent<AttackComponent>();
+        playerAttackComp->RegisterAttacksToAnimFrames({ std::make_pair<>("attack_right", 21), std::make_pair<>("attack_left", 24) });
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
@@ -311,7 +271,7 @@ public:
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo2;
         animStateInfo2["idle"] = { 0, 0 };
         animStateInfo2["run"] = { 1, 6 };
-        std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this);
+        std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this, *this);
         TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(160.f, 160.f, "assets/textures/knight.png", tileSheetInfo2, animStateInfo2, "run", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestEntity->SetPositionX(300.f);
         TestEntity->SetPositionY(300.f);
@@ -328,7 +288,7 @@ public:
         animStateInfo3["attack_right"] = { 14, 17 };
         animStateInfo3["recharge_left"] = { 18, 18 };
         animStateInfo3["recharge_right"] = { 19, 19 };
-        std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this);
+        std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(300.f);
