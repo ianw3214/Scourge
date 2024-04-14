@@ -12,6 +12,7 @@
 #include "shade/graphics/command/drawLine.h"
 #include "shade/logging/logService.h"
 
+#include "components/ai/stateMachineAIComponent.h"
 #include "components/attackComponent.h"
 #include "components/healthComponent.h"
 #include "components/hitboxComponent.h"
@@ -266,17 +267,6 @@ public:
 #endif
         AddEntity(std::move(PlayerEntity));
 
-        // Initialize a test entity
-        Shade::TilesheetInfo tileSheetInfo2 { 160, 160, 3, 3 };
-        std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo2;
-        animStateInfo2["idle"] = { 0, 0 };
-        animStateInfo2["run"] = { 1, 6 };
-        std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this, *this);
-        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(160.f, 160.f, "assets/textures/knight.png", tileSheetInfo2, animStateInfo2, "run", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestEntity->SetPositionX(300.f);
-        TestEntity->SetPositionY(300.f);
-        AddEntity(std::move(TestEntity));
-
         // Testing a knight entity
         Shade::TilesheetInfo tileSheetInfo3 { 480, 420, 5, 4 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo3;
@@ -296,6 +286,15 @@ public:
         TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
+
+        AIState idleState;
+        idleState.mUpdate = [](float deltaSeconds) {
+            Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+            logService->LogInfo("Idle state update!!");
+        };
+        std::unordered_map<std::string, AIState> stateInfo;
+        stateInfo["idle"] = idleState;
+        TestKnight->AddComponent(std::make_unique<StateMachineAIComponent>("idle", stateInfo));
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
