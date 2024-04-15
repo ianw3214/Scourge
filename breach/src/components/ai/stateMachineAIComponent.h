@@ -15,7 +15,7 @@ namespace Shade {
 // Definition of AI behaviour for a specified state using function pointers
 class AIState {
 public:
-    typedef std::function<void(float)> UpdateFunc;
+    typedef std::function<void(Shade::Entity*, float)> UpdateFunc;
     typedef std::function<std::string(Shade::Entity*)> CheckTransitionFunc;
 
     UpdateFunc mUpdate;

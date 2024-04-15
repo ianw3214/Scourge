@@ -20,7 +20,7 @@ void StateMachineAIComponent::Update(float deltaSeconds)
         return;
     }
 
-    mStates[mCurrentState].mUpdate(deltaSeconds);
+    mStates[mCurrentState].mUpdate(mEntityRef, deltaSeconds);
 
     for (const auto& transition : mStates[mCurrentState].mTransitions)
     {

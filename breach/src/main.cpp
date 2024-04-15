@@ -36,6 +36,16 @@ enum class FacingDirection {
 };
 
 // ======================================
+// TODO: This is a pretty hacky system, figure out a better way to track this in the future
+class PlayerRegistry {
+public:
+    static void CachePlayer(Shade::Entity* player) { sCachedPlayer = player; }
+    static Shade::Entity* GetCachedPlayer() { return sCachedPlayer; }
+private:
+    static inline Shade::Entity* sCachedPlayer = nullptr;
+};
+
+// ======================================
 class BaseMovementComponent : public Shade::Component
 {
 public:
@@ -114,10 +124,14 @@ public:
         BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
         if (moveComponent == nullptr)
         {
-            // TODO: Error here...
+            Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+            logService->LogWarning("No movement component found on entity with PlayerInputComponent");
             return;
         }
         // TODO: Probably want to use a state machine to keep track of this
+        //  - Alternatively, some sort of "control flag" system where components can try to get control of a certain flag (e.g. movement flag)
+        //  - If the flag is in use, then don't allow movement to go through
+        //  - Some sort of priority can be used to resolve situations where multiple components try to control a flag at the same time
         if (mAttackTimer > 0.f) {
             mAttackTimer -= deltaSeconds;
             if (mAttackTimer <= 0.f)
@@ -138,35 +152,6 @@ public:
         moveComponent->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
         moveComponent->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
         moveComponent->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
-    }
-};
-
-// ======================================
-class RandomMovementComponent : public Shade::Component
-{
-public:
-    // This is not really random, but just switch between moving left/right
-    float mMoveDelta = 0.f;
-    bool mLeftRightToggle = false;
-public:
-    // ======================================
-    void Update(float deltaSeconds) override {
-        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
-        if (moveComponent == nullptr)
-        {
-            // TODO: Error here...
-            return;
-        }
-        mMoveDelta += deltaSeconds;
-        if (mMoveDelta > 4.f) 
-        {
-            mMoveDelta = 0.f;
-            mLeftRightToggle = !mLeftRightToggle;
-        }
-        const bool moving = mMoveDelta > 1.5f;
-        bool bMoving = false;
-        moveComponent->mMovingRight = moving && mLeftRightToggle;
-        moveComponent->mMovingLeft = moving && !mLeftRightToggle;
     }
 };
 
@@ -270,7 +255,8 @@ public:
 #ifdef DEBUG_BREACH
         PlayerEntity->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
-        AddEntity(std::move(PlayerEntity));
+        std::unique_ptr<Shade::Entity>& NewPlayerRef = AddEntity(std::move(PlayerEntity));
+        PlayerRegistry::CachePlayer(NewPlayerRef.get());
 
         // Testing a knight entity
         Shade::TilesheetInfo tileSheetInfo3 { 480, 420, 5, 4 };
@@ -288,17 +274,41 @@ public:
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
-        TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
 
-        AIState idleState;
-        idleState.mUpdate = [](float deltaSeconds) {
-            Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-            logService->LogInfo("Idle state update!!");
+        // AI state machine definition
+        AIState idleState, moveState, attackState;
+        idleState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
+            // TODO: Allow for an empty update in the state without crashing
+            // Do nothing in this update...
+        };
+        idleState.mTransitions.push_back([](Shade::Entity* AIEntity){ 
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
+            const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
+            const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();
+            return (diff_x * diff_x + diff_y * diff_y) < 1000000.f ? "move" : "";
+        });
+        moveState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
+            BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
+            if (moveComponent == nullptr)
+            {
+                // TODO: Error here...
+                return;
+            }
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
+            moveComponent->mMovingRight = player->GetPositionX() > AIEntity->GetPositionX();
+            moveComponent->mMovingLeft = player->GetPositionX() < AIEntity->GetPositionX();
+            moveComponent->mMovingUp = player->GetPositionY() > AIEntity->GetPositionY();
+            moveComponent->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
+        };
+        attackState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
+
         };
         std::unordered_map<std::string, AIState> stateInfo;
         stateInfo["idle"] = idleState;
+        stateInfo["move"] = moveState;
+        stateInfo["attack"] = attackState;
         TestKnight->AddComponent(std::make_unique<StateMachineAIComponent>("idle", stateInfo));
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
