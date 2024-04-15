@@ -222,19 +222,24 @@ public:
 
         // Initialize background images
         std::unique_ptr<Shade::Entity> TestBackground1 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/sky.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/breach/bg.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground1->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.f));
         AddEntity(std::move(TestBackground1));
 
         std::unique_ptr<Shade::Entity> TestBackground2 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(2000.f, 720.f, "assets/breach/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground2->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.5f));
         AddEntity(std::move(TestBackground2));
 
         std::unique_ptr<Shade::Entity> TestBackground3 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/background2.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(1.0f));
+        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(2400.f, 720.f, "assets/breach/mid.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.7f));
         AddEntity(std::move(TestBackground3));
+
+        std::unique_ptr<Shade::Entity> TestBackground4 = std::make_unique<Shade::Entity>(*this, *this);
+        TestBackground4->AddComponent(std::make_unique<Shade::SpriteComponent>(2800.f, 720.f, "assets/breach/foreground.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground4->AddComponent(std::make_unique<HorizontalParallaxComponent>(1.0f));
+        AddEntity(std::move(TestBackground4));
 
         // Initialize a player entity
         Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 5 };
@@ -281,7 +286,7 @@ public:
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestKnight->SetPositionX(-100.f);
-        TestKnight->SetPositionY(300.f);
+        TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
         TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
