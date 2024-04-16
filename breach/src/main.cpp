@@ -110,11 +110,16 @@ public:
         mMovingUp = false;
         mMovingDown = false;
     }
-
+    // ======================================
     void DisableMovement(bool disable)
     {
         mDisable = disable;
         mWasMoving = false;  // TODO: Hacky... fix soon
+    }
+    // ======================================
+    void EnableMovement()
+    {
+        mDisable = false;
     }
 };
 
@@ -143,7 +148,7 @@ public:
             mAttackTimer -= deltaSeconds;
             if (mAttackTimer <= 0.f)
             {
-                moveComponent->mDisable = false;
+                moveComponent->EnableMovement();
             }
             return;
         }
@@ -246,10 +251,12 @@ public:
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo(0.f, 30.f, 98.f, 90.f, 10.f));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo(-98.f, 30.f, 98.f, 90.f, 10.f));
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo(0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo(-98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY));
         PlayerEntity->AddComponent(std::move(playerAttack));
         // TODO: Temp hacky code - find better fix
+        //  - quick fix will be to just return the new component when a component is added
+        //  - A 2 round initialization would be better: differentiate construction and initialization
         AttackComponent* playerAttackComp = PlayerEntity->GetComponent<AttackComponent>();
         playerAttackComp->RegisterAttacksToAnimFrames({ std::make_pair<>("attack_right", 21), std::make_pair<>("attack_left", 24) });
         PlayerEntity->SetPositionX(200.f);
@@ -279,6 +286,13 @@ public:
         animStateInfo3["recharge_right"] = { 19, 19 };
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo(100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo(-240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER));
+        TestKnight->AddComponent(std::move(enemyAttack));
+        // TODO: Temp hacky code - find better fix
+        AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();
+        enemyAttackComp->RegisterAttacksToAnimFrames({ std::make_pair<>("attack_right", 16), std::make_pair<>("attack_left", 12) });
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
@@ -320,8 +334,6 @@ public:
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
-            //  - TODO: Consider if this is the right place to put movement disabling
-            //  - Perhaps it makes more sense as a "on transition out" for the move state
             moveComponent->DisableMovement(true);
             AIEntity->GetCachedAnimatedSprite()->ChangeAnimationState(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
 
@@ -332,9 +344,8 @@ public:
             BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
             if (blackboard->GetFloat("attack_timer") <= 0.f)
             {
-                // TODO: Perhaps there's a better place to put this...
                 BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
-                moveComponent->mDisable = false;
+                moveComponent->EnableMovement();
                 return "idle";
             }
             return "";
