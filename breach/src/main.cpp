@@ -12,6 +12,7 @@
 #include "shade/graphics/command/drawLine.h"
 #include "shade/logging/logService.h"
 
+#include "components/ai/blackBoardComponent.h"
 #include "components/ai/stateMachineAIComponent.h"
 #include "components/attackComponent.h"
 #include "components/healthComponent.h"
@@ -187,10 +188,6 @@ class HorizontalParallaxComponent : public Shade::Component
     float mParallaxFactor = 1.0f;
 };
 
-// TODO: This is SUPERRRR hacky, remove ASAP
-//  - Need to use "blackboard" or similar data storage to implement properly
-float attackTimer = 0.f;
-
 class CustomGameWorld : public Shade::GameWorldModule
 {
 public:
@@ -283,10 +280,6 @@ public:
 
         // AI state machine definition
         AIState idleState, moveState, attackState;
-        idleState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
-            // TODO: Allow for an empty update in the state without crashing
-            // Do nothing in this update...
-        };
         idleState.mTransitions.push_back([](Shade::Entity* AIEntity){ 
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
@@ -313,7 +306,8 @@ public:
             return (diff_x * diff_x + diff_y * diff_y) < 40000.f ? "attack" : "";
         });
         attackState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
-            attackTimer -= deltaSeconds;
+            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
+            blackboard->StoreFloat("attack_timer", blackboard->GetFloat("attack_timer") - deltaSeconds);
         };
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
             BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
@@ -328,10 +322,13 @@ public:
             moveComponent->mDisable = true;
             moveComponent->mWasMoving = false;  // TODO: Hacky... fix soon
             AIEntity->GetCachedAnimatedSprite()->ChangeAnimationState(moveComponent->mFacing == FacingDirection::RIGHT ? "attack_right" : "attack_left");
-            attackTimer = 0.5f;
+
+            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
+            blackboard->StoreFloat("attack_timer", 0.5f);
         };
         attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
-            if (attackTimer <= 0.f)
+            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
+            if (blackboard->GetFloat("attack_timer") <= 0.f)
             {
                 // TODO: Perhaps there's a better place to put this...
                 BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
@@ -345,6 +342,7 @@ public:
         stateInfo["move"] = moveState;
         stateInfo["attack"] = attackState;
         TestKnight->AddComponent(std::make_unique<StateMachineAIComponent>("idle", stateInfo));
+        TestKnight->AddComponent(std::make_unique<BlackboardComponent>());
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
