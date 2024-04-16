@@ -16,9 +16,11 @@ namespace Shade {
 class AIState {
 public:
     typedef std::function<void(Shade::Entity*, float)> UpdateFunc;
+    typedef std::function<void(Shade::Entity*)> OnEnterFunc;
     typedef std::function<std::string(Shade::Entity*)> CheckTransitionFunc;
 
     UpdateFunc mUpdate;
+    OnEnterFunc mOnEnter;
     std::vector<CheckTransitionFunc> mTransitions;
 };
 
@@ -30,6 +32,10 @@ public:
     void Update(float deltaSeconds) override;
 
     void SetEnabled(bool enabled = true);
+
+private:
+    // Change state should never be directly called, the state machine itself should handle all changes
+    void ChangeState(const std::string& newState);
 
 private:
     std::string mCurrentState;

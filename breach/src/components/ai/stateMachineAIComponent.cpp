@@ -20,16 +20,18 @@ void StateMachineAIComponent::Update(float deltaSeconds)
         return;
     }
 
-    mStates[mCurrentState].mUpdate(mEntityRef, deltaSeconds);
+    if (mStates[mCurrentState].mUpdate)
+    {
+        mStates[mCurrentState].mUpdate(mEntityRef, deltaSeconds);
+    }
 
     for (const auto& transition : mStates[mCurrentState].mTransitions)
     {
         std::string nextState = transition(mEntityRef);
         if (!nextState.empty())
         {
-            // TODO: Handle any logic that needs to run at transition time
-            // TODO: Check that the next state actually exists
-            mCurrentState = nextState;
+            ChangeState(nextState);
+            break;
         }
     }
 }
@@ -38,4 +40,20 @@ void StateMachineAIComponent::Update(float deltaSeconds)
 void StateMachineAIComponent::SetEnabled(bool enabled)
 {
     mEnabled = enabled;
+}
+
+// ======================================
+void StateMachineAIComponent::ChangeState(const std::string& newState)
+{
+    auto it = mStates.find(newState);
+    if (it == mStates.end())
+    {
+        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logService->LogError("New AI state does not exist: " + newState);
+    }
+    mCurrentState = newState;
+    if (it->second.mOnEnter)
+    {
+        it->second.mOnEnter(mEntityRef);
+    }
 }

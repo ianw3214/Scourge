@@ -187,6 +187,10 @@ class HorizontalParallaxComponent : public Shade::Component
     float mParallaxFactor = 1.0f;
 };
 
+// TODO: This is SUPERRRR hacky, remove ASAP
+//  - Need to use "blackboard" or similar data storage to implement properly
+float attackTimer = 0.f;
+
 class CustomGameWorld : public Shade::GameWorldModule
 {
 public:
@@ -302,9 +306,40 @@ public:
             moveComponent->mMovingUp = player->GetPositionY() > AIEntity->GetPositionY();
             moveComponent->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
         };
+        moveState.mTransitions.push_back([](Shade::Entity* AIEntity){
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
+            const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
+            const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();
+            return (diff_x * diff_x + diff_y * diff_y) < 40000.f ? "attack" : "";
+        });
         attackState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
-
+            attackTimer -= deltaSeconds;
         };
+        attackState.mOnEnter = [](Shade::Entity* AIEntity){
+            BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
+            // TODO: Movement stopping can be abstracted
+            //  - Consider if this is the right place to put movement disabling
+            //  - Perhaps it makes more sense as a "on transition out" for the move state
+            moveComponent->mMovingRight = false;
+            moveComponent->mMovingLeft = false;
+            moveComponent->mMovingUp = false;
+            moveComponent->mMovingDown = false;
+            // TODO: These both are way too hacky, need a good fix
+            moveComponent->mDisable = true;
+            moveComponent->mWasMoving = false;  // TODO: Hacky... fix soon
+            AIEntity->GetCachedAnimatedSprite()->ChangeAnimationState(moveComponent->mFacing == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            attackTimer = 0.5f;
+        };
+        attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
+            if (attackTimer <= 0.f)
+            {
+                // TODO: Perhaps there's a better place to put this...
+                BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
+                moveComponent->mDisable = false;
+                return "idle";
+            }
+            return "";
+        });
         std::unordered_map<std::string, AIState> stateInfo;
         stateInfo["idle"] = idleState;
         stateInfo["move"] = moveState;
