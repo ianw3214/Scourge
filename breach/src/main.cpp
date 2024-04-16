@@ -15,6 +15,7 @@
 #include "components/ai/blackBoardComponent.h"
 #include "components/ai/stateMachineAIComponent.h"
 #include "components/attackComponent.h"
+#include "components/facingComponent.h"
 #include "components/healthComponent.h"
 #include "components/hitboxComponent.h"
 
@@ -31,12 +32,6 @@ enum class RenderLayer : int {
 };
 
 // ======================================
-enum class FacingDirection {
-    LEFT,
-    RIGHT
-};
-
-// ======================================
 // TODO: This is a pretty hacky system, figure out a better way to track this in the future
 class PlayerRegistry {
 public:
@@ -50,7 +45,6 @@ private:
 class BaseMovementComponent : public Shade::Component
 {
 public:
-    FacingDirection mFacing = FacingDirection::RIGHT;   // TODO: This should probably live somewhere outside the base movement component
     bool mWasMoving = false;
     bool mDisable = false;
     // These variables are directly set to control the movement
@@ -67,11 +61,12 @@ public:
     BaseMovementComponent(float speed) : mSpeed(speed) {}
     // ======================================
     void Update(float deltaSeconds) override {
+        FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
         if (mDisable)
         {
             return;
         }
-        FacingDirection NewFacingDir = mFacing;
+        FacingDirection NewFacingDir = facing->mDirection;
         bool bMoving = false;
         if (mMovingUp)
         {
@@ -96,19 +91,30 @@ public:
             NewFacingDir = FacingDirection::LEFT;
         }
         // Update animation if any of the movement related states were changed
-        if (NewFacingDir != mFacing || bMoving != mWasMoving)
+        if (NewFacingDir != facing->mDirection || bMoving != mWasMoving)
         {
             mWasMoving = bMoving;
-            mFacing = NewFacingDir;
+            facing->mDirection = NewFacingDir;
             if (bMoving)
             {
-                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "run_right" : "run_left");
+                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "run_right" : "run_left");
             }
             else
             {
-                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "idle_right" : "idle_left");
+                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "idle_right" : "idle_left");
             }
         }
+        // Reset movement flags after using them
+        mMovingLeft = false;
+        mMovingRight = false;
+        mMovingUp = false;
+        mMovingDown = false;
+    }
+
+    void DisableMovement(bool disable)
+    {
+        mDisable = disable;
+        mWasMoving = false;  // TODO: Hacky... fix soon
     }
 };
 
@@ -143,10 +149,10 @@ public:
         }
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
-            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(moveComponent->mFacing == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
+            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
             mAttackTimer = 0.25f;
-            moveComponent->mDisable = true;
-            moveComponent->mWasMoving = false;  // TODO: Hacky... fix soon
+            moveComponent->DisableMovement(true);
             return;
         }
         moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
@@ -249,6 +255,7 @@ public:
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
+        PlayerEntity->AddComponent(std::make_unique<FacingComponent>());
         PlayerEntity->AddComponent(std::make_unique<PlayerInputComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
         PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
@@ -266,8 +273,8 @@ public:
         animStateInfo3["idle_right"] = { 1, 1 };
         animStateInfo3["run_left"] = { 2, 5 };
         animStateInfo3["run_right"] = { 6, 9 };
-        animStateInfo3["attack_left"] = { 10, 13 };
-        animStateInfo3["attack_right"] = { 14, 17 };
+        animStateInfo3["attack_left"] = { 10, 13, "idle_left" };
+        animStateInfo3["attack_right"] = { 14, 17, "idle_right" };
         animStateInfo3["recharge_left"] = { 18, 18 };
         animStateInfo3["recharge_right"] = { 19, 19 };
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
@@ -275,6 +282,7 @@ public:
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
+        TestKnight->AddComponent(std::make_unique<FacingComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
 
@@ -310,21 +318,15 @@ public:
             blackboard->StoreFloat("attack_timer", blackboard->GetFloat("attack_timer") - deltaSeconds);
         };
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
-            // TODO: Movement stopping can be abstracted
-            //  - Consider if this is the right place to put movement disabling
+            //  - TODO: Consider if this is the right place to put movement disabling
             //  - Perhaps it makes more sense as a "on transition out" for the move state
-            moveComponent->mMovingRight = false;
-            moveComponent->mMovingLeft = false;
-            moveComponent->mMovingUp = false;
-            moveComponent->mMovingDown = false;
-            // TODO: These both are way too hacky, need a good fix
-            moveComponent->mDisable = true;
-            moveComponent->mWasMoving = false;  // TODO: Hacky... fix soon
-            AIEntity->GetCachedAnimatedSprite()->ChangeAnimationState(moveComponent->mFacing == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            moveComponent->DisableMovement(true);
+            AIEntity->GetCachedAnimatedSprite()->ChangeAnimationState(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
 
             BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
-            blackboard->StoreFloat("attack_timer", 0.5f);
+            blackboard->StoreFloat("attack_timer", 1.2f);
         };
         attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
             BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
