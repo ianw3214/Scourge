@@ -6,8 +6,10 @@
 #include "shade/logging/logService.h"
 
 #include "debug/util.h"
+#include "components/facingComponent.h"
 #include "components/hitboxComponent.h"
 #include "components/healthComponent.h"
+#include "components/moveComponent.h"
 
 // TODO: Remove - Temporary for determining player or AI
 #include "components/ai/stateMachineAIComponent.h"
@@ -26,7 +28,7 @@ void AttackComponent::RegisterAttackInfo(const std::string& name, const AttackIn
 }
 
 // ======================================
-void AttackComponent::RegisterAttacksToAnimFrames(const std::vector<std::pair<std::string, uint16_t>>& attackAnimData)
+void AttackComponent::RegisterAttacksToAnimFrames()
 {
     Shade::AnimatedSpriteComponent* anim = mEntityRef->GetCachedAnimatedSprite();
     if (anim == nullptr)
@@ -35,13 +37,40 @@ void AttackComponent::RegisterAttacksToAnimFrames(const std::vector<std::pair<st
         logService->LogWarning("Tried to register attacks to entity without animated sprite component");
         return;
     }
-    for (const auto& pair : attackAnimData)
+    for (const auto& pair : mAttackMap)
     {
-        const std::string& name = pair.first;
-        anim->mEvents[pair.second] = [this, name](Shade::Entity* triggerEntity) {
-            this->DoAttack(name);
+        const std::string& attackName = pair.first;
+        const uint32_t attackHitFrame = pair.second.mTriggerFrame;
+        anim->mEvents[attackHitFrame] = [this, attackName](Shade::Entity* triggerEntity) {
+            this->TriggerAttackHitEvent(attackName);
         };
     }
+}
+
+// ======================================
+void AttackComponent::Update(float deltaSeconds)
+{
+    if (!mCurrentAttack.empty())
+    {
+        mCurrentAttackTimer -= deltaSeconds;
+        if (mCurrentAttackTimer <= 0.f)
+        {
+            mCurrentAttack.clear();
+            mCurrentAttackTimer = 0.f;
+            // TODO: Add an assert that current attack exists in the map
+            if (mAttackMap[mCurrentAttack].mDisableMovement)
+            {
+                BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
+                moveComponent->EnableMovement();
+            }
+        }
+    }
+}
+
+// ======================================
+bool AttackComponent::IsDoingAttack() const
+{
+    return !mCurrentAttack.empty();
 }
 
 // ======================================
@@ -55,6 +84,27 @@ bool AttackComponent::DoAttack(const std::string& name)
         return false;
     }
     const AttackInfo& attackInfo = it->second;
+    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(attackInfo.mAnimation);
+    if (attackInfo.mDisableMovement)
+    {
+        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
+        moveComponent->DisableMovement();
+    }
+    mCurrentAttack = name;
+    mCurrentAttackTimer = attackInfo.mDuration;
+    return true;
+}
+
+bool AttackComponent::TriggerAttackHitEvent(const std::string& name)
+{
+    auto it = mAttackMap.find(name);
+    if (it == mAttackMap.end())
+    {
+        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logService->LogWarning("Tried to trigger attack event for attack that doesn't exist: " + name);
+        return false;
+    }
+    const AttackHitInfo& attackInfo = it->second.mHitInfo;
     Shade::Box attackBox = Shade::Box(Shade::Vec2{ mEntityRef->GetPositionX() + attackInfo.mOffsetX, mEntityRef->GetPositionY() + attackInfo.mOffsetY}, attackInfo.mWidth, attackInfo.mHeight);
     for (const auto& entity : mEntityRef->GetWorldEntities())
     {
@@ -82,6 +132,8 @@ bool AttackComponent::DoAttack(const std::string& name)
             }
         }
     }
+#ifdef BREACH_DEBUG
     DebugUtils::DrawDebugRectOutline(Shade::Vec2{ mEntityRef->GetPositionX() + attackInfo.mOffsetX, mEntityRef->GetPositionY() + attackInfo.mOffsetY}, attackInfo.mWidth, attackInfo.mHeight, Shade::Colour{ 0.15f, 0.15f, 0.15f}, 0.5f);
+#endif
     return true;
 }

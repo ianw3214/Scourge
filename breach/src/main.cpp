@@ -18,6 +18,7 @@
 #include "components/facingComponent.h"
 #include "components/healthComponent.h"
 #include "components/hitboxComponent.h"
+#include "components/moveComponent.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"
@@ -42,122 +43,32 @@ private:
 };
 
 // ======================================
-class BaseMovementComponent : public Shade::Component
-{
-public:
-    bool mWasMoving = false;
-    bool mDisable = false;
-    // These variables are directly set to control the movement
-    // TODO: Consider when to reset these variables, or if they should even be reset per frame?
-    bool mMovingLeft = false;
-    bool mMovingRight = false;
-    bool mMovingUp = false;
-    bool mMovingDown = false;
-    // These are configuration variables to set movement properties
-    float mSpeed = 200.f;
-public:
-    // ======================================
-    BaseMovementComponent() = default;
-    BaseMovementComponent(float speed) : mSpeed(speed) {}
-    // ======================================
-    void Update(float deltaSeconds) override {
-        FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-        if (mDisable)
-        {
-            return;
-        }
-        FacingDirection NewFacingDir = facing->mDirection;
-        bool bMoving = false;
-        if (mMovingUp)
-        {
-            mEntityRef->SetPositionY(mEntityRef->GetPositionY() + mSpeed * deltaSeconds);
-            bMoving = true;
-        }
-        if (mMovingDown)
-        {
-            mEntityRef->SetPositionY(mEntityRef->GetPositionY() - mSpeed * deltaSeconds);
-            bMoving = true;
-        }
-        if (mMovingRight)
-        {
-            mEntityRef->SetPositionX(mEntityRef->GetPositionX() + mSpeed * deltaSeconds);
-            bMoving = true;
-            NewFacingDir = FacingDirection::RIGHT;
-        }
-        if (mMovingLeft)
-        {
-            mEntityRef->SetPositionX(mEntityRef->GetPositionX() - mSpeed * deltaSeconds);
-            bMoving = true;
-            NewFacingDir = FacingDirection::LEFT;
-        }
-        // Update animation if any of the movement related states were changed
-        if (NewFacingDir != facing->mDirection || bMoving != mWasMoving)
-        {
-            mWasMoving = bMoving;
-            facing->mDirection = NewFacingDir;
-            if (bMoving)
-            {
-                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "run_right" : "run_left");
-            }
-            else
-            {
-                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "idle_right" : "idle_left");
-            }
-        }
-        // Reset movement flags after using them
-        mMovingLeft = false;
-        mMovingRight = false;
-        mMovingUp = false;
-        mMovingDown = false;
-    }
-    // ======================================
-    void DisableMovement(bool disable)
-    {
-        mDisable = disable;
-        mWasMoving = false;  // TODO: Hacky... fix soon
-    }
-    // ======================================
-    void EnableMovement()
-    {
-        mDisable = false;
-    }
-};
-
-// ======================================
 class PlayerInputComponenet : public Shade::Component
 {
-public:
-    // Attack info
-    // TODO: This should be in a separate component
-    float mAttackTimer = 0.f;
 public:
     // ======================================
     void Update(float deltaSeconds) override {
         BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
+        AttackComponent* attackComponent = mEntityRef->GetComponent<AttackComponent>();
         if (moveComponent == nullptr)
         {
             Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
             logService->LogWarning("No movement component found on entity with PlayerInputComponent");
             return;
         }
-        // TODO: Probably want to use a state machine to keep track of this
-        //  - Alternatively, some sort of "control flag" system where components can try to get control of a certain flag (e.g. movement flag)
-        //  - If the flag is in use, then don't allow movement to go through
-        //  - Some sort of priority can be used to resolve situations where multiple components try to control a flag at the same time
-        if (mAttackTimer > 0.f) {
-            mAttackTimer -= deltaSeconds;
-            if (mAttackTimer <= 0.f)
-            {
-                moveComponent->EnableMovement();
-            }
+        if (attackComponent == nullptr)
+        {
+            Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+            logService->LogWarning("No attack component found on entity with PlayerInputComponent");
+            return;
+        }
+        if (attackComponent->IsDoingAttack()) {
             return;
         }
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
             FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
-            mAttackTimer = 0.25f;
-            moveComponent->DisableMovement(true);
+            attackComponent->DoAttack(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
             return;
         }
         moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
@@ -251,14 +162,14 @@ public:
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo(0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo(-98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY));
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, 21, AttackHitInfo(0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, 24, AttackHitInfo(-98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
         PlayerEntity->AddComponent(std::move(playerAttack));
         // TODO: Temp hacky code - find better fix
         //  - quick fix will be to just return the new component when a component is added
         //  - A 2 round initialization would be better: differentiate construction and initialization
         AttackComponent* playerAttackComp = PlayerEntity->GetComponent<AttackComponent>();
-        playerAttackComp->RegisterAttacksToAnimFrames({ std::make_pair<>("attack_right", 21), std::make_pair<>("attack_left", 24) });
+        playerAttackComp->RegisterAttacksToAnimFrames();
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
@@ -287,12 +198,12 @@ public:
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
-        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo(100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER));
-        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo(-240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER));
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 1.4f, 16, AttackHitInfo(100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 1.4f, 12, AttackHitInfo(-240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
         TestKnight->AddComponent(std::move(enemyAttack));
         // TODO: Temp hacky code - find better fix
         AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();
-        enemyAttackComp->RegisterAttacksToAnimFrames({ std::make_pair<>("attack_right", 16), std::make_pair<>("attack_left", 12) });
+        enemyAttackComp->RegisterAttacksToAnimFrames();
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
@@ -329,27 +240,16 @@ public:
             return (diff_x * diff_x + diff_y * diff_y) < 40000.f ? "attack" : "";
         });
         attackState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
-            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
-            blackboard->StoreFloat("attack_timer", blackboard->GetFloat("attack_timer") - deltaSeconds);
         };
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
-            BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
-            moveComponent->DisableMovement(true);
-            AIEntity->GetCachedAnimatedSprite()->ChangeAnimationState(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
-
-            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
-            blackboard->StoreFloat("attack_timer", 1.2f);
+            AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
+            attackComponent->DoAttack(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
         };
         attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
-            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
-            if (blackboard->GetFloat("attack_timer") <= 0.f)
-            {
-                BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
-                moveComponent->EnableMovement();
-                return "idle";
-            }
-            return "";
+            AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
+            return attackComponent->IsDoingAttack() ? "" : "idle";
+
         });
         std::unordered_map<std::string, AIState> stateInfo;
         stateInfo["idle"] = idleState;
