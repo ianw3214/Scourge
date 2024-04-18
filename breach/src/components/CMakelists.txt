@@ -1,8 +1,6 @@
 target_sources(Breach PRIVATE healthComponent.h healthComponent.cpp)
 target_sources(Breach PRIVATE hitboxComponent.h hitboxComponent.cpp)
-
-# TODO: Add sub-folders for components once there starts getting to be too many
 target_sources(Breach PRIVATE attackComponent.h attackComponent.cpp)
-target_sources(Breach PRIVATE moveComponent.h moveComponent.cpp)
 
 add_subdirectory(ai)
+add_subdirectory(movement)

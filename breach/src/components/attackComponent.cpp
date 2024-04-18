@@ -9,7 +9,8 @@
 #include "components/facingComponent.h"
 #include "components/hitboxComponent.h"
 #include "components/healthComponent.h"
-#include "components/moveComponent.h"
+#include "components/movement/moveComponent.h"
+#include "components/movement/locomotionComponent.h"
 
 // TODO: Remove - Temporary for determining player or AI
 #include "components/ai/stateMachineAIComponent.h"
@@ -39,11 +40,13 @@ void AttackComponent::RegisterAttacksToAnimFrames()
     }
     for (const auto& pair : mAttackMap)
     {
-        const std::string& attackName = pair.first;
-        const uint32_t attackHitFrame = pair.second.mTriggerFrame;
-        anim->mEvents[attackHitFrame] = [this, attackName](Shade::Entity* triggerEntity) {
-            this->TriggerAttackHitEvent(attackName);
-        };
+        for (const AttackHitInfo& attackHitInfo : pair.second.mHitInfo)
+        {
+            const uint32_t attackHitFrame = attackHitInfo.mTriggerFrame;
+            anim->mEvents[attackHitFrame] = [this, attackHitInfo](Shade::Entity* triggerEntity) {
+                this->TriggerAttackHitEvent(attackHitInfo);
+            };
+        }
     }
 }
 
@@ -52,16 +55,34 @@ void AttackComponent::Update(float deltaSeconds)
 {
     if (!mCurrentAttack.empty())
     {
+        // TODO: Add an assert that current attack exists in the map
+        const AttackInfo& attackInfo = mAttackMap[mCurrentAttack];
+        if (attackInfo.mMoveSpeed > 0.f)
+        {
+            BaseMovementComponent* movement = mEntityRef->GetComponent<BaseMovementComponent>();
+            if (mCurrentAttackFacing == FacingDirection::LEFT)
+            {
+                movement->MoveLeft(attackInfo.mMoveSpeed * deltaSeconds);
+            }
+            if (mCurrentAttackFacing == FacingDirection::RIGHT)
+            {
+                movement->MoveRight(attackInfo.mMoveSpeed * deltaSeconds);
+            }
+        }
         mCurrentAttackTimer -= deltaSeconds;
         if (mCurrentAttackTimer <= 0.f)
         {
             mCurrentAttack.clear();
             mCurrentAttackTimer = 0.f;
-            // TODO: Add an assert that current attack exists in the map
-            if (mAttackMap[mCurrentAttack].mDisableMovement)
+            if (attackInfo.mDisableMovement)
             {
-                BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
-                moveComponent->EnableMovement();
+                LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
+                locomotion->EnableLocomotion();
+            }
+            if (attackInfo.mInvulnerable)
+            {
+                HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+                health->mIsInvulnerable = false;
             }
         }
     }
@@ -74,37 +95,17 @@ bool AttackComponent::IsDoingAttack() const
 }
 
 // ======================================
-bool AttackComponent::DoAttack(const std::string& name)
+bool AttackComponent::TryDoAttack(const std::string& name)
 {
-    auto it = mAttackMap.find(name);
-    if (it == mAttackMap.end())
+    if (IsDoingAttack())
     {
-        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-        logService->LogWarning("Tried to do an attack that doesn't exist: " + name);
         return false;
     }
-    const AttackInfo& attackInfo = it->second;
-    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(attackInfo.mAnimation);
-    if (attackInfo.mDisableMovement)
-    {
-        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
-        moveComponent->DisableMovement();
-    }
-    mCurrentAttack = name;
-    mCurrentAttackTimer = attackInfo.mDuration;
-    return true;
+    return DoAttack(name);
 }
 
-bool AttackComponent::TriggerAttackHitEvent(const std::string& name)
+bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
 {
-    auto it = mAttackMap.find(name);
-    if (it == mAttackMap.end())
-    {
-        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-        logService->LogWarning("Tried to trigger attack event for attack that doesn't exist: " + name);
-        return false;
-    }
-    const AttackHitInfo& attackInfo = it->second.mHitInfo;
     Shade::Box attackBox = Shade::Box(Shade::Vec2{ mEntityRef->GetPositionX() + attackInfo.mOffsetX, mEntityRef->GetPositionY() + attackInfo.mOffsetY}, attackInfo.mWidth, attackInfo.mHeight);
     for (const auto& entity : mEntityRef->GetWorldEntities())
     {
@@ -132,8 +133,43 @@ bool AttackComponent::TriggerAttackHitEvent(const std::string& name)
             }
         }
     }
-#ifdef BREACH_DEBUG
+#ifdef DEBUG_BREACH
     DebugUtils::DrawDebugRectOutline(Shade::Vec2{ mEntityRef->GetPositionX() + attackInfo.mOffsetX, mEntityRef->GetPositionY() + attackInfo.mOffsetY}, attackInfo.mWidth, attackInfo.mHeight, Shade::Colour{ 0.15f, 0.15f, 0.15f}, 0.5f);
 #endif
+    return true;
+}
+
+// ======================================
+bool AttackComponent::DoAttack(const std::string& name)
+{
+    auto it = mAttackMap.find(name);
+    if (it == mAttackMap.end())
+    {
+        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logService->LogWarning("Tried to do an attack that doesn't exist: " + name);
+        return false;
+    }
+    FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
+    if (!facing)
+    {
+        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logService->LogError("Missing facing component on entity with attack component");
+        return false;
+    }
+    const AttackInfo& attackInfo = it->second;
+    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(attackInfo.mAnimation);
+    if (attackInfo.mDisableMovement)
+    {
+        LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
+        locomotion->DisableLocomotion();
+    }
+    if (attackInfo.mInvulnerable)
+    {
+        HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+        health->mIsInvulnerable = true;
+    }
+    mCurrentAttack = name;
+    mCurrentAttackTimer = attackInfo.mDuration;
+    mCurrentAttackFacing = facing->mDirection;
     return true;
 }

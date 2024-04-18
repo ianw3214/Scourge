@@ -72,12 +72,16 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
 }
 
 // ======================================
-void Shade::AnimatedSpriteComponent::ChangeAnimationState(const std::string& newState)
+void Shade::AnimatedSpriteComponent::ChangeAnimationState(const std::string& newState, bool restartSameAnimation)
 {
     if (mStates.find(mCurrentState) == mStates.end())
     {
         LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
         logService->LogError("Tried to change to non-existent animation state: " + newState);
+        return;
+    }
+    if (mCurrentState == newState && !restartSameAnimation)
+    {
         return;
     }
     mCurrentState = newState;

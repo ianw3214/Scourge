@@ -1,3 +1,5 @@
+#define NOMINMAX   
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "shade/instance/instance.h"
@@ -18,7 +20,8 @@
 #include "components/facingComponent.h"
 #include "components/healthComponent.h"
 #include "components/hitboxComponent.h"
-#include "components/moveComponent.h"
+#include "components/movement/moveComponent.h"
+#include "components/movement/locomotionComponent.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"
@@ -48,12 +51,12 @@ class PlayerInputComponenet : public Shade::Component
 public:
     // ======================================
     void Update(float deltaSeconds) override {
-        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
+        LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
         AttackComponent* attackComponent = mEntityRef->GetComponent<AttackComponent>();
-        if (moveComponent == nullptr)
+        if (locomotion == nullptr)
         {
             Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-            logService->LogWarning("No movement component found on entity with PlayerInputComponent");
+            logService->LogWarning("No locomotion component found on entity with PlayerInputComponent");
             return;
         }
         if (attackComponent == nullptr)
@@ -62,19 +65,23 @@ public:
             logService->LogWarning("No attack component found on entity with PlayerInputComponent");
             return;
         }
-        if (attackComponent->IsDoingAttack()) {
-            return;
-        }
+        FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
-            FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-            attackComponent->DoAttack(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            // TODO: Have these account for input direction before accounting for attack direction
+            attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
             return;
         }
-        moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
-        moveComponent->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
-        moveComponent->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
-        moveComponent->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
+        if (mEntityRef->GetBooleanEvent("roll").mHeld)
+        {
+            // TODO: Have these account for input direction before accounting for attack direction
+            attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "dash_right" : "dash_left");
+            return;
+        }
+        locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
+        locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
+        locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
+        locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
     }
 };
 
@@ -126,6 +133,7 @@ public:
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_LEFT, "move_left");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_RIGHT, "move_right");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_Z, "attack");
+        mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_SPACE, "roll");
         SetEventsFromMapping(mInputMapping);
 
         // Initialize background images
@@ -150,7 +158,7 @@ public:
         AddEntity(std::move(TestBackground4));
 
         // Initialize a player entity
-        Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 5 };
+        Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 6 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
         animStateInfo["idle_right"] = { 0, 3 };
         animStateInfo["idle_left"] = { 4, 7 };
@@ -158,12 +166,16 @@ public:
         animStateInfo["run_left"] = { 14, 19 };
         animStateInfo["attack_right"] = { 20, 22, "idle_right" };
         animStateInfo["attack_left"] = { 23, 25, "idle_left" };
+        animStateInfo["roll_right"] = { 26, 30, "idle_right" };
+        animStateInfo["roll_left"] = { 31, 35, "idle_left" };
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this, *this);
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, 21, AttackHitInfo(0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, 24, AttackHitInfo(-98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, AttackHitInfo(24, -98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("dash_left", AttackInfo("roll_left", true, true, 0.4f, 800.f));
+        playerAttack->RegisterAttackInfo("dash_right", AttackInfo("roll_right", true, true, 0.4f, 800.f));
         PlayerEntity->AddComponent(std::move(playerAttack));
         // TODO: Temp hacky code - find better fix
         //  - quick fix will be to just return the new component when a component is added
@@ -172,7 +184,8 @@ public:
         playerAttackComp->RegisterAttacksToAnimFrames();
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
-        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
+        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>());
+        PlayerEntity->AddComponent(std::make_unique<LocomotionComponent>(350.f));
         PlayerEntity->AddComponent(std::make_unique<FacingComponent>());
         PlayerEntity->AddComponent(std::make_unique<PlayerInputComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
@@ -198,8 +211,8 @@ public:
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
-        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 1.4f, 16, AttackHitInfo(100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
-        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 1.4f, 12, AttackHitInfo(-240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 1.4f, AttackHitInfo(16, 100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 1.4f, AttackHitInfo(12, -240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
         TestKnight->AddComponent(std::move(enemyAttack));
         // TODO: Temp hacky code - find better fix
         AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();
@@ -207,6 +220,7 @@ public:
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
+        TestKnight->AddComponent(std::make_unique<LocomotionComponent>());
         TestKnight->AddComponent(std::make_unique<FacingComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
@@ -220,18 +234,18 @@ public:
             return (diff_x * diff_x + diff_y * diff_y) < 1000000.f ? "move" : "";
         });
         moveState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
-            BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
-            if (moveComponent == nullptr)
+            LocomotionComponent* locomotion = AIEntity->GetComponent<LocomotionComponent>();
+            if (locomotion == nullptr)
             {
                 Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-                logService->LogError("Expected movement component for AI");
+                logService->LogError("Expected locomotion component for AI");
                 return;
             }
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
-            moveComponent->mMovingRight = player->GetPositionX() > AIEntity->GetPositionX();
-            moveComponent->mMovingLeft = player->GetPositionX() < AIEntity->GetPositionX();
-            moveComponent->mMovingUp = player->GetPositionY() > AIEntity->GetPositionY();
-            moveComponent->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
+            locomotion->mMovingRight = player->GetPositionX() > AIEntity->GetPositionX();
+            locomotion->mMovingLeft = player->GetPositionX() < AIEntity->GetPositionX();
+            locomotion->mMovingUp = player->GetPositionY() > AIEntity->GetPositionY();
+            locomotion->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
         };
         moveState.mTransitions.push_back([](Shade::Entity* AIEntity){
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
@@ -244,7 +258,7 @@ public:
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
-            attackComponent->DoAttack(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
+            attackComponent->TryDoAttack(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
         };
         attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
