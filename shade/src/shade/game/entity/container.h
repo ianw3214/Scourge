@@ -9,7 +9,7 @@ namespace Shade {
 
     class EntityContainer {
     public:
-        void AddEntity(std::unique_ptr<Entity> entity);
+        std::unique_ptr<Entity>& AddEntity(std::unique_ptr<Entity> entity);
         std::vector<std::unique_ptr<Entity>>& GetEntities();
 
     protected:

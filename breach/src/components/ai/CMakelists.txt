@@ -1,0 +1,2 @@
+target_sources(Breach PRIVATE blackboardComponent.h blackboardComponent.cpp)
+target_sources(Breach PRIVATE stateMachineAIComponent.h stateMachineAIComponent.cpp)

@@ -12,7 +12,10 @@
 #include "shade/graphics/command/drawLine.h"
 #include "shade/logging/logService.h"
 
+#include "components/ai/blackBoardComponent.h"
+#include "components/ai/stateMachineAIComponent.h"
 #include "components/attackComponent.h"
+#include "components/facingComponent.h"
 #include "components/healthComponent.h"
 #include "components/hitboxComponent.h"
 
@@ -29,16 +32,19 @@ enum class RenderLayer : int {
 };
 
 // ======================================
-enum class FacingDirection {
-    LEFT,
-    RIGHT
+// TODO: This is a pretty hacky system, figure out a better way to track this in the future
+class PlayerRegistry {
+public:
+    static void CachePlayer(Shade::Entity* player) { sCachedPlayer = player; }
+    static Shade::Entity* GetCachedPlayer() { return sCachedPlayer; }
+private:
+    static inline Shade::Entity* sCachedPlayer = nullptr;
 };
 
 // ======================================
 class BaseMovementComponent : public Shade::Component
 {
 public:
-    FacingDirection mFacing = FacingDirection::RIGHT;   // TODO: This should probably live somewhere outside the base movement component
     bool mWasMoving = false;
     bool mDisable = false;
     // These variables are directly set to control the movement
@@ -55,11 +61,12 @@ public:
     BaseMovementComponent(float speed) : mSpeed(speed) {}
     // ======================================
     void Update(float deltaSeconds) override {
+        FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
         if (mDisable)
         {
             return;
         }
-        FacingDirection NewFacingDir = mFacing;
+        FacingDirection NewFacingDir = facing->mDirection;
         bool bMoving = false;
         if (mMovingUp)
         {
@@ -84,19 +91,35 @@ public:
             NewFacingDir = FacingDirection::LEFT;
         }
         // Update animation if any of the movement related states were changed
-        if (NewFacingDir != mFacing || bMoving != mWasMoving)
+        if (NewFacingDir != facing->mDirection || bMoving != mWasMoving)
         {
             mWasMoving = bMoving;
-            mFacing = NewFacingDir;
+            facing->mDirection = NewFacingDir;
             if (bMoving)
             {
-                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "run_right" : "run_left");
+                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "run_right" : "run_left");
             }
             else
             {
-                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(mFacing == FacingDirection::RIGHT ? "idle_right" : "idle_left");
+                mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "idle_right" : "idle_left");
             }
         }
+        // Reset movement flags after using them
+        mMovingLeft = false;
+        mMovingRight = false;
+        mMovingUp = false;
+        mMovingDown = false;
+    }
+    // ======================================
+    void DisableMovement(bool disable)
+    {
+        mDisable = disable;
+        mWasMoving = false;  // TODO: Hacky... fix soon
+    }
+    // ======================================
+    void EnableMovement()
+    {
+        mDisable = false;
     }
 };
 
@@ -113,59 +136,34 @@ public:
         BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
         if (moveComponent == nullptr)
         {
-            // TODO: Error here...
+            Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+            logService->LogWarning("No movement component found on entity with PlayerInputComponent");
             return;
         }
         // TODO: Probably want to use a state machine to keep track of this
+        //  - Alternatively, some sort of "control flag" system where components can try to get control of a certain flag (e.g. movement flag)
+        //  - If the flag is in use, then don't allow movement to go through
+        //  - Some sort of priority can be used to resolve situations where multiple components try to control a flag at the same time
         if (mAttackTimer > 0.f) {
             mAttackTimer -= deltaSeconds;
             if (mAttackTimer <= 0.f)
             {
-                moveComponent->mDisable = false;
+                moveComponent->EnableMovement();
             }
             return;
         }
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
-            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(moveComponent->mFacing == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
+            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
             mAttackTimer = 0.25f;
-            moveComponent->mDisable = true;
-            moveComponent->mWasMoving = false;  // TODO: Hacky... fix soon
+            moveComponent->DisableMovement(true);
             return;
         }
         moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
         moveComponent->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
         moveComponent->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
         moveComponent->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
-    }
-};
-
-// ======================================
-class RandomMovementComponent : public Shade::Component
-{
-public:
-    // This is not really random, but just switch between moving left/right
-    float mMoveDelta = 0.f;
-    bool mLeftRightToggle = false;
-public:
-    // ======================================
-    void Update(float deltaSeconds) override {
-        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
-        if (moveComponent == nullptr)
-        {
-            // TODO: Error here...
-            return;
-        }
-        mMoveDelta += deltaSeconds;
-        if (mMoveDelta > 4.f) 
-        {
-            mMoveDelta = 0.f;
-            mLeftRightToggle = !mLeftRightToggle;
-        }
-        const bool moving = mMoveDelta > 1.5f;
-        bool bMoving = false;
-        moveComponent->mMovingRight = moving && mLeftRightToggle;
-        moveComponent->mMovingLeft = moving && !mLeftRightToggle;
     }
 };
 
@@ -221,19 +219,24 @@ public:
 
         // Initialize background images
         std::unique_ptr<Shade::Entity> TestBackground1 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/sky.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/breach/bg.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground1->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.f));
         AddEntity(std::move(TestBackground1));
 
         std::unique_ptr<Shade::Entity> TestBackground2 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(2000.f, 720.f, "assets/breach/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         TestBackground2->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.5f));
         AddEntity(std::move(TestBackground2));
 
         std::unique_ptr<Shade::Entity> TestBackground3 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/textures/background2.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(1.0f));
+        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(2400.f, 720.f, "assets/breach/mid.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.7f));
         AddEntity(std::move(TestBackground3));
+
+        std::unique_ptr<Shade::Entity> TestBackground4 = std::make_unique<Shade::Entity>(*this, *this);
+        TestBackground4->AddComponent(std::make_unique<Shade::SpriteComponent>(2800.f, 720.f, "assets/breach/foreground.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        TestBackground4->AddComponent(std::make_unique<HorizontalParallaxComponent>(1.0f));
+        AddEntity(std::move(TestBackground4));
 
         // Initialize a player entity
         Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 5 };
@@ -248,15 +251,18 @@ public:
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo(0.f, 30.f, 98.f, 90.f, 10.f));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo(-98.f, 30.f, 98.f, 90.f, 10.f));
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo(0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo(-98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY));
         PlayerEntity->AddComponent(std::move(playerAttack));
         // TODO: Temp hacky code - find better fix
+        //  - quick fix will be to just return the new component when a component is added
+        //  - A 2 round initialization would be better: differentiate construction and initialization
         AttackComponent* playerAttackComp = PlayerEntity->GetComponent<AttackComponent>();
         playerAttackComp->RegisterAttacksToAnimFrames({ std::make_pair<>("attack_right", 21), std::make_pair<>("attack_left", 24) });
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
+        PlayerEntity->AddComponent(std::make_unique<FacingComponent>());
         PlayerEntity->AddComponent(std::make_unique<PlayerInputComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
         PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
@@ -264,18 +270,8 @@ public:
 #ifdef DEBUG_BREACH
         PlayerEntity->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
-        AddEntity(std::move(PlayerEntity));
-
-        // Initialize a test entity
-        Shade::TilesheetInfo tileSheetInfo2 { 160, 160, 3, 3 };
-        std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo2;
-        animStateInfo2["idle"] = { 0, 0 };
-        animStateInfo2["run"] = { 1, 6 };
-        std::unique_ptr<Shade::Entity> TestEntity = std::make_unique<Shade::Entity>(*this, *this);
-        TestEntity->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(160.f, 160.f, "assets/textures/knight.png", tileSheetInfo2, animStateInfo2, "run", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestEntity->SetPositionX(300.f);
-        TestEntity->SetPositionY(300.f);
-        AddEntity(std::move(TestEntity));
+        std::unique_ptr<Shade::Entity>& NewPlayerRef = AddEntity(std::move(PlayerEntity));
+        PlayerRegistry::CachePlayer(NewPlayerRef.get());
 
         // Testing a knight entity
         Shade::TilesheetInfo tileSheetInfo3 { 480, 420, 5, 4 };
@@ -284,18 +280,83 @@ public:
         animStateInfo3["idle_right"] = { 1, 1 };
         animStateInfo3["run_left"] = { 2, 5 };
         animStateInfo3["run_right"] = { 6, 9 };
-        animStateInfo3["attack_left"] = { 10, 13 };
-        animStateInfo3["attack_right"] = { 14, 17 };
+        animStateInfo3["attack_left"] = { 10, 13, "idle_left" };
+        animStateInfo3["attack_right"] = { 14, 17, "idle_right" };
         animStateInfo3["recharge_left"] = { 18, 18 };
         animStateInfo3["recharge_right"] = { 19, 19 };
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo(100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo(-240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER));
+        TestKnight->AddComponent(std::move(enemyAttack));
+        // TODO: Temp hacky code - find better fix
+        AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();
+        enemyAttackComp->RegisterAttacksToAnimFrames({ std::make_pair<>("attack_right", 16), std::make_pair<>("attack_left", 12) });
         TestKnight->SetPositionX(-100.f);
-        TestKnight->SetPositionY(300.f);
+        TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
-        TestKnight->AddComponent(std::make_unique<RandomMovementComponent>());
+        TestKnight->AddComponent(std::make_unique<FacingComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
+
+        // AI state machine definition
+        AIState idleState, moveState, attackState;
+        idleState.mTransitions.push_back([](Shade::Entity* AIEntity){ 
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
+            const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
+            const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();
+            return (diff_x * diff_x + diff_y * diff_y) < 1000000.f ? "move" : "";
+        });
+        moveState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
+            BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
+            if (moveComponent == nullptr)
+            {
+                Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+                logService->LogError("Expected movement component for AI");
+                return;
+            }
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
+            moveComponent->mMovingRight = player->GetPositionX() > AIEntity->GetPositionX();
+            moveComponent->mMovingLeft = player->GetPositionX() < AIEntity->GetPositionX();
+            moveComponent->mMovingUp = player->GetPositionY() > AIEntity->GetPositionY();
+            moveComponent->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
+        };
+        moveState.mTransitions.push_back([](Shade::Entity* AIEntity){
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
+            const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
+            const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();
+            return (diff_x * diff_x + diff_y * diff_y) < 40000.f ? "attack" : "";
+        });
+        attackState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
+            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
+            blackboard->StoreFloat("attack_timer", blackboard->GetFloat("attack_timer") - deltaSeconds);
+        };
+        attackState.mOnEnter = [](Shade::Entity* AIEntity){
+            Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
+            BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
+            moveComponent->DisableMovement(true);
+            AIEntity->GetCachedAnimatedSprite()->ChangeAnimationState(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
+
+            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
+            blackboard->StoreFloat("attack_timer", 1.2f);
+        };
+        attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
+            BlackboardComponent* blackboard = AIEntity->GetComponent<BlackboardComponent>();
+            if (blackboard->GetFloat("attack_timer") <= 0.f)
+            {
+                BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
+                moveComponent->EnableMovement();
+                return "idle";
+            }
+            return "";
+        });
+        std::unordered_map<std::string, AIState> stateInfo;
+        stateInfo["idle"] = idleState;
+        stateInfo["move"] = moveState;
+        stateInfo["attack"] = attackState;
+        TestKnight->AddComponent(std::make_unique<StateMachineAIComponent>("idle", stateInfo));
+        TestKnight->AddComponent(std::make_unique<BlackboardComponent>());
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif

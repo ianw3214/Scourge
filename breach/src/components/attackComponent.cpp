@@ -9,6 +9,9 @@
 #include "components/hitboxComponent.h"
 #include "components/healthComponent.h"
 
+// TODO: Remove - Temporary for determining player or AI
+#include "components/ai/stateMachineAIComponent.h"
+
 // ======================================
 AttackComponent::AttackComponent()
     : mAttackMap()
@@ -56,6 +59,15 @@ bool AttackComponent::DoAttack(const std::string& name)
     for (const auto& entity : mEntityRef->GetWorldEntities())
     {
         if (entity.get() == mEntityRef)
+        {
+            continue;
+        }
+        // TODO: Need an ACTUAL way to determine if an entity is a player or enemy
+        if (attackInfo.mTarget == AttackTarget::PLAYER && entity->GetComponent<StateMachineAIComponent>() != nullptr)
+        {
+            continue;
+        }
+        if (attackInfo.mTarget == AttackTarget::ENEMY && entity->GetComponent<StateMachineAIComponent>() == nullptr)
         {
             continue;
         }
