@@ -312,7 +312,8 @@ public:
             BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
             if (moveComponent == nullptr)
             {
-                // TODO: Error here...
+                Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+                logService->LogError("Expected movement component for AI");
                 return;
             }
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
