@@ -46,6 +46,8 @@ private:
 class PlayerInputComponenet : public Shade::Component
 {
 public:
+    float mRollTimer = 0.f;
+public:
     // ======================================
     void Update(float deltaSeconds) override {
         BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
@@ -65,10 +67,27 @@ public:
         if (attackComponent->IsDoingAttack()) {
             return;
         }
+        if (mRollTimer > 0.f)
+        {
+            mRollTimer -= deltaSeconds;
+            if (mRollTimer <= 0.f)
+            {
+                moveComponent->EnableMovement();
+            }
+            return;
+        }
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
             FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
             attackComponent->DoAttack(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            return;
+        }
+        if (mEntityRef->GetBooleanEvent("roll").mHeld)
+        {
+            FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
+            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "roll_right" : "roll_left");
+            mRollTimer = 0.45f;
+            moveComponent->DisableMovement();
             return;
         }
         moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
@@ -126,6 +145,7 @@ public:
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_LEFT, "move_left");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_RIGHT, "move_right");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_Z, "attack");
+        mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_SPACE, "roll");
         SetEventsFromMapping(mInputMapping);
 
         // Initialize background images
@@ -150,7 +170,7 @@ public:
         AddEntity(std::move(TestBackground4));
 
         // Initialize a player entity
-        Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 5 };
+        Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 6 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
         animStateInfo["idle_right"] = { 0, 3 };
         animStateInfo["idle_left"] = { 4, 7 };
@@ -158,6 +178,8 @@ public:
         animStateInfo["run_left"] = { 14, 19 };
         animStateInfo["attack_right"] = { 20, 22, "idle_right" };
         animStateInfo["attack_left"] = { 23, 25, "idle_left" };
+        animStateInfo["roll_right"] = { 26, 30, "idle_right" };
+        animStateInfo["roll_left"] = { 31, 35, "idle_left" };
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this, *this);
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
