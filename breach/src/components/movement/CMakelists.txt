@@ -1,0 +1,2 @@
+target_sources(Breach PRIVATE moveComponent.h moveComponent.cpp)
+target_sources(Breach PRIVATE locomotionComponent.h locomotionComponent.cpp)

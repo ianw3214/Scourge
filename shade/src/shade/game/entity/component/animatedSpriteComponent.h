@@ -33,7 +33,8 @@ namespace Shade {
         virtual void Update(float deltaSeconds) override;
         virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand() override;
 
-        void ChangeAnimationState(const std::string& newState);
+        // 'restartSameAnimation' will determine whether the animation should play from the starting frame if the new animation is the same as the existing one
+        void ChangeAnimationState(const std::string& newState, bool restartSameAnimation = true);
     public:
         // Animation definition
         TilesheetInfo mTileSheetInfo;

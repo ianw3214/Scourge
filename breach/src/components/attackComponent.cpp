@@ -9,7 +9,7 @@
 #include "components/facingComponent.h"
 #include "components/hitboxComponent.h"
 #include "components/healthComponent.h"
-#include "components/moveComponent.h"
+#include "components/movement/locomotionComponent.h"
 
 // TODO: Remove - Temporary for determining player or AI
 #include "components/ai/stateMachineAIComponent.h"
@@ -60,8 +60,8 @@ void AttackComponent::Update(float deltaSeconds)
             // TODO: Add an assert that current attack exists in the map
             if (mAttackMap[mCurrentAttack].mDisableMovement)
             {
-                BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
-                moveComponent->EnableMovement();
+                LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
+                locomotion->EnableLocomotion();
             }
         }
     }
@@ -87,8 +87,8 @@ bool AttackComponent::DoAttack(const std::string& name)
     mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(attackInfo.mAnimation);
     if (attackInfo.mDisableMovement)
     {
-        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
-        moveComponent->DisableMovement();
+        LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
+        locomotion->DisableLocomotion();
     }
     mCurrentAttack = name;
     mCurrentAttackTimer = attackInfo.mDuration;

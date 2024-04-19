@@ -18,7 +18,8 @@
 #include "components/facingComponent.h"
 #include "components/healthComponent.h"
 #include "components/hitboxComponent.h"
-#include "components/moveComponent.h"
+#include "components/movement/moveComponent.h"
+#include "components/movement/locomotionComponent.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"
@@ -50,12 +51,12 @@ public:
 public:
     // ======================================
     void Update(float deltaSeconds) override {
-        BaseMovementComponent* moveComponent = mEntityRef->GetComponent<BaseMovementComponent>();
+        LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
         AttackComponent* attackComponent = mEntityRef->GetComponent<AttackComponent>();
-        if (moveComponent == nullptr)
+        if (locomotion == nullptr)
         {
             Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-            logService->LogWarning("No movement component found on entity with PlayerInputComponent");
+            logService->LogWarning("No locomotion component found on entity with PlayerInputComponent");
             return;
         }
         if (attackComponent == nullptr)
@@ -72,7 +73,7 @@ public:
             mRollTimer -= deltaSeconds;
             if (mRollTimer <= 0.f)
             {
-                moveComponent->EnableMovement();
+                locomotion->EnableLocomotion();
             }
             return;
         }
@@ -87,13 +88,13 @@ public:
             FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
             mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "roll_right" : "roll_left");
             mRollTimer = 0.45f;
-            moveComponent->DisableMovement();
+            locomotion->DisableLocomotion();
             return;
         }
-        moveComponent->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
-        moveComponent->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
-        moveComponent->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
-        moveComponent->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
+        locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
+        locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
+        locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
+        locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
     }
 };
 
@@ -194,7 +195,8 @@ public:
         playerAttackComp->RegisterAttacksToAnimFrames();
         PlayerEntity->SetPositionX(200.f);
         PlayerEntity->SetPositionY(200.f);
-        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>(350.f));
+        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>());
+        PlayerEntity->AddComponent(std::make_unique<LocomotionComponent>(350.f));
         PlayerEntity->AddComponent(std::make_unique<FacingComponent>());
         PlayerEntity->AddComponent(std::make_unique<PlayerInputComponenet>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
@@ -229,6 +231,7 @@ public:
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
+        TestKnight->AddComponent(std::make_unique<LocomotionComponent>());
         TestKnight->AddComponent(std::make_unique<FacingComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
@@ -242,18 +245,18 @@ public:
             return (diff_x * diff_x + diff_y * diff_y) < 1000000.f ? "move" : "";
         });
         moveState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
-            BaseMovementComponent* moveComponent = AIEntity->GetComponent<BaseMovementComponent>();
-            if (moveComponent == nullptr)
+            LocomotionComponent* locomotion = AIEntity->GetComponent<LocomotionComponent>();
+            if (locomotion == nullptr)
             {
                 Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-                logService->LogError("Expected movement component for AI");
+                logService->LogError("Expected locomotion component for AI");
                 return;
             }
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
-            moveComponent->mMovingRight = player->GetPositionX() > AIEntity->GetPositionX();
-            moveComponent->mMovingLeft = player->GetPositionX() < AIEntity->GetPositionX();
-            moveComponent->mMovingUp = player->GetPositionY() > AIEntity->GetPositionY();
-            moveComponent->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
+            locomotion->mMovingRight = player->GetPositionX() > AIEntity->GetPositionX();
+            locomotion->mMovingLeft = player->GetPositionX() < AIEntity->GetPositionX();
+            locomotion->mMovingUp = player->GetPositionY() > AIEntity->GetPositionY();
+            locomotion->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
         };
         moveState.mTransitions.push_back([](Shade::Entity* AIEntity){
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
