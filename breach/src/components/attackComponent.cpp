@@ -9,6 +9,7 @@
 #include "components/facingComponent.h"
 #include "components/hitboxComponent.h"
 #include "components/healthComponent.h"
+#include "components/movement/moveComponent.h"
 #include "components/movement/locomotionComponent.h"
 
 // TODO: Remove - Temporary for determining player or AI
@@ -65,12 +66,30 @@ void AttackComponent::Update(float deltaSeconds)
             }
         }
     }
+    if (mCurrentDashTimer > 0.f)
+    {
+        BaseMovementComponent* movement = mEntityRef->GetComponent<BaseMovementComponent>();
+        if (mDashDirection == FacingDirection::LEFT)
+        {
+            movement->MoveLeft(deltaSeconds * 800.f);
+        }
+        if (mDashDirection == FacingDirection::RIGHT)
+        {
+            movement->MoveRight(deltaSeconds * 800.f);
+        }
+        mCurrentDashTimer -= deltaSeconds;
+        if (mCurrentDashTimer <= 0.f)
+        {
+            LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
+            locomotion->EnableLocomotion();
+        }
+    }
 }
 
 // ======================================
 bool AttackComponent::IsDoingAttack() const
 {
-    return !mCurrentAttack.empty();
+    return !mCurrentAttack.empty() || mCurrentDashTimer > 0.f;
 }
 
 // ======================================
@@ -132,8 +151,20 @@ bool AttackComponent::TriggerAttackHitEvent(const std::string& name)
             }
         }
     }
-#ifdef BREACH_DEBUG
+#ifdef DEBUG_BREACH
     DebugUtils::DrawDebugRectOutline(Shade::Vec2{ mEntityRef->GetPositionX() + attackInfo.mOffsetX, mEntityRef->GetPositionY() + attackInfo.mOffsetY}, attackInfo.mWidth, attackInfo.mHeight, Shade::Colour{ 0.15f, 0.15f, 0.15f}, 0.5f);
 #endif
     return true;
+}
+
+// ======================================
+void AttackComponent::DoDash(FacingDirection dashDirection)
+{
+    mDashDirection = dashDirection;
+    mCurrentDashTimer = 0.4f;
+
+    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(dashDirection == FacingDirection::RIGHT ? "roll_right" : "roll_left");
+
+    LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
+    locomotion->DisableLocomotion();
 }

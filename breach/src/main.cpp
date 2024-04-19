@@ -47,8 +47,6 @@ private:
 class PlayerInputComponenet : public Shade::Component
 {
 public:
-    float mRollTimer = 0.f;
-public:
     // ======================================
     void Update(float deltaSeconds) override {
         LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
@@ -65,30 +63,23 @@ public:
             logService->LogWarning("No attack component found on entity with PlayerInputComponent");
             return;
         }
+        // TODO: These timers should be handled more in the components themselves
+        //  - this component should ONLY serve to pass along player input to the corresponding components
         if (attackComponent->IsDoingAttack()) {
-            return;
-        }
-        if (mRollTimer > 0.f)
-        {
-            mRollTimer -= deltaSeconds;
-            if (mRollTimer <= 0.f)
-            {
-                locomotion->EnableLocomotion();
-            }
             return;
         }
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
+            // TODO: Have these account for input direction before accounting for attack direction
             FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
             attackComponent->DoAttack(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
             return;
         }
         if (mEntityRef->GetBooleanEvent("roll").mHeld)
         {
+            // TODO: Have these account for input direction before accounting for attack direction
             FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-            mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "roll_right" : "roll_left");
-            mRollTimer = 0.45f;
-            locomotion->DisableLocomotion();
+            attackComponent->DoDash(facing->mDirection);
             return;
         }
         locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;

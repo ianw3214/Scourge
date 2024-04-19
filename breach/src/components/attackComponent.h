@@ -2,6 +2,8 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "components/facingComponent.h"
+
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -63,6 +65,13 @@ public:
     
     bool DoAttack(const std::string& name);
     bool TriggerAttackHitEvent(const std::string& name);
+
+    // Track dashes separately for now
+    // TODO: Either need to integrate dashes more closely into the attack system
+    //  - or need to seperate it out more completely
+    void DoDash(FacingDirection dashDirection);
+    float mCurrentDashTimer = 0.f;
+    FacingDirection mDashDirection;
 
 private:
     std::unordered_map<std::string, AttackInfo> mAttackMap;
