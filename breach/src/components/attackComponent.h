@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <limits>
 
 // ======================================
 // This could be generalized more instead of hard-coded in the future if necessary
@@ -18,6 +19,8 @@ enum class AttackTarget {
 
 // ======================================
 struct AttackHitInfo {
+    uint32_t mTriggerFrame = std::numeric_limits<uint32_t>::max();
+
     float mOffsetX = 0.f;
     float mOffsetY = 0.f;
     float mWidth = 10.f;
@@ -27,26 +30,27 @@ struct AttackHitInfo {
     AttackTarget mTarget = AttackTarget::ENEMY;
 
     AttackHitInfo() = default;
-    AttackHitInfo(float offsetX, float offsetY, float width, float height, float damage, AttackTarget target)
-        : mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height), mDamage(damage), mTarget(target) {}
+    AttackHitInfo(uint32_t triggerFrame, float offsetX, float offsetY, float width, float height, float damage, AttackTarget target)
+        : mTriggerFrame(triggerFrame), mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height), mDamage(damage), mTarget(target) {}
 };
 
 // ======================================
 struct AttackInfo {
     std::string mAnimation;
     bool mDisableMovement = true;
+    bool mInvulnerable = false;
 
     // TODO: This can be timed to exactly when the animation ends if desired
     float mDuration = 0.f;
+    float mMoveSpeed = 0.f;
 
-    // TODO: This should be in a container in the future
-    //  so that each attack can support multiple "events"
-    uint32_t mTriggerFrame;
-    AttackHitInfo mHitInfo;
+    std::vector<AttackHitInfo> mHitInfo;
 
     AttackInfo() = default;
-    AttackInfo(const std::string& anim, bool disableMovement, float duration, uint32_t triggerFrame, AttackHitInfo hitInfo)
-        : mAnimation(anim), mDisableMovement(disableMovement), mDuration(duration), mTriggerFrame(triggerFrame), mHitInfo(hitInfo) {}
+    AttackInfo(const std::string& anim, bool disableMovement, bool invulnerable, float duration, float speed)
+        : mAnimation(anim), mDisableMovement(disableMovement), mInvulnerable(invulnerable), mDuration(duration), mMoveSpeed(speed) {}
+    AttackInfo(const std::string& anim, bool disableMovement, float duration, AttackHitInfo hitInfo)
+        : mAnimation(anim), mDisableMovement(disableMovement), mDuration(duration), mHitInfo({ hitInfo }) {}
 };
 
 // ======================================
@@ -63,20 +67,17 @@ public:
 
     bool IsDoingAttack() const;
     
-    bool DoAttack(const std::string& name);
-    bool TriggerAttackHitEvent(const std::string& name);
+    bool TryDoAttack(const std::string& name);
+    bool TriggerAttackHitEvent(const AttackHitInfo& attackHitInfo);
 
-    // Track dashes separately for now
-    // TODO: Either need to integrate dashes more closely into the attack system
-    //  - or need to seperate it out more completely
-    void DoDash(FacingDirection dashDirection);
-    float mCurrentDashTimer = 0.f;
-    FacingDirection mDashDirection;
+private:
+    bool DoAttack(const std::string& name);
 
 private:
     std::unordered_map<std::string, AttackInfo> mAttackMap;
 
     std::string mCurrentAttack;
     float mCurrentAttackTimer = 0.f;
+    FacingDirection mCurrentAttackFacing;
     
 };

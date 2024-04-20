@@ -1,3 +1,5 @@
+#define NOMINMAX   
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "shade/instance/instance.h"
@@ -63,23 +65,17 @@ public:
             logService->LogWarning("No attack component found on entity with PlayerInputComponent");
             return;
         }
-        // TODO: These timers should be handled more in the components themselves
-        //  - this component should ONLY serve to pass along player input to the corresponding components
-        if (attackComponent->IsDoingAttack()) {
-            return;
-        }
+        FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
         if (mEntityRef->GetBooleanEvent("attack").mHeld)
         {
             // TODO: Have these account for input direction before accounting for attack direction
-            FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-            attackComponent->DoAttack(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
+            attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "attack_right" : "attack_left");
             return;
         }
         if (mEntityRef->GetBooleanEvent("roll").mHeld)
         {
             // TODO: Have these account for input direction before accounting for attack direction
-            FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-            attackComponent->DoDash(facing->mDirection);
+            attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "dash_right" : "dash_left");
             return;
         }
         locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
@@ -176,8 +172,10 @@ public:
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, 21, AttackHitInfo(0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, 24, AttackHitInfo(-98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, AttackHitInfo(24, -98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("dash_left", AttackInfo("roll_left", true, true, 0.4f, 800.f));
+        playerAttack->RegisterAttackInfo("dash_right", AttackInfo("roll_right", true, true, 0.4f, 800.f));
         PlayerEntity->AddComponent(std::move(playerAttack));
         // TODO: Temp hacky code - find better fix
         //  - quick fix will be to just return the new component when a component is added
@@ -213,8 +211,8 @@ public:
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
-        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 1.4f, 16, AttackHitInfo(100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
-        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 1.4f, 12, AttackHitInfo(-240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 1.4f, AttackHitInfo(16, 100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 1.4f, AttackHitInfo(12, -240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
         TestKnight->AddComponent(std::move(enemyAttack));
         // TODO: Temp hacky code - find better fix
         AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();
@@ -260,7 +258,7 @@ public:
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
-            attackComponent->DoAttack(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
+            attackComponent->TryDoAttack(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
         };
         attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
