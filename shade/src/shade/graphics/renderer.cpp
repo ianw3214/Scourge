@@ -29,6 +29,9 @@ namespace {
     GLuint colourShaderProgram;
     GLuint textureShaderProgram;
 
+    // 2D pixel space shader program w/ depth
+    GLuint colourShaderProgram2D;
+
     // normalized shader programs
     GLuint normalizedColourShaderProgram;  
     GLuint normalizedTextureShaderProgram;
@@ -42,6 +45,19 @@ namespace {
         "void main()\n"
         "{\n"
         "   gl_Position = vec4((aPos.x / ScreenWidth * 2.0) - 1.0, (aPos.y / ScreenHeight * 2.0) - 1.0, aPos.z, 1.0);\n"
+        "   TextureCoord = aTextureCoord;\n"
+        "}\0";  
+
+    const char* pixelVertexShaderSourceWithDepth2D = "#version 330 core\n"
+        "layout (location = 0) in vec2 aPos;\n"
+        "layout (location = 1) in vec2 aTextureCoord;\n"
+        "uniform float ScreenWidth;\n"
+        "uniform float ScreenHeight;\n"
+        "uniform float Depth;\n"
+        "out vec2 TextureCoord;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = vec4((aPos.x / ScreenWidth * 2.0) - 1.0, (aPos.y / ScreenHeight * 2.0) - 1.0, Depth, 1.0);\n"
         "   TextureCoord = aTextureCoord;\n"
         "}\0";  
 
@@ -97,6 +113,11 @@ void Shade::RendererBase::InitializeDefaultShaders()
     glShaderSource(vertexShader, 1, &pixelVertexShaderSource, NULL);
     glCompileShader(vertexShader);
 
+    GLuint vertexShader2D;
+    vertexShader2D = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader2D, 1, &pixelVertexShaderSourceWithDepth2D, NULL);
+    glCompileShader(vertexShader2D);
+
     GLuint normalizedVertexShader;
     normalizedVertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(normalizedVertexShader, 1, &normalizedVertexShaderSource, NULL);
@@ -130,6 +151,18 @@ void Shade::RendererBase::InitializeDefaultShaders()
     glLinkProgram(textureShaderProgram);
     {
         glUseProgram(textureShaderProgram);
+        GLint screenWidthUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenWidth");
+        glUniform1f(screenWidthUniformLocation, 1280.f);
+        GLint screenHeightUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenHeight");
+        glUniform1f(screenHeightUniformLocation, 720.f);
+    }
+
+    colourShaderProgram2D = glCreateProgram();
+    glAttachShader(colourShaderProgram2D, vertexShader2D);
+    glAttachShader(colourShaderProgram2D, fragmentShader);
+    glLinkProgram(colourShaderProgram2D);
+    {
+        glUseProgram(colourShaderProgram2D);
         GLint screenWidthUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenWidth");
         glUniform1f(screenWidthUniformLocation, 1280.f);
         GLint screenHeightUniformLocation = glGetUniformLocation(textureShaderProgram, "ScreenHeight");
@@ -295,6 +328,39 @@ void Shade::RendererBase::DrawLineNormalized(float point1x, float point1y, float
 void Shade::RendererBase::DrawLineNormalized(Vec2 point1, Vec2 point2, Colour colour, float depth) const
 {
     DrawLineNormalized(point1.x, point1.y, point2.x, point2.y, colour, depth);
+}
+
+// ======================================
+void Shade::RendererBase::DrawLines(std::vector<Vec2> points, Colour colour, float depth) const
+{
+    // TODO: Consider optimizing this
+    //  - How can this be cached to avoid creating/deleting VAOs and VBOs all the time
+    GLuint VAO_lines;
+    GLuint VBO_lines;
+    glGenVertexArrays(1, &VAO_lines);
+    glGenBuffers(1, &VBO_lines);
+    glBindVertexArray(VAO_lines);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_lines);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * points.size(), &points[0], GL_DYNAMIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glUseProgram(colourShaderProgram2D);
+    GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram2D, "InputColor");
+    glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    GLint depthUniformLocation = glGetUniformLocation(colourShaderProgram2D, "Depth");
+    glUniform1f(depthUniformLocation, depth);
+    glDrawArrays(GL_LINE_STRIP, 0, points.size());
+
+    glDeleteBuffers(1, &VBO_lines);
+    glDeleteVertexArrays(1, &VAO_lines);
+}
+
+// ======================================
+void Shade::RendererBase::DrawLinesNormalized(std::vector<Vec2> points, Colour colour, float depth) const
+{
+    // TODO: Implement
 }
 
 // ======================================

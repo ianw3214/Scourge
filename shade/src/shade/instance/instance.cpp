@@ -70,6 +70,7 @@ void Shade::GameInstance::Run()
 
         mRenderer->Clear();
         ImGuiWrapper::StartFrame();
+
         std::vector<std::unique_ptr<RenderCommand>> RenderCommands;
         mCurrentState->RenderModules(RenderCommands);
         // TODO: Once this is multithreaded, should also check previous render queue is done
