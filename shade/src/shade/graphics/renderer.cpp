@@ -21,6 +21,8 @@ namespace {
     GLuint VBO_rect;
     GLuint VAO_line;
     GLuint VBO_line;
+    GLuint VAO_circle;
+    GLuint VBO_circle;
     // Can texture and rect share the same VAO/VBOs? Is it even worth it?
     GLuint VAO_texture;
     GLuint VBO_texture;
@@ -220,6 +222,19 @@ void Shade::RendererBase::InitializeDefaultShaders()
     }
 
     {
+        glGenVertexArrays(1, &VAO_circle);
+        glGenBuffers(1, &VBO_circle);
+        glBindVertexArray(VAO_circle);
+
+        // Buffer data will be bound when drawing, no need to bind when initializing
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_circle);
+        // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+    }
+
+    {
         unsigned int indices[] = {  // note that we start from 0!
             0, 1, 2,   // bottom left triangle
             1, 2, 3    // top right triangle triangle
@@ -335,6 +350,7 @@ void Shade::RendererBase::DrawLines(std::vector<Vec2> points, Colour colour, flo
 {
     // TODO: Consider optimizing this
     //  - How can this be cached to avoid creating/deleting VAOs and VBOs all the time
+    //  - Doesn't look like buffer size needs to be known at creation time, perhaps can follow same pattern as other primitives
     GLuint VAO_lines;
     GLuint VBO_lines;
     glGenVertexArrays(1, &VAO_lines);
@@ -361,6 +377,55 @@ void Shade::RendererBase::DrawLines(std::vector<Vec2> points, Colour colour, flo
 void Shade::RendererBase::DrawLinesNormalized(std::vector<Vec2> points, Colour colour, float depth) const
 {
     // TODO: Implement
+}
+
+// ======================================
+void Shade::RendererBase::DrawCircle(float x, float y, float radius, Colour colour, float depth) const
+{
+    constexpr float  PI_F = 3.14159265358979f;
+    constexpr size_t NUM_SEGMENTS = 16;
+    constexpr float ANGLE_OFFSET = 2.f * PI_F / static_cast<float>(NUM_SEGMENTS);
+
+    float vertices[NUM_SEGMENTS * 3];
+    for (size_t i = 0; i < NUM_SEGMENTS; ++i)
+    {
+        vertices[i * 3] = x + radius * std::cos(ANGLE_OFFSET * i);
+        vertices[i * 3 + 1] = y + radius * std::sin(ANGLE_OFFSET * i);
+        vertices[i * 3 + 2] = depth;
+    }
+
+    glUseProgram(colourShaderProgram);
+    glBindVertexArray(VAO_circle);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_circle);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * NUM_SEGMENTS, vertices, GL_STATIC_DRAW);
+    GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
+    glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    glDrawArrays(GL_LINE_LOOP, 0, NUM_SEGMENTS);
+}
+
+// ======================================
+void Shade::RendererBase::DrawCircleNormalized(float x, float y, float radius, Colour colour, float depth) const
+{
+    // This scales in a janky way, might not make sense for a normalize version of this to exist
+    constexpr float  PI_F = 3.14159265358979f;
+    constexpr size_t NUM_SEGMENTS = 16;
+    constexpr float ANGLE_OFFSET = 2.f * PI_F / static_cast<float>(NUM_SEGMENTS);
+
+    float vertices[NUM_SEGMENTS * 3];
+    for (size_t i = 0; i < NUM_SEGMENTS; ++i)
+    {
+        vertices[i * 3] = x + radius * std::cos(ANGLE_OFFSET * i);
+        vertices[i * 3 + 1] = y + radius * std::sin(ANGLE_OFFSET * i);
+        vertices[i * 3 + 2] = depth;
+    }
+
+    glUseProgram(normalizedColourShaderProgram);
+    glBindVertexArray(VAO_circle);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_circle);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * NUM_SEGMENTS, vertices, GL_STATIC_DRAW);
+    GLint positionUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "InputColor");
+    glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    glDrawArrays(GL_LINE_LOOP, 0, NUM_SEGMENTS);
 }
 
 // ======================================
