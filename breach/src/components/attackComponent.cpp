@@ -82,6 +82,9 @@ void AttackComponent::Update(float deltaSeconds)
         {
             LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
             locomotion->EnableLocomotion();
+
+            HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+            health->mIsInvulnerable = false;
         }
     }
 }
@@ -167,4 +170,7 @@ void AttackComponent::DoDash(FacingDirection dashDirection)
 
     LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
     locomotion->DisableLocomotion();
+
+    HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+    health->mIsInvulnerable = true;
 }

@@ -11,6 +11,11 @@ HealthComponent::HealthComponent(float maxHealth)
 // ======================================
 float HealthComponent::DecrementHealth(float amount)
 {
+    if (mIsInvulnerable)
+    {
+        return mCurrHealth;
+    }
+
     mCurrHealth = mCurrHealth > amount ? mCurrHealth - amount : 0.f;
     return mCurrHealth;
 }
