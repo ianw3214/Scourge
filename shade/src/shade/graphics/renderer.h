@@ -35,6 +35,8 @@ namespace Shade {
         void DrawLineNormalized(Vec2 point1, Vec2 point2, Colour colour, float depth = -1.f) const;
         void DrawLines(std::vector<Vec2> points, Colour colour, float depth = -1.f) const;
         void DrawLinesNormalized(std::vector<Vec2> points, Colour colour, float depth = -1.f) const;
+        void DrawCircle(float x, float y, float radius, Colour colour, float depth = -1.f) const;
+        void DrawCircleNormalized(float x, float y, float radius, Colour colour, float depth = -1.f) const;
         void DrawRectangle(float x, float y, float w, float h, Colour colour, float depth = -1.f) const;
         void DrawRectangle(Vec2 pos, float w, float h, Colour colour, float depth = -1.f) const;
         void DrawRectangleNormalized(float x, float y, float w, float h, Colour colour, float depth = -1.f) const;
