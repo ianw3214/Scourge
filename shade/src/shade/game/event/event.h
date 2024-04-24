@@ -8,4 +8,8 @@ namespace Shade {
         bool mHeld = false;
     };
 
+    struct FloatGameplayEvent {
+        float mValue = 0.f;
+    };
+
 }

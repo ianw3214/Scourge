@@ -8,6 +8,7 @@
 namespace Shade {
 
     struct BooleanGameplayEvent;
+    struct FloatGameplayEvent;
     class AnimatedSpriteComponent;
     class Component;
     class EntityContainer;
@@ -32,6 +33,7 @@ namespace Shade {
         AnimatedSpriteComponent* GetCachedAnimatedSprite() const;
 
         const BooleanGameplayEvent& GetBooleanEvent(const std::string& gameEvent) const;
+        const FloatGameplayEvent& GetFloatEvent(const std::string& gameEvent) const;
 
         std::vector<std::unique_ptr<Entity>>& GetWorldEntities() const;
     private:

@@ -8,7 +8,7 @@
 
 // ======================================
 // TODO: Currently temp code - improve this
-static SDL_Joystick* joystick;
+SDL_Joystick* joystick;
 
 // ======================================
 Shade::InputHandler::InputHandler(GameInstance& instance)
@@ -56,21 +56,19 @@ void Shade::InputHandler::Update()
             mEvents.emplace(InputEvent::CreateKeyRelease(releasedKey));
         }
         // Controller events
+        /*
         if (event.type == SDL_JOYAXISMOTION)
         {
             if ((event.jaxis.value < -3200) || (event.jaxis.value > 3200))
             {
-                if (event.jaxis.axis == 0)
-                {
-                    // Left/right movement code
-                    LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
-                    logService->LogInfo(std::to_string(event.jaxis.value));
-                }
-                if (event.jaxis.axis == 1)
-                {
-                    // Up/down movement code
-                }
+                const ControllerAxis axis = static_cast<ControllerAxis>(event.jaxis.axis);
+                mEvents.emplace(InputEvent::CreateAxisEvent(axis, event.jaxis.value));
             }
+        }
+        */
+        for (int i = 0; i < static_cast<size_t>(ControllerAxis::SHADE_AXIS_MAX); ++i)
+        {
+            mEvents.emplace(InputEvent::CreateAxisEvent(static_cast<ControllerAxis>(i), SDL_JoystickGetAxis(joystick, i)));
         }
         if (event.type == SDL_JOYBUTTONDOWN)
         {

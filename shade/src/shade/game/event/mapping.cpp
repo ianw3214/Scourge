@@ -28,6 +28,17 @@ bool Shade::InputMapping::AddControllerButtonEventMapping(ControllerButton key, 
 }
 
 // ======================================
+bool Shade::InputMapping::AddAxisEventMapping(ControllerAxis key, const std::string& event)
+{
+    if (mAxisEvents.find(key) == mAxisEvents.end())
+    {
+        mAxisEvents.emplace(key, event);
+        return true;
+    }
+    return false;
+}
+
+// ======================================
 bool Shade::InputMapping::HasEventForKey(KeyCode key) const
 {
     return mKeyEvents.find(key) != mKeyEvents.end();
@@ -37,6 +48,12 @@ bool Shade::InputMapping::HasEventForKey(KeyCode key) const
 bool Shade::InputMapping::HasEventForControllerButton(ControllerButton button) const
 {
     return mButtonEvents.find(button) != mButtonEvents.end();
+}
+
+// ======================================
+bool Shade::InputMapping::HasEventForAxis(ControllerAxis button) const
+{
+    return mAxisEvents.find(button) != mAxisEvents.end();
 }
 
 // ======================================
@@ -64,6 +81,18 @@ const std::string& Shade::InputMapping::GetControllerButtonEvent(ControllerButto
 }
 
 // ======================================
+const std::string& Shade::InputMapping::GetControllerAxisEvent(ControllerAxis axis)
+{
+    if (mAxisEvents.find(axis) == mAxisEvents.end())
+    {
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        // TODO: Message formatting
+        logService->LogError("Could not map axis {0} to gameplay event");
+    }
+    return mAxisEvents[axis];
+}
+
+// ======================================
 const std::unordered_map<Shade::KeyCode, std::string>& Shade::InputMapping::GetKeyEventMappings() const
 {
     return mKeyEvents;
@@ -73,4 +102,10 @@ const std::unordered_map<Shade::KeyCode, std::string>& Shade::InputMapping::GetK
 const std::unordered_map<Shade::ControllerButton, std::string>& Shade::InputMapping::GetControllerButtonEventMappings() const
 {
     return mButtonEvents;
+}
+
+// ======================================
+const std::unordered_map<Shade::ControllerAxis, std::string>& Shade::InputMapping::GetControllerAxisEventMappings() const
+{
+    return mAxisEvents;
 }

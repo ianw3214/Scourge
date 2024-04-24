@@ -39,3 +39,13 @@ Shade::InputEvent Shade::InputEvent::CreateButtonRelease(ControllerButton button
     result.mControllerButton = button;
     return result;
 }
+
+// ======================================
+Shade::InputEvent Shade::InputEvent::CreateAxisEvent(ControllerAxis axis, int32_t value)
+{
+    InputEvent result;
+    result.mType = InputEventType::CONTROLLER_AXIS;
+    result.mControllerAxis = axis;
+    result.mControllerValue = value;
+    return result;
+}

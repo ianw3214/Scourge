@@ -78,10 +78,14 @@ public:
             attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "dash_right" : "dash_left");
             return;
         }
-        locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld;
-        locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld;
-        locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld;
-        locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld;
+        // TODO: These should really be int events, since that is how SDL represents the values
+        //  - alternatively, noramlize the values to float values
+        float controllerMoveHorizontal = mEntityRef->GetFloatEvent("move_h").mValue;
+        float controllerMoveVertical = mEntityRef->GetFloatEvent("move_v").mValue;
+        locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld || controllerMoveVertical < -10000.f;
+        locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld || controllerMoveVertical > 10000.f;
+        locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld || controllerMoveHorizontal > 10000.f;
+        locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld || controllerMoveHorizontal < -10000.f;
     }
 };
 
@@ -136,6 +140,8 @@ public:
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_SPACE, "roll");
         mInputMapping.AddControllerButtonEventMapping(Shade::ControllerButton::SHADE_BUTTON_B, "attack");
         mInputMapping.AddControllerButtonEventMapping(Shade::ControllerButton::SHADE_BUTTON_A, "roll");
+        mInputMapping.AddAxisEventMapping(Shade::ControllerAxis::SHADE_AXIS_LEFTX, "move_h");
+        mInputMapping.AddAxisEventMapping(Shade::ControllerAxis::SHADE_AXIS_LEFTY, "move_v");
         SetEventsFromMapping(mInputMapping);
 
         // Initialize background images

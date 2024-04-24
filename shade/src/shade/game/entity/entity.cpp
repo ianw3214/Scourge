@@ -100,6 +100,12 @@ const Shade::BooleanGameplayEvent& Shade::Entity::GetBooleanEvent(const std::str
 }
 
 // ======================================
+const Shade::FloatGameplayEvent& Shade::Entity::GetFloatEvent(const std::string& gameEvent) const
+{
+    return mGameEventSource.GetFloatEvent(gameEvent);
+}
+
+// ======================================
 std::vector<std::unique_ptr<Shade::Entity>>& Shade::Entity::GetWorldEntities() const
 {
     return mEntityContainer.GetEntities();
