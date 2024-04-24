@@ -4,7 +4,7 @@
 
 namespace Shade {
 
-    // This needs a better solution if we allow non-SDL windowing
+    // TODO: This needs a better solution if we allow non-SDL windowing
     enum class KeyCode : uint16_t
     {
         SHADE_KEY_A = SDL_SCANCODE_A,
@@ -43,6 +43,33 @@ namespace Shade {
         SHADE_KEY_DOWN = SDL_SCANCODE_DOWN,
         SHADE_KEY_LEFT = SDL_SCANCODE_LEFT,
         SHADE_KEY_RIGHT = SDL_SCANCODE_RIGHT
+    };
+
+    // Controller buttons
+    enum class ControllerButton : int8_t
+    {
+        SHADE_BUTTON_INVALID = SDL_CONTROLLER_BUTTON_INVALID,
+        SHADE_BUTTON_A = SDL_CONTROLLER_BUTTON_A,
+        SHADE_BUTTON_B = SDL_CONTROLLER_BUTTON_B,
+        SHADE_BUTTON_X = SDL_CONTROLLER_BUTTON_X,
+        SHADE_BUTTON_Y = SDL_CONTROLLER_BUTTON_Y,
+        SHADE_BUTTON_BACK = SDL_CONTROLLER_BUTTON_BACK,
+        SHADE_BUTTON_GUIDE = SDL_CONTROLLER_BUTTON_GUIDE,
+        SHADE_BUTTON_START = SDL_CONTROLLER_BUTTON_START,
+        SHADE_BUTTON_LEFTSTICK = SDL_CONTROLLER_BUTTON_LEFTSTICK,
+        SHADE_BUTTON_RIGHTSTICK = SDL_CONTROLLER_BUTTON_RIGHTSTICK,
+        SHADE_BUTTON__BUTTON_LEFTSHOULDER = SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
+        SHADE_BUTTON__BUTTON_RIGHTSHOULDER = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
+        SHADE_BUTTON__BUTTON_DPAD_UP = SDL_CONTROLLER_BUTTON_DPAD_UP,
+        SHADE_BUTTON__BUTTON_DPAD_DOWN = SDL_CONTROLLER_BUTTON_DPAD_DOWN,
+        SHADE_BUTTON__BUTTON_DPAD_LEFT = SDL_CONTROLLER_BUTTON_DPAD_LEFT,
+        SHADE_BUTTON__BUTTON_DPAD_RIGHT = SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
+        SHADE_BUTTON__BUTTON_MISC1 = SDL_CONTROLLER_BUTTON_MISC1,    /* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
+        SHADE_BUTTON__BUTTON_PADDLE1 = SDL_CONTROLLER_BUTTON_PADDLE1,  /* Xbox Elite paddle P1 (upper left, facing the back) */
+        SHADE_BUTTON__BUTTON_PADDLE2 = SDL_CONTROLLER_BUTTON_PADDLE2,  /* Xbox Elite paddle P3 (upper right, facing the back) */
+        SHADE_BUTTON__BUTTON_PADDLE3 = SDL_CONTROLLER_BUTTON_PADDLE3,  /* Xbox Elite paddle P2 (lower left, facing the back) */
+        SHADE_BUTTON__BUTTON_PADDLE4 = SDL_CONTROLLER_BUTTON_PADDLE4,  /* Xbox Elite paddle P4 (lower right, facing the back) */
+        SHADE_BUTTON__BUTTON_TOUCHPAD = SDL_CONTROLLER_BUTTON_TOUCHPAD, /* PS4/PS5 touchpad button */
     };
 
 }

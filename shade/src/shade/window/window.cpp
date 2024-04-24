@@ -23,6 +23,8 @@ Shade::Window::Window()
 {
     LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
 
+    SDL_Init(SDL_INIT_JOYSTICK);
+
     mWindowImpl = std::make_unique<Window::WindowImpl>();
     mWindowImpl->mWindow = SDL_CreateWindow("Breach", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_OPENGL);
     if (mWindowImpl->mWindow == nullptr)

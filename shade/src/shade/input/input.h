@@ -11,6 +11,7 @@ namespace Shade {
     class InputHandler : public GameInstanceNotifier {
     public:
         InputHandler(GameInstance& instance);
+        ~InputHandler();
 
         void Update();
         std::optional<InputEvent> GetNextEvent();

@@ -3,12 +3,31 @@
 #include <SDL2/SDL.h>
 
 #include "shade/graphics/imgui/wrapper.h"
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
+
+// ======================================
+// TODO: Currently temp code - improve this
+static SDL_Joystick* joystick;
 
 // ======================================
 Shade::InputHandler::InputHandler(GameInstance& instance)
     : GameInstanceNotifier(instance)
 {
+    SDL_JoystickEventState(SDL_ENABLE);
 
+    // TODO: Any need to support multiple joysticks?
+    joystick = SDL_JoystickOpen(0);
+
+    LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+    logService->LogInfo(std::to_string(SDL_NumJoysticks()) + std::string(" joystick(s) connected"));
+    // logService->LogInfo(std::string(SDL_JoystickName(0)));
+}
+
+// ======================================
+Shade::InputHandler::~InputHandler()
+{
+    SDL_JoystickClose(joystick);
 }
 
 // ======================================
@@ -35,6 +54,31 @@ void Shade::InputHandler::Update()
         {
             const KeyCode releasedKey = static_cast<KeyCode>(event.key.keysym.scancode);
             mEvents.emplace(InputEvent::CreateKeyRelease(releasedKey));
+        }
+        // Controller events
+        if (event.type == SDL_JOYAXISMOTION)
+        {
+            if ((event.jaxis.value < -3200) || (event.jaxis.value > 3200))
+            {
+                if (event.jaxis.axis == 0)
+                {
+                    // Left/right movement code
+                    LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+                    logService->LogInfo(std::to_string(event.jaxis.value));
+                }
+                if (event.jaxis.axis == 1)
+                {
+                    // Up/down movement code
+                }
+            }
+        }
+        if (event.type == SDL_JOYBUTTONDOWN)
+        {
+            mEvents.emplace(InputEvent::CreateButtonPress(static_cast<ControllerButton>(event.jbutton.button)));
+        }
+        if (event.type == SDL_JOYBUTTONUP)
+        {
+            mEvents.emplace(InputEvent::CreateButtonRelease(static_cast<ControllerButton>(event.jbutton.button)));
         }
     }
 }

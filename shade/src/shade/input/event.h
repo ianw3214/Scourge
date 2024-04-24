@@ -4,12 +4,18 @@
 
 namespace Shade {
 
-    enum class InputEventType {
+    enum class InputEventType : uint8_t {
         KEY,
-        MOUSE
+        MOUSE,
+        CONTROLLER_BUTTON
     };
 
-    enum class KeyEventType {
+    enum class KeyEventType : uint8_t {
+        PRESS,
+        RELEASE
+    };
+
+    enum class ButtonEventType : uint8_t {
         PRESS,
         RELEASE
     };
@@ -28,9 +34,14 @@ namespace Shade {
         // CONTROLLER EVENT INFO
         // TODO: Working on this...
 
+        ButtonEventType mControllerButtonEvent;
+        ControllerButton mControllerButton;
+
         // Constructors for convenience
         static InputEvent CreateKeyPress(KeyCode key);
         static InputEvent CreateKeyRelease(KeyCode key);
+        static InputEvent CreateButtonPress(ControllerButton button);
+        static InputEvent CreateButtonRelease(ControllerButton button);
     };
 
 }

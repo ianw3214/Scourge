@@ -38,14 +38,32 @@ bool Shade::GameWorldModule::HandleEvent(const InputEvent& event)
 {
     if (event.mType == InputEventType::KEY)
     {
-        const std::string gameEvent = mInputMapping.GetKeyEvent(event.mKeyCode);
-        if (event.mKeyEvent == KeyEventType::PRESS)
+        if (mInputMapping.HasEventForKey(event.mKeyCode))
         {
-            StartBooleanEvent(gameEvent);
+            const std::string gameEvent = mInputMapping.GetKeyEvent(event.mKeyCode);
+            if (event.mKeyEvent == KeyEventType::PRESS)
+            {
+                StartBooleanEvent(gameEvent);
+            }
+            if (event.mKeyEvent == KeyEventType::RELEASE)
+            {
+                StopBooleanEvent(gameEvent);
+            }
         }
-        if (event.mKeyEvent == KeyEventType::RELEASE)
+    }
+    if (event.mType == InputEventType::CONTROLLER_BUTTON)
+    {
+        if (mInputMapping.HasEventForControllerButton(event.mControllerButton))
         {
-            StopBooleanEvent(gameEvent);
+            const std::string gameEvent = mInputMapping.GetControllerButtonEvent(event.mControllerButton);
+            if (event.mControllerButtonEvent == ButtonEventType::PRESS)
+            {
+                StartBooleanEvent(gameEvent);
+            }
+            if (event.mControllerButtonEvent == ButtonEventType::RELEASE)
+            {
+                StopBooleanEvent(gameEvent);
+            }
         }
     }
     return true;
