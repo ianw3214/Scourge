@@ -45,6 +45,7 @@ void Shade::InputHandler::Update()
         {
             NotifyGame(GameNotification::Quit);
         }
+        // Key events
         if (event.type == SDL_KEYDOWN)
         {
             const KeyCode pressedKey = static_cast<KeyCode>(event.key.keysym.scancode);
@@ -56,16 +57,6 @@ void Shade::InputHandler::Update()
             mEvents.emplace(InputEvent::CreateKeyRelease(releasedKey));
         }
         // Controller events
-        /*
-        if (event.type == SDL_JOYAXISMOTION)
-        {
-            if ((event.jaxis.value < -3200) || (event.jaxis.value > 3200))
-            {
-                const ControllerAxis axis = static_cast<ControllerAxis>(event.jaxis.axis);
-                mEvents.emplace(InputEvent::CreateAxisEvent(axis, event.jaxis.value));
-            }
-        }
-        */
         for (int i = 0; i < static_cast<size_t>(ControllerAxis::SHADE_AXIS_MAX); ++i)
         {
             mEvents.emplace(InputEvent::CreateAxisEvent(static_cast<ControllerAxis>(i), SDL_JoystickGetAxis(joystick, i)));

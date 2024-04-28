@@ -100,6 +100,12 @@ const Shade::BooleanGameplayEvent& Shade::Entity::GetBooleanEvent(const std::str
 }
 
 // ======================================
+const Shade::IntGameplayEvent& Shade::Entity::GetIntEvent(const std::string& gameEvent) const
+{
+    return mGameEventSource.GetIntEvent(gameEvent);
+}
+
+// ======================================
 const Shade::FloatGameplayEvent& Shade::Entity::GetFloatEvent(const std::string& gameEvent) const
 {
     return mGameEventSource.GetFloatEvent(gameEvent);

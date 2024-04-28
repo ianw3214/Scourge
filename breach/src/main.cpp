@@ -80,12 +80,12 @@ public:
         }
         // TODO: These should really be int events, since that is how SDL represents the values
         //  - alternatively, noramlize the values to float values
-        float controllerMoveHorizontal = mEntityRef->GetFloatEvent("move_h").mValue;
-        float controllerMoveVertical = mEntityRef->GetFloatEvent("move_v").mValue;
-        locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld || controllerMoveVertical < -10000.f;
-        locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld || controllerMoveVertical > 10000.f;
-        locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld || controllerMoveHorizontal > 10000.f;
-        locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld || controllerMoveHorizontal < -10000.f;
+        float controllerMoveHorizontal = mEntityRef->GetIntEvent("move_h").mValue;
+        float controllerMoveVertical = mEntityRef->GetIntEvent("move_v").mValue;
+        locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld || controllerMoveVertical < -10000;
+        locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld || controllerMoveVertical > 10000;
+        locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld || controllerMoveHorizontal > 10000;
+        locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld || controllerMoveHorizontal < -10000;
     }
 };
 

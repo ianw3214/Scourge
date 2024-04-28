@@ -18,6 +18,19 @@ const Shade::BooleanGameplayEvent& Shade::GameplayEventSource::GetBooleanEvent(c
 }
 
 // ======================================
+const Shade::IntGameplayEvent& Shade::GameplayEventSource::GetIntEvent(const std::string& eventName) const
+{
+    auto it = mIntEvents.find(eventName);
+    if (it == mIntEvents.end())
+    {
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Trying to access non-existent int event: " + eventName);
+        return Shade::IntGameplayEvent{};   // <- This will basically crash the game anyways...
+    }
+    return it->second;
+}
+
+// ======================================
 const Shade::FloatGameplayEvent& Shade::GameplayEventSource::GetFloatEvent(const std::string& eventName) const
 {
     auto it = mFloatEvents.find(eventName);
@@ -45,7 +58,7 @@ void Shade::GameplayEventSource::SetEventsFromMapping(const InputMapping& mappin
     }
     for (const auto& it : mapping.GetControllerAxisEventMappings())
     {
-        mFloatEvents.emplace(it.second, FloatGameplayEvent{});
+        mIntEvents.emplace(it.second, IntGameplayEvent{});
     }
 }
 
@@ -85,6 +98,19 @@ void Shade::GameplayEventSource::StopBooleanEvent(const std::string& eventName)
     }
     it->second.mHeld = false;
     it->second.mReleased = true;
+}
+
+// ======================================
+void Shade::GameplayEventSource::UpdateIntEvent(const std::string& eventName, int value)
+{
+    auto it = mIntEvents.find(eventName);
+    if (it == mIntEvents.end())
+    {
+        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
+        logService->LogError("Trying to update int event that does not exist: " + eventName);
+        return;
+    }
+    it->second.mValue = value;
 }
 
 // ======================================

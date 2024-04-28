@@ -71,7 +71,7 @@ bool Shade::GameWorldModule::HandleEvent(const InputEvent& event)
         if (mInputMapping.HasEventForAxis(event.mControllerAxis))
         {
             const std::string gameEvent = mInputMapping.GetControllerAxisEvent(event.mControllerAxis);
-            UpdateFloatEvent(gameEvent, event.mControllerValue);
+            UpdateIntEvent(gameEvent, event.mControllerValue);
         }
     }
     return true;

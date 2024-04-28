@@ -12,6 +12,7 @@ namespace Shade {
     class GameplayEventSource {
     public:
         const BooleanGameplayEvent& GetBooleanEvent(const std::string& eventName) const;
+        const IntGameplayEvent& GetIntEvent(const std::string& eventName) const;
         const FloatGameplayEvent& GetFloatEvent(const std::string& eventName) const;
 
     protected:
@@ -22,11 +23,13 @@ namespace Shade {
 
         void StartBooleanEvent(const std::string& eventName);
         void StopBooleanEvent(const std::string& eventName);
+        void UpdateIntEvent(const std::string& eventName, int value);
         void UpdateFloatEvent(const std::string& eventName, float value);
 
     private:
         // Technically these "events" are somewhat persistent, maybe they should be called something else
         std::unordered_map<std::string, BooleanGameplayEvent> mBooleanEvents;
+        std::unordered_map<std::string, IntGameplayEvent> mIntEvents;
         std::unordered_map<std::string, FloatGameplayEvent> mFloatEvents;
     };
 
