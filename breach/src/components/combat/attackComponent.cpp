@@ -6,9 +6,9 @@
 #include "shade/logging/logService.h"
 
 #include "debug/util.h"
+#include "components/combat/hitboxComponent.h"
+#include "components/combat/healthComponent.h"
 #include "components/facingComponent.h"
-#include "components/hitboxComponent.h"
-#include "components/healthComponent.h"
 #include "components/movement/moveComponent.h"
 #include "components/movement/locomotionComponent.h"
 

@@ -1,0 +1,2 @@
+target_sources(Breach PRIVATE cameraFollowComponent.h cameraFollowComponent.cpp)
+target_sources(Breach PRIVATE playerInputComponent.h playerInputComponent.cpp)

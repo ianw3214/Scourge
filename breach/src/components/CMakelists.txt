@@ -1,6 +1,4 @@
-target_sources(Breach PRIVATE healthComponent.h healthComponent.cpp)
-target_sources(Breach PRIVATE hitboxComponent.h hitboxComponent.cpp)
-target_sources(Breach PRIVATE attackComponent.h attackComponent.cpp)
-
 add_subdirectory(ai)
 add_subdirectory(movement)
+add_subdirectory(combat)
+add_subdirectory(player)

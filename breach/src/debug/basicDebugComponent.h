@@ -5,8 +5,8 @@
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/entity.h"
 
-#include "components/healthComponent.h"
-#include "components/hitboxComponent.h"
+#include "components/combat/healthComponent.h"
+#include "components/combat/hitboxComponent.h"
 
 class BasicDebugComponent : public Shade::Component
 {
