@@ -14,6 +14,13 @@ namespace Shade {
             : mPosition(position), mWidth(width), mHeight(height) {}
     };
 
+    inline bool PointInBox(const Vec2& point, const Box& box)
+    {
+        const bool hIntersect = point.x <= box.mPosition.x + box.mWidth && point.x >= box.mPosition.x;
+        const bool vIntersect = point.y <= box.mPosition.y + box.mHeight && point.y >= box.mPosition.y;
+        return hIntersect && vIntersect;
+    }
+
     inline bool BoxIntersectsBox(const Box& box1, const Box& box2)
     {
         const bool hIntersect = box1.mPosition.x < box2.mPosition.x + box2.mWidth && box1.mPosition.x + box1.mWidth > box2.mPosition.x;

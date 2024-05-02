@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "shade/instance/instance.h"
+#include "shade/instance/service/provider.h"
 #include "shade/module/state.h"
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/spriteComponent.h"
@@ -24,6 +25,8 @@
 #include "components/movement/locomotionComponent.h"
 #include "components/player/cameraFollowComponent.h"
 #include "components/player/playerInputComponent.h"
+
+#include "map/map.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"
@@ -229,6 +232,14 @@ public:
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
         AddEntity(std::move(TestKnight));
+
+        // Map setup
+        Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
+        MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
+
+        MapLayout layout;
+        layout.mPlayZones.emplace_back(Shade::Vec2{ -500.f, 10.f }, 1000.f, 200.f);
+        mapService->SetLayout(layout);
     }
 };
 

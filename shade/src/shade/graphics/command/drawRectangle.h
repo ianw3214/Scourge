@@ -12,10 +12,12 @@ namespace Shade {
         DrawRectangleCommand();
         DrawRectangleCommand(Vec2 position, float width, float height);
         DrawRectangleCommand(Vec2 position, float width, float height, Colour colour);
-        DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool normalized);
+        DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool filled);
+        DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool filled, bool normalized);
         DrawRectangleCommand(float xPosition, float yPosition, float width, float height);
         DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour);
-        DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool normalized);
+        DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool filled);
+        DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool filled, bool normalized);
 
         virtual void Execute(RendererBase* Renderer, const CameraInfo& camera) override;
     private:
@@ -23,8 +25,8 @@ namespace Shade {
             float mWidth = 1.f;
             float mHeight = 1.f;
             Colour mColour;
+            bool mFilled = true;
             bool mNormalized = false;
-            // TODO: Filled option
     };
 
 }

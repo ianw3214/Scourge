@@ -5,6 +5,8 @@
 #include <optional>
 #include <string>
 
+#include "shade/common/vec.h"
+
 namespace Shade {
 
     struct BooleanGameplayEvent;
@@ -27,6 +29,7 @@ namespace Shade {
         void SetPositionY(float newY);
         float GetPositionX() const;
         float GetPositionY() const;
+        Vec2 GetPosition() const;
 
         void AddComponent(std::unique_ptr<Component> newComponent);
         template<class ComponentClass> ComponentClass* GetComponent();

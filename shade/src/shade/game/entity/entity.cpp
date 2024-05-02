@@ -45,7 +45,6 @@ void Shade::Entity::SetPositionY(float newY)
     y = newY;
 }
 
-
 // ======================================
 float Shade::Entity::GetPositionX() const
 {
@@ -58,6 +57,11 @@ float Shade::Entity::GetPositionY() const
     return y;
 }
 
+// ======================================
+Shade::Vec2 Shade::Entity::GetPosition() const
+{
+    return Shade::Vec2{ x, y };
+}
 
 // ======================================
 // This takes ownership of newComponent

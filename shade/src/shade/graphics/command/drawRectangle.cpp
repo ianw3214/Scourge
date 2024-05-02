@@ -29,11 +29,23 @@ Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 position, float width, fl
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool normalized)
+Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool filled)
     : mPosition(position)
     , mWidth(width)
     , mHeight(height)
     , mColour(colour)
+    , mFilled(filled)
+{
+
+}
+
+// ======================================
+Shade::DrawRectangleCommand::DrawRectangleCommand(Vec2 position, float width, float height, Colour colour, bool filled, bool normalized)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
+    , mColour(colour)
+    , mFilled(filled)
     , mNormalized(normalized)
 {
 
@@ -59,11 +71,23 @@ Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPositi
 }
 
 // ======================================
-Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool normalized)
+Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool filled)
     : mPosition(xPosition, yPosition)
     , mWidth(width)
     , mHeight(height)
     , mColour(colour)
+    , mFilled(filled)
+{
+
+}
+
+// ======================================
+Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool filled, bool normalized)
+    : mPosition(xPosition, yPosition)
+    , mWidth(width)
+    , mHeight(height)
+    , mColour(colour)
+    , mFilled(filled)
     , mNormalized(normalized)
 {
 
@@ -77,9 +101,26 @@ void Shade::DrawRectangleCommand::Execute(RendererBase* renderer, const CameraIn
     const float y = mPosition.y + camera.mOffsetY;
     if (mNormalized)
     {
+        // TODO: Filled
         renderer->DrawRectangleNormalized(x, y, mWidth, mHeight, mColour);
     }
     else {
-        renderer->DrawRectangle(x, y, mWidth, mHeight, mColour);
+        if (mFilled)
+        {
+            renderer->DrawRectangle(x, y, mWidth, mHeight, mColour);   
+        }
+        else
+        {
+            // TODO: Implementing this
+            //  - maybe optimize
+            std::vector<Shade::Vec2> points = {
+                mPosition,
+                mPosition.Up(mHeight),
+                mPosition.Up(mHeight).Right(mWidth),
+                mPosition.Right(mWidth),
+                mPosition
+            };
+            renderer->DrawLines(points, mColour);
+        }
     }
 }
