@@ -3,23 +3,25 @@
 #include <chrono>
 #include <vector>
 
-#include "shade/window/window.h"
-#include "shade/input/input.h"
-#include "shade/instance/service/provider.h"
-#include "shade/resource/manager.h"
+#include "shade/file/fileSystem.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/imgui/service.h"
 #include "shade/graphics/imgui/wrapper.h"
 #include "shade/graphics/renderer.h"
+#include "shade/input/input.h"
+#include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
 #include "shade/logging/logWindow.h"
 #include "shade/module/state.h"
+#include "shade/resource/manager.h"
+#include "shade/window/window.h"
 
 // ======================================
 Shade::GameInstance::GameInstance() 
 {
     ServiceProvider::RegisterProvider(this);
+    RegisterService(new FileSystem());
     RegisterService(new ResourceManager());
     RegisterService(new CameraService());
     RegisterService(new LogService());

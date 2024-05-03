@@ -1,0 +1,2 @@
+target_sources(Shade PRIVATE file.h file.cpp)
+target_sources(Shade PRIVATE fileSystem.h fileSystem.cpp)
