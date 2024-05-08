@@ -43,9 +43,20 @@ Shade::GameInstance::GameInstance()
 
     FileSystem* fileSystem = GetService<FileSystem>();
     auto file = fileSystem->LoadKeyValueFile("test.kv");
-    for (auto& pair : file->GetContents())
+    KeyValueHandle handle = file->GetContents();
+    while(handle.IsValid())
     {
-        logService->LogInfo(pair.second.mString);
+        if (handle.IsList())
+        {
+            KeyValueHandle subHandle = handle.GetListHead();
+            while(subHandle.IsValid())
+            {
+                logService->LogInfo(subHandle.GetString());
+                subHandle.ToNext();
+            }
+        }
+        logService->LogInfo(handle.GetString());
+        handle.ToNext();
     }
 }
 

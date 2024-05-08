@@ -1,12 +1,127 @@
 #include "keyValueFile.h"
 
 #include <vector>
+#include <limits>
 
 #include "shade/common/stringUtil.h"
 
+namespace {
+
+    // TODO: Can this be combined with the trim to avoid duplicate work
+    uint8_t CountDepth(const std::string& input)
+    {
+        size_t index = 0;
+        while (index < input.size())
+        {
+            if (std::isspace(input[index])) {
+                index++;
+            }
+            else {
+                break;
+            }
+        }
+        // TODO: Should assert that this is divisible by 2 in case there's error in the data
+        return static_cast<uint8_t>(index / 2);
+    }
+
+}
+
+// TODO: Asserts on key value handle access
+//  - Make sure index is within size
+//  - Make sure "get" functions have the correct type
+
 // ======================================
-Shade::KeyValueFile::KeyValueFile(KeyValueList&& contents)
-    : mContents(std::move(contents))
+Shade::KeyValueHandle::KeyValueHandle(const std::vector<KeyValuePair>& bufferRef)
+    : mBufferRef(bufferRef)
+{
+
+}
+
+// ======================================
+Shade::KeyValueHandle::KeyValueHandle(const std::vector<KeyValuePair>& bufferRef, size_t index)
+    : mBufferRef(bufferRef)
+    , mIndex(index)
+{
+
+}
+
+// ======================================
+Shade::KeyValueHandle Shade::KeyValueHandle::Invalid(const std::vector<KeyValuePair>& bufferRef) const
+{
+    return KeyValueHandle(bufferRef, std::numeric_limits<size_t>::max());
+}
+
+// ======================================
+bool Shade::KeyValueHandle::IsValid() const
+{
+    return mBufferRef.size() > mIndex;
+}
+
+// ======================================
+bool Shade::KeyValueHandle::ToNext()
+{
+    // Search for the next item at the same depth
+    uint8_t currDepth = mBufferRef[mIndex].mDepth;
+    mIndex++;
+    while(mIndex < mBufferRef.size() && mBufferRef[mIndex].mDepth != currDepth)
+    {
+        mIndex++;
+    }
+    return IsValid();
+}
+
+// ======================================
+bool Shade::KeyValueHandle::IsInt() const
+{
+    return mBufferRef[mIndex].mValue.mType == ValueType::INT;
+}
+
+// ======================================
+bool Shade::KeyValueHandle::IsFloat() const
+{
+    return mBufferRef[mIndex].mValue.mType == ValueType::FLOAT;
+}
+
+// ======================================
+bool Shade::KeyValueHandle::IsString() const
+{
+    return mBufferRef[mIndex].mValue.mType == ValueType::STRING;
+}
+
+// ======================================
+bool Shade::KeyValueHandle::IsList() const
+{
+    return mBufferRef[mIndex].mValue.mType == ValueType::LIST;
+}
+
+// ======================================
+int Shade::KeyValueHandle::GetInt() const
+{
+    return mBufferRef[mIndex].mValue.mInt;
+}
+
+// ======================================
+float Shade::KeyValueHandle::GetFloat() const
+{
+    return mBufferRef[mIndex].mValue.mFloat;
+}
+
+// ======================================
+const std::string& Shade::KeyValueHandle::GetString() const
+{
+    return mBufferRef[mIndex].mValue.mString;
+}
+
+// ======================================
+Shade::KeyValueHandle Shade::KeyValueHandle::GetListHead() const
+{
+    // TODO: More error checking on the format
+    return KeyValueHandle(mBufferRef, mIndex + 1);
+}
+
+// ======================================
+Shade::KeyValueFile::KeyValueFile(std::vector<KeyValuePair>&& buffer)
+    : mBuffer(std::move(buffer))
 {
 
 }
@@ -14,7 +129,7 @@ Shade::KeyValueFile::KeyValueFile(KeyValueList&& contents)
 // ======================================
 std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream& fileStream)
 {
-    KeyValueList list;
+    std::vector<KeyValuePair> buffer;
 
     std::string line;
     while (std::getline(fileStream, line))
@@ -22,8 +137,11 @@ std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream
         size_t delimiter = line.find(':');
         if (delimiter != std::string::npos)
         {
-            std::string key = Shade::StringUtil::trim_copy(line.substr(0, delimiter));
+            std::string rawKey = line.substr(0, delimiter);
+            uint8_t depth = CountDepth(rawKey);
+            std::string key = Shade::StringUtil::trim_copy(rawKey);
             std::string value = Shade::StringUtil::trim_copy(line.substr(delimiter + 2));
+            
 
             if (key.empty())
             {
@@ -36,29 +154,37 @@ std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream
             if (value[0] == 'f')
             {
                 float floatVal = std::stof(value.substr(1));
-                list.emplace(key, ValueOption::FloatOption(floatVal));
+                buffer.emplace_back(KeyValuePair{ key, ValueOption::FloatOption(floatVal), depth });
             }
             else if (value[0] == '"')
             {
                 std::string stringVal = value.substr(1, value.length() - 2);
-                list.emplace(key, ValueOption::StringOption(stringVal));
+                buffer.emplace_back(KeyValuePair{ key, ValueOption::StringOption(stringVal), depth});
             }
             else
             {
                 int intVal = std::stoi(value);
-                list.emplace(key, ValueOption::IntOption(intVal));
+                buffer.emplace_back(KeyValuePair{ key, ValueOption::IntOption(intVal), depth});
             }
         }
         else
         {
-            // TODO: List parsing?
+            size_t delimiter = line.find('>');
+            if (delimiter != std::string::npos)
+            {
+                std::string rawKey = line.substr(0, delimiter);
+                uint8_t depth = CountDepth(rawKey);
+                std::string key = Shade::StringUtil::trim_copy(rawKey);
+                buffer.emplace_back(KeyValuePair{ key, ValueOption::ListOption(), depth});
+            }
         }
     }
-    return std::make_unique<KeyValueFile>(std::move(list));
+    return std::make_unique<KeyValueFile>(std::move(buffer));
 }
 
 // ======================================
-const Shade::KeyValueFile::KeyValueList& Shade::KeyValueFile::GetContents() const
+Shade::KeyValueHandle Shade::KeyValueFile::GetContents() const
 {
-    return mContents;
+    // Return a handle to the first element in the buffer
+    return KeyValueHandle(mBuffer);
 }

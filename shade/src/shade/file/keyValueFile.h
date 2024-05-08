@@ -2,13 +2,13 @@
 
 #include <fstream>
 #include <string>
-#include <memory>
-#include <unordered_map>
+#include <vector>
 
 namespace Shade {
 
     // ======================================
-    enum class ValueType {
+    enum class ValueType : int8_t {
+        UNKNOWN = -1,
         INT,
         FLOAT,
         STRING,
@@ -16,14 +16,13 @@ namespace Shade {
     };
 
     // ======================================
-    // TODO: Many ways to optimize this memory wise
     struct ValueOption {
-        ValueType mType;
+        ValueType mType = ValueType::UNKNOWN;
 
+        // TODO: Should this use a union?
         int mInt = 0;
         float mFloat = 0.f;
         std::string mString = "";
-        // std::unordered_map<std::string, std::shared_ptr<ValueOption>> mList;
 
         static ValueOption IntOption(int i) {
             ValueOption option = { ValueType::INT };
@@ -47,17 +46,51 @@ namespace Shade {
     };
 
     // ======================================
+    struct KeyValuePair {
+        std::string mKey;
+        ValueOption mValue;
+        
+        uint8_t mDepth = 0;
+    };
+
+    // ======================================
+    // - This stores the key value pair buffer as a reference directly
+    //   - Handle is not meant for long term storage, copy and store the data instead
+    class KeyValueHandle {
+    public:
+        KeyValueHandle(const std::vector<KeyValuePair>& bufferRef);
+        KeyValueHandle(const std::vector<KeyValuePair>& bufferRef, size_t index);
+        KeyValueHandle Invalid(const std::vector<KeyValuePair>& bufferRef) const;
+
+        bool IsValid() const;
+        bool ToNext();
+
+        bool IsInt() const;
+        bool IsFloat() const;
+        bool IsString() const;
+        bool IsList() const;
+
+        int GetInt() const;
+        float GetFloat() const;
+        const std::string& GetString() const;
+        KeyValueHandle GetListHead() const;
+
+    private:
+        size_t mIndex = 0;
+        const std::vector<KeyValuePair>& mBufferRef;
+    };
+
+    // ======================================
     class KeyValueFile {
     public:
-        typedef std::unordered_map<std::string, ValueOption> KeyValueList;
-    public:
-        KeyValueFile(KeyValueList&& mContents);
+        KeyValueFile(std::vector<KeyValuePair>&& buffer);
 
         static std::unique_ptr<KeyValueFile> LoadFile(std::ifstream& fileStream);
 
-        const KeyValueList& GetContents() const;
+        // Returns the handle to the first key/value pair in the buffer
+        KeyValueHandle GetContents() const;
     private:
-        std::unordered_map<std::string, ValueOption> mContents;
+        std::vector<KeyValuePair> mBuffer;
     };
 
 }
