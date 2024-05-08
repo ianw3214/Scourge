@@ -3,7 +3,8 @@
 #include <memory>
 #include <string>
 
-#include "shade/file/file.h"
+#include "shade/file/textFile.h"
+#include "shade/file/keyValueFile.h"
 #include "shade/instance/service/service.h"
 
 namespace Shade {
@@ -12,8 +13,8 @@ namespace Shade {
     public:
         FileSystem();
 
-        // TODO: Might want to be able to load different file types
-        std::unique_ptr<File> LoadFile(const std::string& path);
+        std::unique_ptr<TextFile> LoadTextFile(const std::string& path);
+        std::unique_ptr<KeyValueFile> LoadKeyValueFile(const std::string& path);
     };
 
 }

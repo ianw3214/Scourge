@@ -10,18 +10,28 @@ Shade::FileSystem::FileSystem()
 }
 
 // ======================================
-std::unique_ptr<Shade::File> Shade::FileSystem::LoadFile(const std::string& path)
+std::unique_ptr<Shade::TextFile> Shade::FileSystem::LoadTextFile(const std::string& path)
 {
     std::ifstream rawFile(path);
     if (rawFile.is_open())
     {
-        std::vector<std::string> lines;
-        std::string line;
-        while (std::getline(rawFile, line))
-        {
-            lines.emplace_back(line);
-        }
-        return std::make_unique<File>(std::move(lines));
+        return TextFile::LoadFile(rawFile);
+    }
+    else
+    {
+        // TODO: Error...
+    }
+
+    return nullptr;
+}
+
+// ======================================
+std::unique_ptr<Shade::KeyValueFile> Shade::FileSystem::LoadKeyValueFile(const std::string& path)
+{
+    std::ifstream rawFile(path);
+    if (rawFile.is_open())
+    {
+        return KeyValueFile::LoadFile(rawFile);
     }
     else
     {

@@ -1,15 +1,17 @@
 #pragma once
 
+#include <fstream>
 #include <string>
+#include <memory>
 #include <vector>
 
 namespace Shade {
 
-    // For now, a file is stored as a vector of strings
-    //  - may want to extend this in the future to handle other file types
-    class File {
+    class TextFile {
     public:
-        File(std::vector<std::string>&& contents);
+        TextFile(std::vector<std::string>&& contents);
+
+        static std::unique_ptr<TextFile> LoadFile(std::ifstream& fileStream);
 
         const std::vector<std::string>& GetContents() const;
     private:

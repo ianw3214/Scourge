@@ -40,6 +40,13 @@ Shade::GameInstance::GameInstance()
 
     LogService* logService = GetService<LogService>();
     logService->LogInfo("Shade engine initialized!");
+
+    FileSystem* fileSystem = GetService<FileSystem>();
+    auto file = fileSystem->LoadKeyValueFile("test.kv");
+    for (auto& pair : file->GetContents())
+    {
+        logService->LogInfo(pair.second.mString);
+    }
 }
 
 // ======================================
