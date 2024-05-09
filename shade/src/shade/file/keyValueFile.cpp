@@ -95,6 +95,12 @@ bool Shade::KeyValueHandle::IsList() const
 }
 
 // ======================================
+const std::string& Shade::KeyValueHandle::GetKey() const
+{
+    return mBufferRef[mIndex].mKey;
+}
+
+// ======================================
 int Shade::KeyValueHandle::GetInt() const
 {
     return mBufferRef[mIndex].mValue.mInt;

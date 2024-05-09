@@ -70,6 +70,7 @@ namespace Shade {
         bool IsString() const;
         bool IsList() const;
 
+        const std::string& GetKey() const;
         int GetInt() const;
         float GetFloat() const;
         const std::string& GetString() const;

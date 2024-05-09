@@ -13,6 +13,7 @@
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/command/drawLine.h"
+#include "shade/resource/manager.h"
 #include "shade/logging/logService.h"
 
 #include "components/ai/blackBoardComponent.h"
@@ -237,9 +238,15 @@ public:
         Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
 
+        Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+        Shade::ResourceHandle layoutHandle = resourceManager->LoadResource<MapLayout>("assets/breach/maps/test.kv");
+        mapService->SetLayoutResource(layoutHandle);
+    
+        /*
         MapLayout layout;
         layout.mPlayZones.emplace_back(Shade::Vec2{ -500.f, 10.f }, 1000.f, 200.f);
         mapService->SetLayout(layout);
+        */
     }
 };
 

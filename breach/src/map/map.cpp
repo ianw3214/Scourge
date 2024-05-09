@@ -1,5 +1,12 @@
 #include "map.h"
 
+#include "shade/instance/service/provider.h"
+#include "shade/resource/manager.h"
+
+// TODO: This is SUPERRRRRRRRRRRR hacky
+//  - FIX ASAP, at the very least - find a good place to put this instead of "map.cpp" lol
+const Shade::ResourceHandle Shade::ResourceHandle::Invalid = Shade::ResourceHandle(-1, -1);
+
 // ======================================
 MapService::MapService()
     : Shade::Service("MapService")
@@ -11,13 +18,14 @@ MapService::MapService()
 MapService::~MapService() = default;
 
 // ======================================
-void MapService::SetLayout(MapLayout layout)
+void MapService::SetLayoutResource(Shade::ResourceHandle mapResource)
 {
-    mCurrentLayout = layout;
+    mMapLayoutHandle = mapResource;
 }
 
 // ======================================
-const MapLayout& MapService::GetLayout() const
+const MapLayout* MapService::GetLayout() const
 {
-    return mCurrentLayout;
+    Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+    return resourceManager->GetResource<MapLayout>(mMapLayoutHandle);
 }

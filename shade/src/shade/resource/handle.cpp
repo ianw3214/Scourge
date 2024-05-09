@@ -1,9 +1,9 @@
 #include "handle.h"
 
-Shade::ResourceHandle Shade::ResourceHandle::Invalid = Shade::ResourceHandle(-1, -1);
+const Shade::ResourceHandle Shade::ResourceHandle::Invalid = Shade::ResourceHandle(-1, -1);
 
 // ======================================
-Shade::ResourceHandle::ResourceHandle(size_t index, uint32_t id)
+constexpr Shade::ResourceHandle::ResourceHandle(size_t index, uint32_t id)
     : mIndex(index)
     , mId(id)
 {

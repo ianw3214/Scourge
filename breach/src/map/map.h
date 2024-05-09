@@ -5,6 +5,7 @@
 #include <string>
 
 #include "shade/instance/service/service.h"
+#include "shade/resource/handle.h"
 
 #include "map/layout.h"
 
@@ -13,9 +14,9 @@ public:
     MapService();
     ~MapService();
 
-    void SetLayout(MapLayout layout);
-    const MapLayout& GetLayout() const;
+    void SetLayoutResource(Shade::ResourceHandle handle);
+    const MapLayout* GetLayout() const;
 
 private:
-    MapLayout mCurrentLayout;
+    Shade::ResourceHandle mMapLayoutHandle = Shade::ResourceHandle::Invalid;
 };

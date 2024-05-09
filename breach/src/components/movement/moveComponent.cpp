@@ -13,8 +13,8 @@ namespace {
     bool IsPositionInMapBounds(const Shade::Vec2& point)
     {
         MapService* map = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
-        const MapLayout& layout = map->GetLayout();
-        for (const Shade::Box& playZone : layout.mPlayZones)
+        const MapLayout* layout = map->GetLayout();
+        for (const Shade::Box& playZone : layout->GetPlayZones())
         {
             if (Shade::PointInBox(point, playZone))
             {
