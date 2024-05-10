@@ -22,12 +22,13 @@ public:
     static Shade::Resource* Load(const std::string& path);
 
 public:
-    MapLayout(std::vector<Shade::Box>&& playZones, std::vector<BackgroundElement>&& backgrounds);
+    MapLayout(const std::string& name, std::vector<Shade::Box>&& playZones, std::vector<BackgroundElement>&& backgrounds);
 
     // TODO: Make this somehow not have to pass in the entire game world to create the entities
     std::vector<std::unique_ptr<Shade::Entity>> CreateGameEntities(Shade::GameWorldModule& gameWorld);
 
     const std::vector<Shade::Box>& GetPlayZones() const;
+    const std::string& GetName() const;
 private:
     // Gameplay related layout
     std::vector<Shade::Box> mPlayZones;
@@ -37,4 +38,7 @@ private:
     // TODO: Consider seperating out the map visuals into something else
     //  - These are only needed when the map is loaded, whereas the layout is something that is re-used over and over
     std::vector<BackgroundElement> mBackgrounds;
+
+    // Misc data
+    std::string mName;
 };

@@ -1,6 +1,7 @@
 #include "map.h"
 
 #include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
 #include "shade/resource/manager.h"
 
 // TODO: This is SUPERRRRRRRRRRRR hacky
@@ -21,6 +22,18 @@ MapService::~MapService() = default;
 void MapService::SetLayoutResource(Shade::ResourceHandle mapResource)
 {
     mMapLayoutHandle = mapResource;
+
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    const MapLayout* layout = GetLayout();
+    if (layout == nullptr) 
+    {
+        // TODO: Should try to log what was attempted to be loaded as well
+        logger->LogWarning("No map was loaded");
+    }
+    else
+    {
+        logger->LogInfo(std::string("Map loaded successfully: ") + layout->GetName());
+    }
 }
 
 // ======================================

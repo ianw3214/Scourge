@@ -4,6 +4,8 @@
 #include <limits>
 
 #include "shade/common/stringUtil.h"
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
 
 namespace {
 
@@ -148,6 +150,8 @@ Shade::KeyValueFile::KeyValueFile(std::vector<KeyValuePair>&& buffer)
 // ======================================
 std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream& fileStream)
 {
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+
     std::vector<KeyValuePair> buffer;
 
     std::string line;
@@ -159,16 +163,19 @@ std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream
             std::string rawKey = line.substr(0, delimiter);
             uint8_t depth = CountDepth(rawKey);
             std::string key = Shade::StringUtil::trim_copy(rawKey);
-            std::string value = Shade::StringUtil::trim_copy(line.substr(delimiter + 2));
-            
+            std::string value = delimiter < line.size() - 1 ? Shade::StringUtil::trim_copy(line.substr(delimiter + 2)) : "";
 
             if (key.empty())
             {
-                // TODO: Error
+                logger->LogError("Empty key found while parsing key value file, ignoring line...");
+                logger->LogInfo(std::string("> ") + line);
+                continue;
             }
             if (value.empty())
             {
-                // TODO: Error
+                logger->LogError("Empty value found while parsing key value file, ignoring line...");
+                logger->LogInfo(std::string("> ") + line);
+                continue;
             }
             if (value[0] == 'f')
             {

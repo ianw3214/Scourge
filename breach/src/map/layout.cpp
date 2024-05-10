@@ -2,6 +2,7 @@
 
 #include "shade/file/fileSystem.h"
 #include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
 
 // TODO: Isolate out the RenderAnchor enum to not need to include this entire component
 #include "shade/game/entity/component/spriteComponent.h"
@@ -14,15 +15,17 @@
 // ======================================
 Shade::Resource* MapLayout::Load(const std::string& path)
 {
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
     Shade::FileSystem* fileSystem = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FileSystem>();
     std::unique_ptr<Shade::KeyValueFile> file = fileSystem->LoadKeyValueFile(path);
 
     if (file == nullptr)
     {
-        // TODO: Error
+        logger->LogError(std::string("Could not load MapLayout, file was not loaded: ") + path);
         return nullptr;
     }
 
+    std::string name;
     std::vector<Shade::Box> playZones;
     std::vector<BackgroundElement> backgrounds;
 
@@ -30,6 +33,10 @@ Shade::Resource* MapLayout::Load(const std::string& path)
     Shade::KeyValueHandle handle = file->GetContents();
     while(handle.IsValid())
     {
+        if (handle.GetKey() == "name")
+        {
+            name = handle.GetString();
+        }
         if (handle.GetKey() == "zones")
         {
             Shade::KeyValueHandle zoneListHandle = handle.GetListHead();
@@ -88,13 +95,14 @@ Shade::Resource* MapLayout::Load(const std::string& path)
         handle.ToNext();
     }
 
-    return new MapLayout(std::move(playZones), std::move(backgrounds));
+    return new MapLayout(name, std::move(playZones), std::move(backgrounds));
 }
 
 // ======================================
-MapLayout::MapLayout(std::vector<Shade::Box>&& playZones, std::vector<BackgroundElement>&& backgrounds)
+MapLayout::MapLayout(const std::string& name, std::vector<Shade::Box>&& playZones, std::vector<BackgroundElement>&& backgrounds)
     : mPlayZones(playZones)
     , mBackgrounds(backgrounds)
+    , mName(name)
 {
 
 }
@@ -121,4 +129,10 @@ std::vector<std::unique_ptr<Shade::Entity>> MapLayout::CreateGameEntities(Shade:
 const std::vector<Shade::Box>& MapLayout::GetPlayZones() const
 {
     return mPlayZones;
+}
+
+// ======================================
+const std::string& MapLayout::GetName() const
+{
+    return mName;
 }
