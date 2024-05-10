@@ -61,6 +61,7 @@ namespace Shade {
         KeyValueHandle(const std::vector<KeyValuePair>& bufferRef);
         KeyValueHandle(const std::vector<KeyValuePair>& bufferRef, size_t index);
         KeyValueHandle Invalid(const std::vector<KeyValuePair>& bufferRef) const;
+        void Invalidate();
 
         bool IsValid() const;
         bool ToNext();

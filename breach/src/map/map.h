@@ -17,6 +17,10 @@ public:
     void SetLayoutResource(Shade::ResourceHandle handle);
     const MapLayout* GetLayout() const;
 
+    // TODO: This should possibly be done a different way
+    //  - See layout file for more details
+    std::vector<std::unique_ptr<Shade::Entity>> CreateGameEntities(Shade::GameWorldModule& gameWorld);
+
 private:
     Shade::ResourceHandle mMapLayoutHandle = Shade::ResourceHandle::Invalid;
 };

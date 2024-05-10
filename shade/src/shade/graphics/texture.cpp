@@ -21,15 +21,30 @@ Shade::Resource* Shade::Texture::Load(const std::string& path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     stbi_image_free(data);
 
-    return new Texture(textureID);
+    return new Texture(textureID, width, height);
 }
 
 // ======================================
-Shade::Texture::Texture(GLuint textureID)
+Shade::Texture::Texture(GLuint textureID, int width, int height)
     : mGLTextureID(textureID)
+    , mWidth(width)
+    , mHeight(height)
 {
 
 }
+
+// ======================================
+int Shade::Texture::GetWidth() const
+{
+    return mWidth;
+}
+
+// ======================================
+int Shade::Texture::GetHeight() const
+{
+    return mHeight;
+}
+
 
 // ======================================
 void Shade::Texture::BindTextureForRender()

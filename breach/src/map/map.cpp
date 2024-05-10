@@ -29,3 +29,12 @@ const MapLayout* MapService::GetLayout() const
     Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
     return resourceManager->GetResource<MapLayout>(mMapLayoutHandle);
 }
+
+// ======================================
+std::vector<std::unique_ptr<Shade::Entity>> MapService::CreateGameEntities(Shade::GameWorldModule& gameWorld)
+{
+    Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+    MapLayout* layout = resourceManager->GetResource<MapLayout>(mMapLayoutHandle);
+
+    return layout->CreateGameEntities(gameWorld);
+}

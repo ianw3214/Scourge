@@ -52,6 +52,12 @@ Shade::KeyValueHandle Shade::KeyValueHandle::Invalid(const std::vector<KeyValueP
 }
 
 // ======================================
+void Shade::KeyValueHandle::Invalidate()
+{
+    mIndex = std::numeric_limits<size_t>::max();
+}
+
+// ======================================
 bool Shade::KeyValueHandle::IsValid() const
 {
     return mBufferRef.size() > mIndex;
@@ -62,11 +68,18 @@ bool Shade::KeyValueHandle::ToNext()
 {
     // Search for the next item at the same depth
     uint8_t currDepth = mBufferRef[mIndex].mDepth;
-    mIndex++;
-    while(mIndex < mBufferRef.size() && mBufferRef[mIndex].mDepth != currDepth)
-    {
+    do {
         mIndex++;
-    }
+        if (mIndex >= mBufferRef.size())
+        {
+            break;
+        }
+        if (mBufferRef[mIndex].mDepth < currDepth)
+        {
+            Invalidate();
+            break;
+        }
+    } while (mBufferRef[mIndex].mDepth != currDepth);
     return IsValid();
 }
 

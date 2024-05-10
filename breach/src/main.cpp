@@ -51,26 +51,6 @@ private:
     static inline Shade::Entity* sCachedPlayer = nullptr;
 };
 
-// ======================================
-class HorizontalParallaxComponent : public Shade::Component
-{
-    public:
-    // ======================================
-    HorizontalParallaxComponent(float parallax) : mParallaxFactor(parallax) {}
-    // ======================================
-    void Update(float deltaSeconds) override {
-        // Assume things with a parallax component just work from position x=0
-        //  - if this needs to change, need to separate concept between world x/y and rendering x/y
-        //  - or camera needs to somehow know to not use world x/y for parallax entities
-        Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
-        mEntityRef->SetPositionX(camera->GetCameraInfo().x - mParallaxFactor * (camera->GetCameraInfo().x));
-        // Assume the sprite for parallax components always have anchor set to the bottom middle
-        mEntityRef->SetPositionY(0.f);
-    }
-    private:
-    float mParallaxFactor = 1.0f;
-};
-
 class CustomGameWorld : public Shade::GameWorldModule
 {
 public:
@@ -93,27 +73,6 @@ public:
         mInputMapping.AddAxisEventMapping(Shade::ControllerAxis::SHADE_AXIS_LEFTX, "move_h");
         mInputMapping.AddAxisEventMapping(Shade::ControllerAxis::SHADE_AXIS_LEFTY, "move_v");
         SetEventsFromMapping(mInputMapping);
-
-        // Initialize background images
-        std::unique_ptr<Shade::Entity> TestBackground1 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground1->AddComponent(std::make_unique<Shade::SpriteComponent>(1280.f, 720.f, "assets/breach/bg.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground1->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.f));
-        AddEntity(std::move(TestBackground1));
-
-        std::unique_ptr<Shade::Entity> TestBackground2 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground2->AddComponent(std::make_unique<Shade::SpriteComponent>(2000.f, 720.f, "assets/breach/clouds.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground2->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.5f));
-        AddEntity(std::move(TestBackground2));
-
-        std::unique_ptr<Shade::Entity> TestBackground3 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground3->AddComponent(std::make_unique<Shade::SpriteComponent>(2400.f, 720.f, "assets/breach/mid.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground3->AddComponent(std::make_unique<HorizontalParallaxComponent>(0.7f));
-        AddEntity(std::move(TestBackground3));
-
-        std::unique_ptr<Shade::Entity> TestBackground4 = std::make_unique<Shade::Entity>(*this, *this);
-        TestBackground4->AddComponent(std::make_unique<Shade::SpriteComponent>(2800.f, 720.f, "assets/breach/foreground.png", static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        TestBackground4->AddComponent(std::make_unique<HorizontalParallaxComponent>(1.0f));
-        AddEntity(std::move(TestBackground4));
 
         // Initialize a player entity
         Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 6 };
@@ -234,19 +193,24 @@ public:
 #endif
         AddEntity(std::move(TestKnight));
 
-        // Map setup
+        InitializeWorldFromMap("assets/breach/maps/test.kv");
+    }
+private:
+    // ======================================
+    void InitializeWorldFromMap(const std::string& mapPath)
+    {
         Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
 
         Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
-        Shade::ResourceHandle layoutHandle = resourceManager->LoadResource<MapLayout>("assets/breach/maps/test.kv");
+        Shade::ResourceHandle layoutHandle = resourceManager->LoadResource<MapLayout>(mapPath);
         mapService->SetLayoutResource(layoutHandle);
-    
-        /*
-        MapLayout layout;
-        layout.mPlayZones.emplace_back(Shade::Vec2{ -500.f, 10.f }, 1000.f, 200.f);
-        mapService->SetLayout(layout);
-        */
+
+        std::vector<std::unique_ptr<Shade::Entity>> mapEntities = mapService->CreateGameEntities(*this);
+        for (std::unique_ptr<Shade::Entity>& entity : mapEntities)
+        {
+            AddEntity(std::move(entity));
+        }
     }
 };
 
