@@ -39,8 +39,8 @@ void CustomDebugModule::Render(std::vector<std::unique_ptr<Shade::RenderCommand>
 
     // Draw map layout
     MapService* map = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
-    const MapLayout* layout = map->GetLayout();
-    for (const Shade::Box& playZone : layout->GetPlayZones())
+    const MapLayout& layout = map->GetLayout();
+    for (const Shade::Box& playZone : layout.GetPlayZones())
     {
         const float x = playZone.mPosition.x + camera->GetCameraInfo().mOffsetX;
         const float y = playZone.mPosition.y + camera->GetCameraInfo().mOffsetY;

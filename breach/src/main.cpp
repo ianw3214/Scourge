@@ -202,11 +202,7 @@ private:
         Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
 
-        Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
-        Shade::ResourceHandle layoutHandle = resourceManager->LoadResource<MapLayout>(mapPath);
-        mapService->SetLayoutResource(layoutHandle);
-
-        std::vector<std::unique_ptr<Shade::Entity>> mapEntities = mapService->CreateGameEntities(*this);
+        std::vector<std::unique_ptr<Shade::Entity>> mapEntities = mapService->LoadMap(mapPath, *this);
         for (std::unique_ptr<Shade::Entity>& entity : mapEntities)
         {
             AddEntity(std::move(entity));
