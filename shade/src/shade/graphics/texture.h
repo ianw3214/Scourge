@@ -20,6 +20,7 @@ namespace Shade {
         void BindTextureForRender();
     private:
         GLuint mGLTextureID;
+        // The raw width/height of the original loaded texture in pixels
         int mWidth = 0;
         int mHeight = 0;
     };

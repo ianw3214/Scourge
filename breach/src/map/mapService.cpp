@@ -1,5 +1,7 @@
 #include "mapService.h"
 
+#include "definitions.h"
+
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/graphics/common.h"
 #include "shade/instance/service/provider.h"
@@ -44,8 +46,7 @@ std::vector<std::unique_ptr<Shade::Entity>> MapService::LoadMap(const std::strin
     for (const BackgroundElement& background : mapData->GetBackgrounds())
     {
         std::unique_ptr<Shade::Entity> backgroundEntity = std::make_unique<Shade::Entity>(gameWorld, gameWorld);
-        // TODO: Figure out what to do about the renderlayer...
-        backgroundEntity->AddComponent(std::make_unique<Shade::SpriteComponent>(background.mTexturePath, static_cast<int>(-5 /*RenderLayer::BACKGROUND*/), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        backgroundEntity->AddComponent(std::make_unique<Shade::SpriteComponent>(background.mTexturePath, static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
         backgroundEntity->AddComponent(std::make_unique<HorizontalParallaxComponent>(background.mParallax));
         entities.emplace_back(std::move(backgroundEntity));
     }

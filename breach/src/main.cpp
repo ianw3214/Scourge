@@ -2,6 +2,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "definitions.h"
+
 #include "shade/instance/instance.h"
 #include "shade/instance/service/provider.h"
 #include "shade/module/state.h"
@@ -33,13 +35,6 @@
 #include "debug/basicDebugComponent.h"
 
 #include <vector>
-
-// ======================================
-enum class RenderLayer : int {
-    // Hacky solution
-    BACKGROUND = -5,
-    DEFAULT = 0
-};
 
 // ======================================
 // TODO: This is a pretty hacky system, figure out a better way to track this in the future

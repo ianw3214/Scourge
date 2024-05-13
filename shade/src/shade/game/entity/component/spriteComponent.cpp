@@ -15,6 +15,7 @@ Shade::SpriteComponent::SpriteComponent(std::string texturePath, int renderLayer
     ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
     mTextureHandle = resourceManager->LoadResource<Texture>(texturePath);
 
+    // TODO: Warning for sprite that failed to load?
     Texture* loadedTexture = resourceManager->GetResource<Texture>(mTextureHandle);
     if (loadedTexture != nullptr)
     {

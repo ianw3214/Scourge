@@ -1,4 +1,4 @@
-target_sources(Breach PRIVATE main.cpp)
+target_sources(Breach PRIVATE definitions.h main.cpp)
 
 add_subdirectory(components)
 add_subdirectory(map)

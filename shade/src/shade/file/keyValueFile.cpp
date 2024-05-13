@@ -1,7 +1,8 @@
 #include "keyValueFile.h"
 
-#include <vector>
+#include <cassert>
 #include <limits>
+#include <vector>
 
 #include "shade/common/stringUtil.h"
 #include "shade/instance/service/provider.h"
@@ -22,15 +23,12 @@ namespace {
                 break;
             }
         }
-        // TODO: Should assert that this is divisible by 2 in case there's error in the data
+        // TODO: Consider logging this as a content error instead, should be easy fix within a file
+        assert(index % 2 == 0 && "Depth should have number of spaces divisible by 2");
         return static_cast<uint8_t>(index / 2);
     }
 
 }
-
-// TODO: Asserts on key value handle access
-//  - Make sure index is within size
-//  - Make sure "get" functions have the correct type
 
 // ======================================
 Shade::KeyValueHandle::KeyValueHandle(const std::vector<KeyValuePair>& bufferRef)
@@ -88,55 +86,69 @@ bool Shade::KeyValueHandle::ToNext()
 // ======================================
 bool Shade::KeyValueHandle::IsInt() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::INT;
 }
 
 // ======================================
 bool Shade::KeyValueHandle::IsFloat() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::FLOAT;
 }
 
 // ======================================
 bool Shade::KeyValueHandle::IsString() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::STRING;
 }
 
 // ======================================
 bool Shade::KeyValueHandle::IsList() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::LIST;
 }
 
 // ======================================
 const std::string& Shade::KeyValueHandle::GetKey() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mKey;
 }
 
 // ======================================
 int Shade::KeyValueHandle::GetInt() const
 {
+    assert(IsInt() && "Expected int type to access int value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mInt;
 }
 
 // ======================================
 float Shade::KeyValueHandle::GetFloat() const
 {
+    assert(IsFloat() && "Expected float type to access float value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mFloat;
 }
 
 // ======================================
 const std::string& Shade::KeyValueHandle::GetString() const
 {
+    assert(IsString() && "Expected string type to access string value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mString;
 }
 
 // ======================================
 Shade::KeyValueHandle Shade::KeyValueHandle::GetListHead() const
 {
+    assert(IsList() && "Expected list type to access list value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     // TODO: More error checking on the format
+    //  - If the next item is not exactly 1 depth below, should return an invalid handle
     return KeyValueHandle(mBufferRef, mIndex + 1);
 }
 
@@ -202,6 +214,11 @@ std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream
                 uint8_t depth = CountDepth(rawKey);
                 std::string key = Shade::StringUtil::trim_copy(rawKey);
                 buffer.emplace_back(KeyValuePair{ key, ValueOption::ListOption(), depth});
+            }
+            else 
+            {
+                logger->LogWarning("Unable to parse line in key value file, ignoring line...");
+                logger->LogInfo(std::string("> ") + line);
             }
         }
     }

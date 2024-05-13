@@ -26,41 +26,65 @@ Shade::Resource* MapData::Load(const std::string& path)
     std::vector<BackgroundElement> backgrounds;
     MapLayout layout;
 
-    // TODO: Error handling while parsing?
     Shade::KeyValueHandle handle = file->GetContents();
     while(handle.IsValid())
     {
         if (handle.GetKey() == "name")
         {
-            name = handle.GetString();
-        }
-        if (handle.GetKey() == "layout")
-        {
-            layout = MapLayout::LoadFromKeyValueHandle(handle.GetListHead());
-        }
-        if (handle.GetKey() == "background")
-        {
-            Shade::KeyValueHandle backgroundListHandle = handle.GetListHead();
-            while(backgroundListHandle.IsValid())
+            if (handle.IsString())
             {
-                BackgroundElement background;
-                Shade::KeyValueHandle backgroundHandle = backgroundListHandle.GetListHead();
-                while (backgroundHandle.IsValid())
-                {
-                    
-                    if (backgroundHandle.GetKey() == "path")
-                    {
-                        background.mTexturePath = backgroundHandle.GetString();
-                    }
-                    if (backgroundHandle.GetKey() == "parallax")
-                    {
-                        background.mParallax = backgroundHandle.GetFloat();
-                    }
-                    backgroundHandle.ToNext();
-                }
-                backgrounds.emplace_back(background);
-                backgroundListHandle.ToNext();
+                name = handle.GetString();
             }
+            else
+            {
+                logger->LogWarning("Expected string for field 'name'");
+            }
+        }
+        else if (handle.GetKey() == "layout")
+        {
+            if (handle.IsList())
+            {
+                layout = MapLayout::LoadFromKeyValueHandle(handle.GetListHead());
+            }
+            else
+            {
+                logger->LogWarning("Expected list for field 'layout'");
+            }
+        }
+        else if (handle.GetKey() == "background")
+        {
+            if (handle.IsList())
+            {
+                Shade::KeyValueHandle backgroundListHandle = handle.GetListHead();
+                while(backgroundListHandle.IsValid())
+                {
+                    BackgroundElement background;
+                    Shade::KeyValueHandle backgroundHandle = backgroundListHandle.GetListHead();
+                    while (backgroundHandle.IsValid())
+                    {
+                        
+                        if (backgroundHandle.GetKey() == "path")
+                        {
+                            background.mTexturePath = backgroundHandle.GetString();
+                        }
+                        if (backgroundHandle.GetKey() == "parallax")
+                        {
+                            background.mParallax = backgroundHandle.GetFloat();
+                        }
+                        backgroundHandle.ToNext();
+                    }
+                    backgrounds.emplace_back(background);
+                    backgroundListHandle.ToNext();
+                }
+            }
+            else
+            {
+                logger->LogWarning("Expected list for field 'background'");
+            }
+        }
+        else 
+        {
+            logger->LogWarning(std::string("Unexpected field while parsing map: ") + handle.GetKey());
         }
         handle.ToNext();
     }
