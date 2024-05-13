@@ -6,7 +6,7 @@
 #include "shade/graphics/command/drawLine.h"
 #include "shade/graphics/command/drawRectangle.h"
 
-#include "map/map.h"
+#include "map/mapService.h"
 
 // ======================================
 // Don't bother storing this properly since it's just debug info

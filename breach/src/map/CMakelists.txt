@@ -1,2 +1,3 @@
 target_sources(Breach PRIVATE layout.h layout.cpp)
 target_sources(Breach PRIVATE map.h map.cpp)
+target_sources(Breach PRIVATE mapService.h mapService.cpp)

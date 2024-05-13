@@ -4,17 +4,10 @@
 #include <string>
 
 #include "shade/game/entity/component/component.h"
+#include "shade/graphics/common.h"
 #include "shade/resource/handle.h"
 
 namespace Shade {
-
-    // Defines which point of the sprite counts as the position of the sprite
-    //  - might not be needed once custom offsets are implemented
-    enum class RenderAnchor {
-        BOTTOM_LEFT,
-        BOTTOM_MIDDLE,
-        MIDDLE
-    };
 
     class DrawTextureCommand;
     class SpriteComponent : public Component {
@@ -32,6 +25,7 @@ namespace Shade {
     protected:
         float mRenderWidth = 0.f;
         float mRenderHeight = 0.f;
+        //  Render anchor might not be needed if  custom offsets are implemented
         RenderAnchor mRenderAnchor = RenderAnchor::MIDDLE;
         int mRenderLayer = 0;
         ResourceHandle mTextureHandle = ResourceHandle::Invalid;

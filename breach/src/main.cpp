@@ -27,7 +27,7 @@
 #include "components/player/cameraFollowComponent.h"
 #include "components/player/playerInputComponent.h"
 
-#include "map/map.h"
+#include "map/mapService.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"

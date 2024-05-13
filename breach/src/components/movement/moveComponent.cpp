@@ -3,7 +3,7 @@
 #include "shade/game/entity/entity.h"
 #include "shade/instance/service/provider.h"
 
-#include "map/map.h"
+#include "map/mapService.h"
 
 namespace {
 
