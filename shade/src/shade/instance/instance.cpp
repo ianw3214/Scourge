@@ -40,24 +40,6 @@ Shade::GameInstance::GameInstance()
 
     LogService* logService = GetService<LogService>();
     logService->LogInfo("Shade engine initialized!");
-
-    FileSystem* fileSystem = GetService<FileSystem>();
-    auto file = fileSystem->LoadKeyValueFile("test.kv");
-    KeyValueHandle handle = file->GetContents();
-    while(handle.IsValid())
-    {
-        if (handle.IsList())
-        {
-            KeyValueHandle subHandle = handle.GetListHead();
-            while(subHandle.IsValid())
-            {
-                logService->LogInfo(subHandle.GetString());
-                subHandle.ToNext();
-            }
-        }
-        logService->LogInfo(handle.GetString());
-        handle.ToNext();
-    }
 }
 
 // ======================================

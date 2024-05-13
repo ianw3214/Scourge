@@ -7,6 +7,24 @@
 #include "shade/graphics/texture.h"
 
 // ======================================
+Shade::SpriteComponent::SpriteComponent(std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
+    : mRenderAnchor(renderAnchor)
+    , mRenderLayer(renderLayer)
+    , mTextureHandle(ResourceHandle::Invalid)
+{
+    ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
+    mTextureHandle = resourceManager->LoadResource<Texture>(texturePath);
+
+    // TODO: Warning for sprite that failed to load?
+    Texture* loadedTexture = resourceManager->GetResource<Texture>(mTextureHandle);
+    if (loadedTexture != nullptr)
+    {
+        mRenderWidth = loadedTexture->GetWidth();
+        mRenderHeight = loadedTexture->GetHeight();
+    }
+}
+
+// ======================================
 Shade::SpriteComponent::SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
     : mRenderWidth(renderWidth)
     , mRenderHeight(renderHeight)

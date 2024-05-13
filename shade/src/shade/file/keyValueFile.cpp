@@ -1,9 +1,12 @@
 #include "keyValueFile.h"
 
-#include <vector>
+#include <cassert>
 #include <limits>
+#include <vector>
 
 #include "shade/common/stringUtil.h"
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
 
 namespace {
 
@@ -20,15 +23,12 @@ namespace {
                 break;
             }
         }
-        // TODO: Should assert that this is divisible by 2 in case there's error in the data
+        // TODO: Consider logging this as a content error instead, should be easy fix within a file
+        assert(index % 2 == 0 && "Depth should have number of spaces divisible by 2");
         return static_cast<uint8_t>(index / 2);
     }
 
 }
-
-// TODO: Asserts on key value handle access
-//  - Make sure index is within size
-//  - Make sure "get" functions have the correct type
 
 // ======================================
 Shade::KeyValueHandle::KeyValueHandle(const std::vector<KeyValuePair>& bufferRef)
@@ -52,6 +52,12 @@ Shade::KeyValueHandle Shade::KeyValueHandle::Invalid(const std::vector<KeyValueP
 }
 
 // ======================================
+void Shade::KeyValueHandle::Invalidate()
+{
+    mIndex = std::numeric_limits<size_t>::max();
+}
+
+// ======================================
 bool Shade::KeyValueHandle::IsValid() const
 {
     return mBufferRef.size() > mIndex;
@@ -62,60 +68,87 @@ bool Shade::KeyValueHandle::ToNext()
 {
     // Search for the next item at the same depth
     uint8_t currDepth = mBufferRef[mIndex].mDepth;
-    mIndex++;
-    while(mIndex < mBufferRef.size() && mBufferRef[mIndex].mDepth != currDepth)
-    {
+    do {
         mIndex++;
-    }
+        if (mIndex >= mBufferRef.size())
+        {
+            break;
+        }
+        if (mBufferRef[mIndex].mDepth < currDepth)
+        {
+            Invalidate();
+            break;
+        }
+    } while (mBufferRef[mIndex].mDepth != currDepth);
     return IsValid();
 }
 
 // ======================================
 bool Shade::KeyValueHandle::IsInt() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::INT;
 }
 
 // ======================================
 bool Shade::KeyValueHandle::IsFloat() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::FLOAT;
 }
 
 // ======================================
 bool Shade::KeyValueHandle::IsString() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::STRING;
 }
 
 // ======================================
 bool Shade::KeyValueHandle::IsList() const
 {
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mType == ValueType::LIST;
+}
+
+// ======================================
+const std::string& Shade::KeyValueHandle::GetKey() const
+{
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
+    return mBufferRef[mIndex].mKey;
 }
 
 // ======================================
 int Shade::KeyValueHandle::GetInt() const
 {
+    assert(IsInt() && "Expected int type to access int value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mInt;
 }
 
 // ======================================
 float Shade::KeyValueHandle::GetFloat() const
 {
+    assert(IsFloat() && "Expected float type to access float value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mFloat;
 }
 
 // ======================================
 const std::string& Shade::KeyValueHandle::GetString() const
 {
+    assert(IsString() && "Expected string type to access string value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     return mBufferRef[mIndex].mValue.mString;
 }
 
 // ======================================
 Shade::KeyValueHandle Shade::KeyValueHandle::GetListHead() const
 {
+    assert(IsList() && "Expected list type to access list value");
+    assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
     // TODO: More error checking on the format
+    //  - If the next item is not exactly 1 depth below, should return an invalid handle
     return KeyValueHandle(mBufferRef, mIndex + 1);
 }
 
@@ -129,6 +162,8 @@ Shade::KeyValueFile::KeyValueFile(std::vector<KeyValuePair>&& buffer)
 // ======================================
 std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream& fileStream)
 {
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+
     std::vector<KeyValuePair> buffer;
 
     std::string line;
@@ -140,16 +175,19 @@ std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream
             std::string rawKey = line.substr(0, delimiter);
             uint8_t depth = CountDepth(rawKey);
             std::string key = Shade::StringUtil::trim_copy(rawKey);
-            std::string value = Shade::StringUtil::trim_copy(line.substr(delimiter + 2));
-            
+            std::string value = delimiter < line.size() - 1 ? Shade::StringUtil::trim_copy(line.substr(delimiter + 2)) : "";
 
             if (key.empty())
             {
-                // TODO: Error
+                logger->LogError("Empty key found while parsing key value file, ignoring line...");
+                logger->LogInfo(std::string("> ") + line);
+                continue;
             }
             if (value.empty())
             {
-                // TODO: Error
+                logger->LogError("Empty value found while parsing key value file, ignoring line...");
+                logger->LogInfo(std::string("> ") + line);
+                continue;
             }
             if (value[0] == 'f')
             {
@@ -176,6 +214,11 @@ std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream
                 uint8_t depth = CountDepth(rawKey);
                 std::string key = Shade::StringUtil::trim_copy(rawKey);
                 buffer.emplace_back(KeyValuePair{ key, ValueOption::ListOption(), depth});
+            }
+            else 
+            {
+                logger->LogWarning("Unable to parse line in key value file, ignoring line...");
+                logger->LogInfo(std::string("> ") + line);
             }
         }
     }

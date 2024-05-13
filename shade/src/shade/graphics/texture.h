@@ -12,11 +12,17 @@ namespace Shade {
         static Resource* Load(const std::string& path);
 
     public:
-        Texture(GLuint textureID);
+        Texture(GLuint textureID, int width, int height);
     
+        int GetWidth() const;
+        int GetHeight() const;
+
         void BindTextureForRender();
     private:
         GLuint mGLTextureID;
+        // The raw width/height of the original loaded texture in pixels
+        int mWidth = 0;
+        int mHeight = 0;
     };
 
 }

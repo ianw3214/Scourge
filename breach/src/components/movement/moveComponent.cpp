@@ -3,7 +3,7 @@
 #include "shade/game/entity/entity.h"
 #include "shade/instance/service/provider.h"
 
-#include "map/map.h"
+#include "map/mapService.h"
 
 namespace {
 
@@ -14,7 +14,7 @@ namespace {
     {
         MapService* map = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
         const MapLayout& layout = map->GetLayout();
-        for (const Shade::Box& playZone : layout.mPlayZones)
+        for (const Shade::Box& playZone : layout.GetPlayZones())
         {
             if (Shade::PointInBox(point, playZone))
             {

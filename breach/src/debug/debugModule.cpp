@@ -6,7 +6,7 @@
 #include "shade/graphics/command/drawLine.h"
 #include "shade/graphics/command/drawRectangle.h"
 
-#include "map/map.h"
+#include "map/mapService.h"
 
 // ======================================
 // Don't bother storing this properly since it's just debug info
@@ -40,7 +40,7 @@ void CustomDebugModule::Render(std::vector<std::unique_ptr<Shade::RenderCommand>
     // Draw map layout
     MapService* map = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
     const MapLayout& layout = map->GetLayout();
-    for (const Shade::Box& playZone : layout.mPlayZones)
+    for (const Shade::Box& playZone : layout.GetPlayZones())
     {
         const float x = playZone.mPosition.x + camera->GetCameraInfo().mOffsetX;
         const float y = playZone.mPosition.y + camera->GetCameraInfo().mOffsetY;
