@@ -24,3 +24,7 @@ endif()
 target_include_directories(Shade PRIVATE src vendor)
 add_subdirectory(src)
 add_subdirectory(vendor)
+
+if( BUILD_SHADE_EDITOR )
+add_compile_definitions(Breach EDITOR_SHADE)
+endif()

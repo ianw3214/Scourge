@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.22)
 project(Scourge)
 
 option(BUILD_SHADE_ENGINE "Enable building shade engine" ON)
+option(BUILD_SHADE_EDITOR "Enable building shade editor" ON)
 option(BUILD_BREACH_GAME "Enable building breach game" ON)
+option(BUILD_BREACH_EDITOR "Enable building breach editor, requires 'BUILD_SHADE_EDITOR' to be enabled" ON)
+
 option(DEBUG_BREACH "Enable debug mode for breach game" ON)
 
 if (BUILD_SHADE_ENGINE)

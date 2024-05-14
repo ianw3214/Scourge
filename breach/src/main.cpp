@@ -7,6 +7,7 @@
 #include "shade/instance/instance.h"
 #include "shade/instance/service/provider.h"
 #include "shade/module/state.h"
+#include "shade/editor/editor.h"
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
@@ -195,6 +196,7 @@ private:
     void InitializeWorldFromMap(const std::string& mapPath)
     {
         // TODO: More thought needs to be put into when/where the map service should get initialized
+        //  - In its current state, the map service should also get unregistered when the game state is cleaned up
         Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
         mapService->LoadMap(mapPath);
@@ -203,7 +205,7 @@ private:
 
 class GameState : public Shade::State {
 public:
-    GameState(Shade::ServiceProvider& ServiceProviderRef) : Shade::State() {
+    GameState(Shade::ServiceProvider& serviceProviderRef) : Shade::State() {
         AddModule(std::make_unique<CustomGameWorld>());
 #ifdef DEBUG_BREACH
         AddModule(std::make_unique<CustomDebugModule>());
@@ -215,7 +217,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     PSTR lpCmdLine, int nCmdShow)
 {
     Shade::GameInstance MainGameInstance;
+#ifdef BUILD_BREACH_EDITOR
+    MainGameInstance.SetState(std::make_unique<Shade::EditorState>(MainGameInstance));
+#else
     MainGameInstance.SetState(std::make_unique<GameState>(MainGameInstance));
+#endif
     MainGameInstance.Run();
 
     return 0;

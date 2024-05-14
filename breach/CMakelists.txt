@@ -31,3 +31,7 @@ endif()
 if( DEBUG_BREACH ) 
 add_compile_definitions(Breach DEBUG_BREACH)
 endif()
+
+if( BUILD_BREACH_EDITOR )
+add_compile_definitions(Breach BUILD_BREACH_EDITOR)
+endif()

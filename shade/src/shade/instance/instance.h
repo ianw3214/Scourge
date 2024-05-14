@@ -19,7 +19,7 @@ namespace Shade {
         GameInstance();
         ~GameInstance();
 
-        void SetState(std::unique_ptr<State> state);
+        std::unique_ptr<State>& SetState(std::unique_ptr<State> state);
         void Run();
 
         void Notify(GameNotification notification);
