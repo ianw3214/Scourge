@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "shade/file/fileSystem.h"
+#include "shade/game/entity/factory.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/imgui/service.h"
@@ -36,7 +37,11 @@ Shade::GameInstance::GameInstance()
     mInputHandler = std::make_unique<Shade::InputHandler>(*this);
     mRenderer = std::make_unique<Shade::RendererBase>();
 
+    // TODO: Perhaps all services should have an "initialization" pass that can be done here 
     mRenderer->InitializeDefaultShaders();
+
+    // Register gameplay related services
+    RegisterService(new EntityFactory());
 
     LogService* logService = GetService<LogService>();
     logService->LogInfo("Shade engine initialized!");

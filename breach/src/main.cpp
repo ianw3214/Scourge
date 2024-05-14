@@ -194,14 +194,10 @@ private:
     // ======================================
     void InitializeWorldFromMap(const std::string& mapPath)
     {
+        // TODO: More thought needs to be put into when/where the map service should get initialized
         Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
-
-        std::vector<std::unique_ptr<Shade::Entity>> mapEntities = mapService->LoadMap(mapPath, *this);
-        for (std::unique_ptr<Shade::Entity>& entity : mapEntities)
-        {
-            AddEntity(std::move(entity));
-        }
+        mapService->LoadMap(mapPath);
     }
 };
 

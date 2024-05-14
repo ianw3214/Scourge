@@ -40,6 +40,9 @@ namespace Shade {
         const IntGameplayEvent& GetIntEvent(const std::string& gameEvent) const;
         const FloatGameplayEvent& GetFloatEvent(const std::string& gameEvent) const;
 
+        // TODO: This feels weird to keep in the entity base class
+        //  - Consider where else the entity container can be referenced by
+        //  - Perhaps this needs to just be implemented as a globally accessible service
         std::vector<std::unique_ptr<Entity>>& GetWorldEntities() const;
     private:
         // Default entity attributes

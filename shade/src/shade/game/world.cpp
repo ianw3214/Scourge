@@ -1,15 +1,25 @@
 #include "world.h"
 
 #include "shade/input/event.h"
+#include "shade/instance/service/provider.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/entity.h"
+#include "shade/game/entity/factory.h"
 #include "shade/graphics/command/drawTexture.h"
 
 // ======================================
-Shade::GameWorldModule::GameWorldModule() = default;
+Shade::GameWorldModule::GameWorldModule()
+{
+    EntityFactory* entityFactory = ServiceProvider::GetCurrentProvider()->GetService<EntityFactory>();
+    entityFactory->RegisterEntityWorldInfo({ *this, *this });
+}
 
 // ======================================
-Shade::GameWorldModule::~GameWorldModule() = default;
+Shade::GameWorldModule::~GameWorldModule()
+{
+    EntityFactory* entityFactory = ServiceProvider::GetCurrentProvider()->GetService<EntityFactory>();
+    entityFactory->UnRegisterEntityWorldInfo();
+}
 
 // ======================================
 void Shade::GameWorldModule::Update(float deltaSeconds)
