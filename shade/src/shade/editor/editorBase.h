@@ -7,7 +7,7 @@ namespace Shade {
     class EditorBase {
     public:
         EditorBase(const std::string& name);
-        ~EditorBase();
+        virtual ~EditorBase();
 
         const std::string& GetName() const;
     private:

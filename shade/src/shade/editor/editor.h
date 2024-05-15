@@ -1,6 +1,5 @@
 #pragma once
 
-#include <limits>
 #include <vector>
 #include <memory>
 
@@ -12,9 +11,16 @@ namespace Shade {
     class EditorBase;
     class ServiceProvider;
 
+    // ======================================
+    //  TODO: Maybe the configuration can be set through an "editor service" instead
+    struct EditorConfiguration {
+        std::vector<std::unique_ptr<EditorBase>> mEditors;
+    };
+
+    // ======================================
     class EditorModule : public Shade::Module {
     public:
-        EditorModule();
+        EditorModule(EditorConfiguration& config);
         ~EditorModule();
 
         virtual void Update(float deltaSeconds) override;
@@ -22,15 +28,20 @@ namespace Shade {
         virtual bool HandleEvent(const InputEvent& event) override;
 
         void RegisterEditor(std::unique_ptr<EditorBase> editor);
+
+        const std::vector<std::unique_ptr<EditorBase>>& GetEditors() const;
+        const std::unique_ptr<EditorBase>& GetCurrentEditor() const;
+        size_t GetCurrentEditorIndex() const;
     private:
         std::vector<std::unique_ptr<EditorBase>> mEditors;
-        size_t mCurrentEditor = std::numeric_limits<size_t>::max();
+        size_t mCurrentEditor = 0;
     };
 
+    // ======================================
     class EditorState : public Shade::State {
     public:
-        EditorState(Shade::ServiceProvider& serviceProviderRef) : Shade::State() {
-            AddModule(std::make_unique<EditorModule>());
+        EditorState(Shade::ServiceProvider& serviceProviderRef, EditorConfiguration& config) : Shade::State() {
+            AddModule(std::make_unique<EditorModule>(config));
         }
     };
 

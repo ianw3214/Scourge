@@ -8,6 +8,7 @@
 #include "shade/instance/service/provider.h"
 #include "shade/module/state.h"
 #include "shade/editor/editor.h"
+#include "shade/editor/editorBase.h"
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
@@ -31,6 +32,8 @@
 #include "components/player/playerInputComponent.h"
 
 #include "map/mapService.h"
+
+#include "editor/mapEditor.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"
@@ -218,7 +221,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     Shade::GameInstance MainGameInstance;
 #ifdef BUILD_BREACH_EDITOR
-    MainGameInstance.SetState(std::make_unique<Shade::EditorState>(MainGameInstance));
+    Shade::EditorConfiguration config;
+    config.mEditors.emplace_back(std::make_unique<MapEditor>());
+    MainGameInstance.SetState(std::make_unique<Shade::EditorState>(MainGameInstance, config));
 #else
     MainGameInstance.SetState(std::make_unique<GameState>(MainGameInstance));
 #endif
