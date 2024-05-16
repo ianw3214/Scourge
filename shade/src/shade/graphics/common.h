@@ -18,4 +18,40 @@ namespace Shade {
         MIDDLE
     };
 
+    namespace RenderUtil {
+
+        inline float GetXForRenderAnchor(float x, float width, RenderAnchor anchor)
+        {
+            switch(anchor) {
+            case RenderAnchor::BOTTOM_LEFT: {
+                return x;
+            } break;
+            case RenderAnchor::BOTTOM_MIDDLE:
+            case RenderAnchor::MIDDLE: {
+                return x - width / 2.0f;
+            } break;
+            default: {
+                return x;
+            } break;
+        }
+        }
+
+        inline float GetYForRenderAnchor(float y, float height, RenderAnchor anchor)
+        {
+            switch(anchor) {
+                case RenderAnchor::BOTTOM_LEFT: 
+                case RenderAnchor::BOTTOM_MIDDLE: {
+                    return y;
+                } break;
+                case RenderAnchor::MIDDLE: {
+                    return y - height / 2.0f;
+                } break;
+                default: {
+                    return y;
+                } break;
+            }
+        }
+
+    }
+
 }

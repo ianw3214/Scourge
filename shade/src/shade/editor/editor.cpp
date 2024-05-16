@@ -23,18 +23,31 @@ Shade::EditorModule::~EditorModule() = default;
 // ======================================
 void Shade::EditorModule::Update(float deltaSeconds) 
 {
-
+    if (!mEditors.empty())
+    {
+        // TODO: Bounds checking
+        return mEditors[mCurrentEditor]->Update(deltaSeconds);
+    }
 }
 
 // ======================================
 void Shade::EditorModule::Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue) 
 {
-
+    if (!mEditors.empty())
+    {
+        // TODO: Bounds checking
+        return mEditors[mCurrentEditor]->Render(commandQueue);
+    }
 }
 
 // ======================================
 bool Shade::EditorModule::HandleEvent(const InputEvent& event) 
 {
+    if (!mEditors.empty())
+    {
+        // TODO: Bounds checking
+        return mEditors[mCurrentEditor]->HandleEvent(event);
+    }
     return false;
 }
 

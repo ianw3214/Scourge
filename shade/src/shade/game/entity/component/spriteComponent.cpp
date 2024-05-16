@@ -51,35 +51,13 @@ float Shade::SpriteComponent::GetRenderHeight() const
 // ======================================
 float Shade::SpriteComponent::GetRenderX() const
 {
-    switch(mRenderAnchor) {
-        case RenderAnchor::BOTTOM_LEFT: {
-            return mEntityRef->GetPositionX();
-        } break;
-        case RenderAnchor::BOTTOM_MIDDLE:
-        case RenderAnchor::MIDDLE: {
-            return mEntityRef->GetPositionX() - mRenderWidth / 2.0f;
-        } break;
-        default: {
-            return mEntityRef->GetPositionX();
-        } break;
-    }
+    return RenderUtil::GetXForRenderAnchor(mEntityRef->GetPositionX(), mRenderWidth, mRenderAnchor);
 }
 
 // ======================================
 float Shade::SpriteComponent::GetRenderY() const
 {
-    switch(mRenderAnchor) {
-        case RenderAnchor::BOTTOM_LEFT: 
-        case RenderAnchor::BOTTOM_MIDDLE: {
-            return mEntityRef->GetPositionY();
-        } break;
-        case RenderAnchor::MIDDLE: {
-            return mEntityRef->GetPositionY() - mRenderHeight / 2.0f;
-        } break;
-        default: {
-            return mEntityRef->GetPositionX();
-        } break;
-    }
+    return RenderUtil::GetYForRenderAnchor(mEntityRef->GetPositionY(), mRenderHeight, mRenderAnchor);
 }
 
 
