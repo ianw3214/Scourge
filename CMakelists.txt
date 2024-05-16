@@ -8,6 +8,8 @@ option(BUILD_BREACH_EDITOR "Enable building breach editor, requires 'BUILD_SHADE
 
 option(DEBUG_BREACH "Enable debug mode for breach game" ON)
 
+add_subdirectory(vendor)
+
 if (BUILD_SHADE_ENGINE)
     add_subdirectory(shade)
 endif()

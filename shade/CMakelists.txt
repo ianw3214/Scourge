@@ -13,6 +13,11 @@ target_link_libraries(Shade SDL2::SDL2)
 target_link_libraries(Shade Opengl32.lib)
 target_link_libraries(Shade GLEW::GLEW)
 
+target_link_libraries(Shade Vendor)
+set(VENDOR_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../vendor)
+target_include_directories(Shade PRIVATE ${VENDOR_PATH}/)
+target_include_directories(Shade PRIVATE ${VENDOR_PATH}/imgui)  # Hack to make imgui include work for imgui files
+
 set_property(TARGET Shade PROPERTY CXX_STANDARD 20)
 target_compile_definitions(Shade PRIVATE BUILD_DLL)
 
@@ -23,7 +28,6 @@ endif()
 
 target_include_directories(Shade PRIVATE src vendor)
 add_subdirectory(src)
-add_subdirectory(vendor)
 
 if( BUILD_SHADE_EDITOR )
 add_compile_definitions(Breach EDITOR_SHADE)
