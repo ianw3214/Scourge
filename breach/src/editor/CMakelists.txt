@@ -1,1 +1,1 @@
-target_sources(Shade PRIVATE mapEditor.h mapEditor.cpp)
+add_subdirectory(mapEditor)

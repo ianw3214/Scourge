@@ -38,6 +38,7 @@ void Shade::EditorOverviewWindow::Draw()
     {
         int currListboxItem = static_cast<int>(mEditorRef.GetCurrentEditorIndex());
         ImGui::ListBox("Editors", &currListboxItem, VectorOfStringGetter, (void*)editors.data(), editors.size());
+        // TODO: If selected item changes, need to handle editor enter/exit
     }
     ImGui::End();
 }

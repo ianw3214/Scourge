@@ -41,6 +41,11 @@ bool Shade::EditorModule::HandleEvent(const InputEvent& event)
 // ======================================
 void Shade::EditorModule::RegisterEditor(std::unique_ptr<EditorBase> editor)
 {
+    if (mEditors.empty())
+    {
+        editor->OnEnter();
+    }
+
     // TODO: Checking that no duplicate editors are registered
     mEditors.emplace_back(std::move(editor));
 }

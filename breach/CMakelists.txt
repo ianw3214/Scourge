@@ -11,7 +11,7 @@ target_include_directories(Breach PRIVATE ${SHADE_PATH}/src)
 
 target_link_libraries(Breach Vendor)
 set(VENDOR_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../vendor)
-target_include_directories(Breach PRIVATE ${VENDOR_PATH}/src)
+target_include_directories(Breach PRIVATE ${VENDOR_PATH})
 
 if (WIN32)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Breach)

@@ -33,7 +33,7 @@
 
 #include "map/mapService.h"
 
-#include "editor/mapEditor.h"
+#include "editor/mapEditor/mapEditor.h"
 
 #include "debug/debugModule.h"
 #include "debug/basicDebugComponent.h"
