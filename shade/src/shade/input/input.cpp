@@ -86,7 +86,7 @@ void Shade::InputHandler::Update()
         {
             int x, y;
             SDL_GetMouseState( &x, &y );
-            mEvents.emplace(InputEvent::CreateMouseMotion(x, y, event.motion.xrel, event.motion.yrel));
+            mEvents.emplace(InputEvent::CreateMouseMotion(x, y, static_cast<float>(event.motion.xrel), static_cast<float>(event.motion.yrel)));
         }
     }
 }

@@ -24,4 +24,8 @@ public:
 private:
     // Bypass resource system for storage since we want the editor to own this map data
     std::unique_ptr<MapData> mMapData = nullptr;
+
+    // MapEditor state
+    bool mPanning = false;
+    float mPanStartX = 0.f;
 };

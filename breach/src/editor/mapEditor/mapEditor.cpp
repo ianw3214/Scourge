@@ -102,6 +102,11 @@ void MapEditor::OnEnter()
 {
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<MapEditorWindow>(*this));
+
+    // TODO: Initialize camera position to some different (better) value
+    Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
+    // TODO: y position update should come from a better place
+    camera->SetCameraPosition(500.f, 360.f);
 }
 
 // ======================================
@@ -113,9 +118,7 @@ void MapEditor::OnExit()
 // ======================================
 void MapEditor::Update(float deltaSeconds) 
 {
-    Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
-    // TODO: y position update should come from a better place
-    camera->SetCameraPosition(500.f, 360.f);
+    
 }
 
 // ======================================
@@ -148,6 +151,28 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
 // ======================================
 bool MapEditor::HandleEvent(const Shade::InputEvent& event) 
 {
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    if (event.mType == Shade::InputEventType::MOUSE && event.mMouseEvent == Shade::MouseEventType::PRESS)
+    {
+        mPanning = true;
+        return true;
+    }
+    if (event.mType == Shade::InputEventType::MOUSE && event.mMouseEvent == Shade::MouseEventType::RELEASE)
+    {
+        mPanning = false;
+        return true;
+    }
+    if (mPanning)
+    {
+        if (event.mType == Shade::InputEventType::MOUSE && event.mMouseEvent == Shade::MouseEventType::MOTION)
+        {
+            Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
+            const Shade::CameraInfo& camInfo = camera->GetCameraInfo();
+            camera->SetCameraPosition(camInfo.x - event.mRelativeMouseX, camInfo.y);
+            // Let mouse motion event fall through to other layers as well (maybe? idk)
+            return false;
+        }
+    }
     return false;
 }
 
