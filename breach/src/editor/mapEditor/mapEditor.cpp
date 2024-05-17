@@ -7,6 +7,7 @@
 #include "shade/file/fileSystem.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/drawTexture.h"
+#include "shade/graphics/command/drawRectangle.h"
 #include "shade/graphics/common.h"
 #include "shade/graphics/imgui/service.h"
 #include "shade/graphics/imgui/window.h"
@@ -126,13 +127,20 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
     // Render the background of the current map
     if (mMapData)
     {
+        // Render map visuals
         for (const BackgroundElement& background : mMapData->GetBackgrounds())
         {
             Shade::ResourceHandle textureHandle = resourceManager->LoadResource<Shade::Texture>(background.mTexturePath);
             Shade::Texture* texture = resourceManager->GetResource<Shade::Texture>(textureHandle);
             const float drawX = Shade::RenderUtil::GetXForRenderAnchor(ParallaxUtil::GetParallaxPos(0.f, background.mParallax, camera), texture->GetWidth(), Shade::RenderAnchor::BOTTOM_MIDDLE);
             const float drawY = Shade::RenderUtil::GetYForRenderAnchor(0.f, texture->GetHeight(), Shade::RenderAnchor::BOTTOM_MIDDLE);
-            commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX, drawY, texture->GetWidth(), texture->GetHeight(), textureHandle, static_cast<int>(RenderLayer::BACKGROUND)));
+            commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX, drawY, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()), textureHandle, static_cast<int>(RenderLayer::BACKGROUND)));
+        }
+        // Render map layout
+        const MapLayout& layout = mMapData->GetLayout();
+        for (const Shade::Box& playZone : layout.GetPlayZones())
+        {
+            commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(playZone, Shade::Colour{ 0.3f, 1.0f, 0.5f }, false));
         }
     }
 }

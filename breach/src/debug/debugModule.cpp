@@ -42,9 +42,7 @@ void CustomDebugModule::Render(std::vector<std::unique_ptr<Shade::RenderCommand>
     const MapLayout& layout = map->GetLayout();
     for (const Shade::Box& playZone : layout.GetPlayZones())
     {
-        const float x = playZone.mPosition.x + camera->GetCameraInfo().mOffsetX;
-        const float y = playZone.mPosition.y + camera->GetCameraInfo().mOffsetY;
-        commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(x, y, playZone.mWidth, playZone.mHeight, Shade::Colour{ 0.3f, 1.0f, 0.5f }, false));
+        commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(playZone, Shade::Colour{ 0.3f, 1.0f, 0.5f }, false));
     }
 
     // Other layouts
