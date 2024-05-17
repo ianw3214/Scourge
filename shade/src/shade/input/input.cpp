@@ -69,6 +69,25 @@ void Shade::InputHandler::Update()
         {
             mEvents.emplace(InputEvent::CreateButtonRelease(static_cast<ControllerButton>(event.jbutton.button)));
         }
+        // Mouse events
+        if (event.type == SDL_MOUSEBUTTONDOWN)
+        {
+            int x, y;
+            SDL_GetMouseState( &x, &y );
+            mEvents.emplace(InputEvent::CreateMousePress(x, y));
+        }
+        if (event.type == SDL_MOUSEBUTTONUP)
+        {
+            int x, y;
+            SDL_GetMouseState( &x, &y );
+            mEvents.emplace(InputEvent::CreateMouseRelease(x, y));
+        }
+        if (event.type == SDL_MOUSEMOTION)
+        {
+            int x, y;
+            SDL_GetMouseState( &x, &y );
+            mEvents.emplace(InputEvent::CreateMouseMotion(x, y, event.motion.xrel, event.motion.yrel));
+        }
     }
 }
 

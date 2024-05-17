@@ -16,6 +16,12 @@ namespace Shade {
         RELEASE
     };
 
+    enum class MouseEventType : uint8_t {
+        PRESS,
+        RELEASE,
+        MOTION
+    };
+
     enum class ButtonEventType : uint8_t {
         PRESS,
         RELEASE
@@ -30,7 +36,14 @@ namespace Shade {
         KeyCode mKeyCode;
 
         // MOUSE EVENT INFO
-        // TODO: Working on this...
+        // TODO: Mouse button info
+        // TODO: Mouse wheel event info
+        MouseEventType mMouseEvent;
+        float mMouseX;
+        float mMouseY;
+        // MOUSE MOTION EVENT INFO
+        float mRelativeMouseX;
+        float mRelativeMouseY;
 
         // CONTROLLER BUTTON EVENT INFO
         ButtonEventType mControllerButtonEvent;
@@ -43,6 +56,9 @@ namespace Shade {
         // Constructors for convenience
         static InputEvent CreateKeyPress(KeyCode key);
         static InputEvent CreateKeyRelease(KeyCode key);
+        static InputEvent CreateMousePress(float x, float y);
+        static InputEvent CreateMouseRelease(float x, float y);
+        static InputEvent CreateMouseMotion(float x, float y, float relX, float relY);
         static InputEvent CreateButtonPress(ControllerButton button);
         static InputEvent CreateButtonRelease(ControllerButton button);
         static InputEvent CreateAxisEvent(ControllerAxis axis, int32_t value);
