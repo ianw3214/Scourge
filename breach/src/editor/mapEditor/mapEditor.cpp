@@ -68,16 +68,7 @@ public:
                     }
                 }
                 if (ImGui::MenuItem("Open", "Ctrl+O")) {
-                    MapData* rawMapData = dynamic_cast<MapData*>(MapData::Load(MapEditorConstants::TempTargetFilePath));
-                    if (rawMapData == nullptr)
-                    {
-                        logger->LogError(std::string("Failed to open '") + MapEditorConstants::TempTargetFilePath + '\'');
-                    }
-                    else
-                    {
-                        logger->LogInfo(std::string("Opened '") + rawMapData->GetName() + '\'');   
-                        mMapEditorRef.SetMapData(std::unique_ptr<MapData>(rawMapData));
-                    }
+                    mMapEditorRef.OpenFile();
                 }
                 if (ImGui::MenuItem("Save", "Ctrl+S")) {
 
@@ -289,6 +280,25 @@ bool MapEditor::HandleEvent(const Shade::InputEvent& event)
             return false;
         }
     }
+    if (event.mType == Shade::InputEventType::KEY)
+    {
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_LCONTROL)
+        {
+            mControlPressed = event.mKeyEvent == Shade::KeyEventType::PRESS;
+        }
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_O)
+        {
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS && mOpenReleased)
+            {
+                mOpenReleased = false;
+                OpenFile();
+            }
+            if (event.mKeyEvent == Shade::KeyEventType::RELEASE)
+            {
+                mOpenReleased = true;
+            }
+        }
+    }
     return false;
 }
 
@@ -303,6 +313,22 @@ void MapEditor::SetMapData(std::unique_ptr<MapData> mapData)
 std::unique_ptr<MapData>& MapEditor::GetMapData()
 {
     return mMapData;
+}
+
+// ======================================
+void MapEditor::OpenFile()
+{
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    MapData* rawMapData = dynamic_cast<MapData*>(MapData::Load(MapEditorConstants::TempTargetFilePath));
+    if (rawMapData == nullptr)
+    {
+        logger->LogError(std::string("Failed to open '") + MapEditorConstants::TempTargetFilePath + '\'');
+    }
+    else
+    {
+        logger->LogInfo(std::string("Opened '") + rawMapData->GetName() + '\'');   
+        SetMapData(std::unique_ptr<MapData>(rawMapData));
+    }
 }
 
 // ======================================
