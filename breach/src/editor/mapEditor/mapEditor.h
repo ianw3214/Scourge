@@ -24,6 +24,7 @@ public:
     std::unique_ptr<MapData>& GetMapData();
 
     void SelectBackground(int index);
+    void SelectPlayZone(int index);
 
 private:
     // Bypass resource system for storage since we want the editor to own this map data
@@ -34,4 +35,5 @@ private:
     float mPanStartX = 0.f;
 
     int mSelectedBackground = -1;
+    int mSelectedPlayZone = -1;
 };

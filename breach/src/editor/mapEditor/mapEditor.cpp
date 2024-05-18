@@ -113,40 +113,64 @@ public:
                 if (mSelectedBackground >= 0 && mSelectedBackground < backgrounds.size())
                 {
                     BackgroundElement& background = backgrounds[mSelectedBackground];
-                    ImGui::SeparatorText("Selected background");
-                    ImGui::InputText("Name", &(background.mName));
-                    // TODO: This might be able to be implemented as a selectable list of existing paths
-                    //  - Will require some more design work to not overload the options w/ texture options
-                    //  - Is probably good enough to keep it working this way for a while with good error handling
-                    ImGui::InputText("Texture path", &(background.mTexturePath));
-                    ImGui::DragFloat("Parallax", &(background.mParallax), 0.1f, 0.f, 2.f);
-                    if (ImGui::Button("Delete background"))
+                    if (ImGui::TreeNode("Selected background"))
                     {
-                        backgrounds.erase(backgrounds.begin() + mSelectedBackground);
-                        // TODO: Combine these into a single variable to make less error-prone
-                        mSelectedBackground = -1;
-                        mMapEditorRef.SelectBackground(-1);
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Move up"))
-                    {
-                        if (mSelectedBackground + 1 < backgrounds.size())
+                        ImGui::InputText("Name", &(background.mName));
+                        // TODO: This might be able to be implemented as a selectable list of existing paths
+                        //  - Will require some more design work to not overload the options w/ texture options
+                        //  - Is probably good enough to keep it working this way for a while with good error handling
+                        ImGui::InputText("Texture path", &(background.mTexturePath));
+                        ImGui::DragFloat("Parallax", &(background.mParallax), 0.1f, 0.f, 2.f);
+                        if (ImGui::Button("Delete background"))
                         {
-                            std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground + 1]);
-                            mSelectedBackground++;
-                            mMapEditorRef.SelectBackground(mSelectedBackground);
+                            backgrounds.erase(backgrounds.begin() + mSelectedBackground);
+                            // TODO: Combine these into a single variable to make less error-prone
+                            mSelectedBackground = -1;
+                            mMapEditorRef.SelectBackground(-1);
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Move up"))
+                        {
+                            if (mSelectedBackground + 1 < backgrounds.size())
+                            {
+                                std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground + 1]);
+                                mSelectedBackground++;
+                                mMapEditorRef.SelectBackground(mSelectedBackground);
+                            }
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Move down"))
+                        {
+                            if (mSelectedBackground -1 >= 0)
+                            {
+                                std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground - 1]);
+                                mSelectedBackground--;
+                                mMapEditorRef.SelectBackground(mSelectedBackground);
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+                }
+
+                MapLayout& layout = mapData->GetLayoutMutable();
+                if (ImGui::TreeNode("Play zones"))
+                {
+                    std::vector<Shade::Box>& playZones = layout.GetPlayZonesMutable();
+                    if (ImGui::Button("Add Play Zone"))
+                    {
+                        playZones.emplace_back(Shade::Vec2{0.f, 0.f}, 10.f, 10.f);
+                    }
+                    char buf[32];
+                    for (int n = 0; n < playZones.size(); n++)
+                    {
+                        sprintf(buf, "Zone %d", n);
+                        if (ImGui::Selectable(buf, mSelectedPlayZone == n))
+                        {
+                            mSelectedPlayZone = n;
+                            mMapEditorRef.SelectPlayZone(n);
                         }
                     }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Move down"))
-                    {
-                        if (mSelectedBackground -1 >= 0)
-                        {
-                            std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground - 1]);
-                            mSelectedBackground--;
-                            mMapEditorRef.SelectBackground(mSelectedBackground);
-                        }
-                    }
+                    ImGui::TreePop();
                 }
             }
         }
@@ -158,6 +182,7 @@ private:
 
     // UI State
     int mSelectedBackground = -1;
+    int mSelectedPlayZone = -1;
 };
 
 
@@ -284,4 +309,10 @@ std::unique_ptr<MapData>& MapEditor::GetMapData()
 void MapEditor::SelectBackground(int index)
 {
     mSelectedBackground = index;
+}
+
+// ======================================
+void MapEditor::SelectPlayZone(int index)
+{
+    mSelectedPlayZone = index;
 }

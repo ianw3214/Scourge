@@ -34,5 +34,6 @@ private:
 #ifdef BUILD_BREACH_EDITOR
 public:
     std::vector<BackgroundElement>& GetBackgroundsMutable() { return mBackgrounds; }
+    MapLayout& GetLayoutMutable() { return mLayout; }
 #endif
 };
