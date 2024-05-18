@@ -31,4 +31,8 @@ private:
     std::string mName;
     std::vector<BackgroundElement> mBackgrounds;
     MapLayout mLayout;
+#ifdef BUILD_BREACH_EDITOR
+public:
+    std::vector<BackgroundElement>& GetBackgroundsMutable() { return mBackgrounds; }
+#endif
 };

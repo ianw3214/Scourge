@@ -10,13 +10,14 @@ void Shade::ImGuiWrapper::Initialize(SDL_Window* window, void* gl_context)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+    // ImGui::StyleColorsLight();
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
@@ -53,4 +54,16 @@ void Shade::ImGuiWrapper::EndFrame()
     // Rendering
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+// ======================================
+bool Shade::ImGuiWrapper::WantCaptureMouse()
+{
+    return ImGui::GetIO().WantCaptureMouse;
+}
+
+// ======================================
+bool Shade::ImGuiWrapper::WantCaptureKeyboard()
+{
+    return ImGui::GetIO().WantCaptureKeyboard;
 }

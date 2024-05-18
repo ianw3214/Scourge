@@ -3,6 +3,7 @@
 #include <string>
 
 #include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 
 #include "shade/file/fileSystem.h"
 #include "shade/graphics/camera/camera.h"
@@ -91,7 +92,7 @@ public:
             std::unique_ptr<MapData>& mapData = mMapEditorRef.GetMapData();
             if (mapData != nullptr)
             {
-                std::vector<BackgroundElement> backgrounds = mapData->GetBackgrounds();
+                std::vector<BackgroundElement>& backgrounds = mapData->GetBackgroundsMutable();
                 if (ImGui::TreeNode("Map backgrounds"))
                 {
                     for (int n = 0; n < backgrounds.size(); n++)
@@ -103,6 +104,18 @@ public:
                         }
                     }
                     ImGui::TreePop();
+                }
+
+                if (mSelectedBackground >= 0 && mSelectedBackground < backgrounds.size())
+                {
+                    BackgroundElement& background = backgrounds[mSelectedBackground];
+                    ImGui::SeparatorText("Selected background");
+                    ImGui::InputText("Name", &(background.mName));
+                    // TODO: This might be able to be implemented as a selectable list of existing paths
+                    //  - Will require some more design work to not overload the options w/ texture options
+                    //  - Is probably good enough to keep it working this way for a while with good error handling
+                    ImGui::InputText("Texture path", &(background.mTexturePath));
+                    ImGui::DragFloat("Parallax", &(background.mParallax), 0.1f, 0.f, 2.f);
                 }
             }
         }

@@ -37,6 +37,8 @@ void Shade::InputHandler::Update()
     while(SDL_PollEvent(&event))
     {
         ImGuiWrapper::HandleEvent(&event);
+        const bool ImGuiCaptureMouse = ImGuiWrapper::WantCaptureMouse();
+        const bool ImGuiCaptureKeyboard = ImGuiWrapper::WantCaptureKeyboard();
         if (event.type == SDL_QUIT)
         {
             NotifyGame(GameNotification::Quit);
@@ -70,19 +72,19 @@ void Shade::InputHandler::Update()
             mEvents.emplace(InputEvent::CreateButtonRelease(static_cast<ControllerButton>(event.jbutton.button)));
         }
         // Mouse events
-        if (event.type == SDL_MOUSEBUTTONDOWN)
+        if (event.type == SDL_MOUSEBUTTONDOWN && !ImGuiCaptureMouse)
         {
             int x, y;
             SDL_GetMouseState( &x, &y );
             mEvents.emplace(InputEvent::CreateMousePress(x, y));
         }
-        if (event.type == SDL_MOUSEBUTTONUP)
+        if (event.type == SDL_MOUSEBUTTONUP && !ImGuiCaptureMouse)
         {
             int x, y;
             SDL_GetMouseState( &x, &y );
             mEvents.emplace(InputEvent::CreateMouseRelease(x, y));
         }
-        if (event.type == SDL_MOUSEMOTION)
+        if (event.type == SDL_MOUSEMOTION && !ImGuiCaptureMouse)
         {
             int x, y;
             SDL_GetMouseState( &x, &y );
