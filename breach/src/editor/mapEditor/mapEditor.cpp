@@ -95,6 +95,10 @@ public:
                 std::vector<BackgroundElement>& backgrounds = mapData->GetBackgroundsMutable();
                 if (ImGui::TreeNode("Map backgrounds"))
                 {
+                    if (ImGui::Button("Add Background"))
+                    {
+                        backgrounds.emplace_back(BackgroundElement{ "new background", "assets/textures/default.png", 1.f});
+                    }
                     for (int n = 0; n < backgrounds.size(); n++)
                     {
                         if (ImGui::Selectable(backgrounds[n].mName.c_str(), mSelectedBackground == n))
@@ -116,6 +120,33 @@ public:
                     //  - Is probably good enough to keep it working this way for a while with good error handling
                     ImGui::InputText("Texture path", &(background.mTexturePath));
                     ImGui::DragFloat("Parallax", &(background.mParallax), 0.1f, 0.f, 2.f);
+                    if (ImGui::Button("Delete background"))
+                    {
+                        backgrounds.erase(backgrounds.begin() + mSelectedBackground);
+                        // TODO: Combine these into a single variable to make less error-prone
+                        mSelectedBackground = -1;
+                        mMapEditorRef.SelectBackground(-1);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Move up"))
+                    {
+                        if (mSelectedBackground + 1 < backgrounds.size())
+                        {
+                            std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground + 1]);
+                            mSelectedBackground++;
+                            mMapEditorRef.SelectBackground(mSelectedBackground);
+                        }
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Move down"))
+                    {
+                        if (mSelectedBackground -1 >= 0)
+                        {
+                            std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground - 1]);
+                            mSelectedBackground--;
+                            mMapEditorRef.SelectBackground(mSelectedBackground);
+                        }
+                    }
                 }
             }
         }
