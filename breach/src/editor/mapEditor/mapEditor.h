@@ -21,6 +21,10 @@ public:
     virtual bool HandleEvent(const Shade::InputEvent& event) override;
 
     void SetMapData(std::unique_ptr<MapData> mapData);
+    std::unique_ptr<MapData>& GetMapData();
+
+    void SelectBackground(int index);
+
 private:
     // Bypass resource system for storage since we want the editor to own this map data
     std::unique_ptr<MapData> mMapData = nullptr;
@@ -28,4 +32,6 @@ private:
     // MapEditor state
     bool mPanning = false;
     float mPanStartX = 0.f;
+
+    int mSelectedBackground = -1;
 };

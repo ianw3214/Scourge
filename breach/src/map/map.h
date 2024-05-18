@@ -11,6 +11,7 @@
 
 // ======================================
 struct BackgroundElement {
+    std::string mName;
     std::string mTexturePath;
     float mParallax = 0.f;
 };

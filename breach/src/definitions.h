@@ -4,5 +4,6 @@
 enum class RenderLayer : int {
     // Hacky solution
     BACKGROUND = -5,
-    DEFAULT = 0
+    DEFAULT = 0,
+    UI = 5
 };

@@ -59,10 +59,11 @@ Shade::Resource* MapData::Load(const std::string& path)
                 while(backgroundListHandle.IsValid())
                 {
                     BackgroundElement background;
+                    // TODO: Perhaps the name only needs to be set in the editor, can omit for gameplay?
+                    background.mName = backgroundListHandle.GetKey();
                     Shade::KeyValueHandle backgroundHandle = backgroundListHandle.GetListHead();
                     while (backgroundHandle.IsValid())
                     {
-                        
                         if (backgroundHandle.GetKey() == "path")
                         {
                             background.mTexturePath = backgroundHandle.GetString();
