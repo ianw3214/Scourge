@@ -27,10 +27,12 @@ public:
     const std::string& GetName() const { return mName; }
     const std::vector<BackgroundElement>& GetBackgrounds() const { return mBackgrounds; }
     const MapLayout& GetLayout() const { return mLayout; }
+
 private:
     std::string mName;
     std::vector<BackgroundElement> mBackgrounds;
     MapLayout mLayout;
+
 #ifdef BUILD_BREACH_EDITOR
 public:
     std::vector<BackgroundElement>& GetBackgroundsMutable() { return mBackgrounds; }

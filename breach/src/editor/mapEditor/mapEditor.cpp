@@ -90,20 +90,42 @@ public:
                     {
                         backgrounds.emplace_back(BackgroundElement{ "new background", "assets/textures/default.png", 1.f});
                     }
-                    for (int n = 0; n < backgrounds.size(); n++)
+                    // Show backgrounds in reverse order so furthest back backround shows up on the bottom of the screen
+                    for (int n = backgrounds.size() - 1; n >= 0; n--)
                     {
-                        if (ImGui::Selectable(backgrounds[n].mName.c_str(), mSelectedBackground == n))
+                        if (ImGui::Selectable(backgrounds[n].mName.c_str(), mMapEditorRef.IsSelected(SelectedType::BACKGROUND, n)))
                         {
-                            mSelectedBackground = n;
                             mMapEditorRef.SelectBackground(n);
                         }
                     }
                     ImGui::TreePop();
                 }
 
-                if (mSelectedBackground >= 0 && mSelectedBackground < backgrounds.size())
+                MapLayout& layout = mapData->GetLayoutMutable();
+                std::vector<Shade::Box>& playZones = layout.GetPlayZonesMutable();
+                if (ImGui::TreeNode("Play zones"))
                 {
-                    BackgroundElement& background = backgrounds[mSelectedBackground];
+                    if (ImGui::Button("Add Play Zone"))
+                    {
+                        playZones.emplace_back(Shade::Vec2{0.f, 0.f}, 10.f, 10.f);
+                    }
+                    // Render play zones in reverse order for consistency w/ backgrounds
+                    char buf[32];
+                    for (int n = playZones.size() - 1; n >= 0; n--)
+                    {
+                        sprintf(buf, "Zone %d", n);
+                        if (ImGui::Selectable(buf, mMapEditorRef.IsSelected(SelectedType::BACKGROUND, n)))
+                        {
+                            mMapEditorRef.SelectPlayZone(n);
+                        }
+                    }                                                                                                                                               
+                    ImGui::TreePop();
+                }
+
+                if (mMapEditorRef.HasSelected(SelectedType::BACKGROUND))
+                {
+                    BackgroundElement& background = backgrounds[mMapEditorRef.GetSelectedIndex()];
+                    ImGui::SetNextItemOpen(true);
                     if (ImGui::TreeNode("Selected background"))
                     {
                         ImGui::InputText("Name", &(background.mName));
@@ -114,54 +136,39 @@ public:
                         ImGui::DragFloat("Parallax", &(background.mParallax), 0.1f, 0.f, 2.f);
                         if (ImGui::Button("Delete background"))
                         {
-                            backgrounds.erase(backgrounds.begin() + mSelectedBackground);
-                            // TODO: Combine these into a single variable to make less error-prone
-                            mSelectedBackground = -1;
-                            mMapEditorRef.SelectBackground(-1);
+                            mMapEditorRef.DeleteSelected();
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Move up"))
                         {
-                            if (mSelectedBackground + 1 < backgrounds.size())
-                            {
-                                std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground + 1]);
-                                mSelectedBackground++;
-                                mMapEditorRef.SelectBackground(mSelectedBackground);
-                            }
+                            mMapEditorRef.MoveSelectedUp();
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Move down"))
                         {
-                            if (mSelectedBackground -1 >= 0)
-                            {
-                                std::swap(backgrounds[mSelectedBackground], backgrounds[mSelectedBackground - 1]);
-                                mSelectedBackground--;
-                                mMapEditorRef.SelectBackground(mSelectedBackground);
-                            }
+                            mMapEditorRef.MoveSelectedDown();
                         }
                         ImGui::TreePop();
                     }
                 }
 
-                MapLayout& layout = mapData->GetLayoutMutable();
-                if (ImGui::TreeNode("Play zones"))
+                if (mMapEditorRef.HasSelected(SelectedType::PLAY_ZONE))
                 {
-                    std::vector<Shade::Box>& playZones = layout.GetPlayZonesMutable();
-                    if (ImGui::Button("Add Play Zone"))
+                    Shade::Box& playZone = playZones[mMapEditorRef.GetSelectedIndex()];
+                    ImGui::SetNextItemOpen(true);
+                    if (ImGui::TreeNode("Selected play zone"))
                     {
-                        playZones.emplace_back(Shade::Vec2{0.f, 0.f}, 10.f, 10.f);
-                    }
-                    char buf[32];
-                    for (int n = 0; n < playZones.size(); n++)
-                    {
-                        sprintf(buf, "Zone %d", n);
-                        if (ImGui::Selectable(buf, mSelectedPlayZone == n))
+                        char buf[32];
+                        sprintf(buf, "Zone %d", mMapEditorRef.GetSelectedIndex());
+                        ImGui::Text("Name", buf);
+                        ImGui::InputFloat("Width", &playZone.mWidth, 1.f, 10.f);
+                        ImGui::InputFloat("Height", &playZone.mHeight, 1.f, 10.f);
+                        if (ImGui::Button("Delete play zone"))
                         {
-                            mSelectedPlayZone = n;
-                            mMapEditorRef.SelectPlayZone(n);
+                            mMapEditorRef.DeleteSelected();
                         }
+                        ImGui::TreePop();
                     }
-                    ImGui::TreePop();
                 }
             }
         }
@@ -170,12 +177,7 @@ public:
     }
 private:
     MapEditor& mMapEditorRef;
-
-    // UI State
-    int mSelectedBackground = -1;
-    int mSelectedPlayZone = -1;
 };
-
 
 // ======================================
 MapEditor::MapEditor()
@@ -234,10 +236,11 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
         }
 
         // Render widgets on top of map elements
+        // TODO: Play zones might be able to be rendered in the same way
         const std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgrounds();
-        if (mSelectedBackground >= 0 && mSelectedBackground < backgrounds.size())
+        if (mSelectedType == SelectedType::BACKGROUND && mSelectedIndex >= 0 && mSelectedIndex < backgrounds.size())
         {
-            const BackgroundElement& background = backgrounds[mSelectedBackground];
+            const BackgroundElement& background = backgrounds[mSelectedIndex];
             Shade::ResourceHandle upArrowTextureHandle = resourceManager->LoadResource<Shade::Texture>(MapEditorTextures::UpArrowTexture);
             Shade::Texture* upArrowTexture = resourceManager->GetResource<Shade::Texture>(upArrowTextureHandle);
             Shade::ResourceHandle rightArrowTextureHandle = resourceManager->LoadResource<Shade::Texture>(MapEditorTextures::RightArrowTexture);
@@ -334,11 +337,107 @@ void MapEditor::OpenFile()
 // ======================================
 void MapEditor::SelectBackground(int index)
 {
-    mSelectedBackground = index;
+    // TODO: Check the index before storing? can be an assert
+    mSelectedType = SelectedType::BACKGROUND;
+    mSelectedIndex = index;
 }
 
 // ======================================
 void MapEditor::SelectPlayZone(int index)
 {
-    mSelectedPlayZone = index;
+    // TODO: Check the index before storing? can be an assert
+    mSelectedType = SelectedType::PLAY_ZONE;
+    mSelectedIndex = index;
+}
+
+// ======================================
+bool MapEditor::HasSelected(SelectedType type) const
+{
+    if (mSelectedType == type)
+    {
+        if (mSelectedType == SelectedType::BACKGROUND)
+        {
+            std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgroundsMutable();
+            return mSelectedIndex >= 0 && mSelectedIndex < backgrounds.size();
+        }
+        if (mSelectedType == SelectedType::PLAY_ZONE)
+        {
+            const std::vector<Shade::Box>& playZones = mMapData->GetLayout().GetPlayZones();
+            return mSelectedIndex >= 0 && mSelectedIndex < playZones.size();
+        }
+    }
+    return false;
+}
+
+// ======================================
+void MapEditor::Unselect()
+{
+    mSelectedType = SelectedType::NONE; 
+    mSelectedIndex = -1;
+}
+
+// ======================================
+void MapEditor::DeleteSelected()
+{
+    if (mSelectedType == SelectedType::BACKGROUND)
+    {
+        std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgroundsMutable();
+        backgrounds.erase(backgrounds.begin() + mSelectedIndex);
+    }
+    if (mSelectedType == SelectedType::PLAY_ZONE)
+    {
+        std::vector<Shade::Box>& playZones = mMapData->GetLayoutMutable().GetPlayZonesMutable();
+        playZones.erase(playZones.begin() + mSelectedIndex);
+    }
+    Unselect();
+}
+
+// ======================================
+void MapEditor::MoveSelectedUp()
+{
+    if (mSelectedType == SelectedType::BACKGROUND)
+    {
+        std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgroundsMutable();
+        if (mSelectedIndex + 1 < backgrounds.size())
+        {
+            std::swap(backgrounds[mSelectedIndex], backgrounds[mSelectedIndex + 1]);
+            mSelectedIndex++;
+        }
+    }
+    if (mSelectedType == SelectedType::PLAY_ZONE)
+    {
+        // TODO: Assert here
+        //  - Order doesn't matter for play zones, this should not need to be implemented
+    }
+}
+
+// ======================================
+void MapEditor::MoveSelectedDown()
+{
+    if (mSelectedType == SelectedType::BACKGROUND)
+    {
+        if (mSelectedIndex -1 >= 0)
+        {
+            std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgroundsMutable();
+            std::swap(backgrounds[mSelectedIndex], backgrounds[mSelectedIndex - 1]);
+            mSelectedIndex--;
+        }
+    }
+    if (mSelectedType == SelectedType::PLAY_ZONE)
+    {
+        // TODO: Assert here
+        //  - Order doesn't matter for play zones, this should not need to be implemented
+    }
+}
+
+// ======================================
+bool MapEditor::IsSelected(SelectedType type, int index) const
+{
+    return mSelectedType == type && mSelectedIndex == index;
+}
+
+// ======================================
+int MapEditor::GetSelectedIndex() const
+{
+    return mSelectedIndex;
 }

@@ -190,7 +190,7 @@ public:
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
-        // AddEntity(std::move(TestKnight));
+        AddEntity(std::move(TestKnight));
 
         InitializeWorldFromMap("assets/breach/maps/test.kv");
     }
