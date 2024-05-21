@@ -155,7 +155,7 @@ public:
                     mMapEditorRef.OpenFile();
                 }
                 if (ImGui::MenuItem("Save", "Ctrl+S")) {
-
+                    mMapEditorRef.SaveFile();
                 }
                 if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")) {
 
@@ -399,6 +399,18 @@ bool MapEditor::HandleEvent(const Shade::InputEvent& event)
                 mOpenReleased = true;
             }
         }
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_S)
+        {
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS && mSaveReleased)
+            {
+                mSaveReleased = false;
+                SaveFile();
+            }
+            if (event.mKeyEvent == Shade::KeyEventType::RELEASE)
+            {
+                mSaveReleased = true;
+            }
+        }
     }
     return false;
 }
@@ -429,6 +441,22 @@ void MapEditor::OpenFile()
     {
         logger->LogInfo(std::string("Opened '") + rawMapData->GetName() + '\'');   
         SetMapData(std::unique_ptr<MapData>(rawMapData));
+    }
+}
+
+// ======================================
+void MapEditor::SaveFile()
+{
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    // TODO: Possible empty map data?
+    bool saveResult = mMapData->Save(MapEditorConstants::TempTargetFilePath);
+    if (saveResult)
+    {
+        logger->LogInfo(std::string("Saved map to file '") + mMapData->GetName() + '\'');   
+    }
+    else
+    {
+        logger->LogError(std::string("Failed to open '") + MapEditorConstants::TempTargetFilePath + '\'');
     }
 }
 

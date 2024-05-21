@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+#include "shade/file/keyValueFile.h"
 #include "shade/resource/handle.h"
 #include "shade/resource/resource.h"
 
@@ -37,5 +38,8 @@ private:
 public:
     std::vector<BackgroundElement>& GetBackgroundsMutable() { return mBackgrounds; }
     MapLayout& GetLayoutMutable() { return mLayout; }
+
+    bool Save(const std::string& path) const;
+    Shade::KeyValueFile CreateKeyValueFile() const;
 #endif
 };

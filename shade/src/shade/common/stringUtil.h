@@ -42,5 +42,16 @@ namespace Shade {
             trim(s);
             return s;
         }
+
+        // Repeat string n times
+        inline std::string repeat(const std::string& original, int n)
+        {
+            std::string result = "";
+            for (int i = 0; i < n; ++i)
+            {
+                result += original;
+            }
+            return result;
+        }
     }
 }

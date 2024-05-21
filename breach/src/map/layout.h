@@ -9,6 +9,7 @@
 class MapLayout {
 public:
     static MapLayout LoadFromKeyValueHandle(Shade::KeyValueHandle handle);
+    void SaveToKeyValueFile(Shade::KeyValueFile& file) const;
 public:
     MapLayout() = default;
     MapLayout(const std::vector<Shade::Box>&& playZones);

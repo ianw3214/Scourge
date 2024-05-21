@@ -15,6 +15,8 @@ namespace Shade {
 
         std::unique_ptr<TextFile> LoadTextFile(const std::string& path);
         std::unique_ptr<KeyValueFile> LoadKeyValueFile(const std::string& path);
+
+        bool SaveKeyValueFile(const std::string& path, const KeyValueFile& fileData);
     };
 
 }

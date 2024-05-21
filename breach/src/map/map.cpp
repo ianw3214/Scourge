@@ -101,3 +101,37 @@ MapData::MapData(const std::string& name, std::vector<BackgroundElement>&& backg
 {
 
 }
+
+// ======================================
+bool MapData::Save(const std::string& path) const
+{
+    Shade::FileSystem* fileSystem = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FileSystem>();
+    
+    Shade::KeyValueFile keyValueData = CreateKeyValueFile();
+    return fileSystem->SaveKeyValueFile(path, keyValueData);
+}
+
+// ======================================
+Shade::KeyValueFile MapData::CreateKeyValueFile() const
+{
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    Shade::KeyValueFile file = Shade::KeyValueFile::CreateFileForWrite();
+
+    file.AddStringEntry("name", mName);
+
+    file.PushList("layout");
+    mLayout.SaveToKeyValueFile(file);
+    file.PopList();
+
+    file.PushList("background");
+    for (const BackgroundElement& background : mBackgrounds)
+    {
+        file.PushList(background.mName);
+        file.AddStringEntry("path", background.mTexturePath);
+        file.AddFloatEntry("parallax", background.mParallax);
+        file.PopList();
+    }
+    file.PopList();
+
+    return file;
+}

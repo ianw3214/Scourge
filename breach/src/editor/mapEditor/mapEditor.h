@@ -58,6 +58,7 @@ public:
     void SetMapData(std::unique_ptr<MapData> mapData);
     std::unique_ptr<MapData>& GetMapData();
     void OpenFile();
+    void SaveFile();
 
     void SelectBackground(int index);
     void SelectPlayZone(int index);
@@ -86,4 +87,5 @@ private:
     // Input states
     bool mControlPressed = false;
     bool mOpenReleased = true; // TODO: This migth be good to just handle in the engine
+    bool mSaveReleased = true; // TODO: This migth be good to just handle in the engine
 };

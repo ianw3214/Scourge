@@ -226,8 +226,85 @@ std::unique_ptr<Shade::KeyValueFile> Shade::KeyValueFile::LoadFile(std::ifstream
 }
 
 // ======================================
+bool Shade::KeyValueFile::SaveFile(std::ofstream& fileStream) const
+{
+    for (const KeyValuePair& pair : mBuffer)
+    {
+        std::string line = StringUtil::repeat("  ", pair.mDepth) + pair.mKey;
+        if (pair.mValue.mType == ValueType::LIST)
+        {
+            line += " >";
+        }
+        else 
+        {
+            line += " : ";
+            if (pair.mValue.mType == ValueType::INT)
+            {
+                line += std::to_string(pair.mValue.mInt);
+            }
+            if (pair.mValue.mType == ValueType::FLOAT)
+            {
+                line += 'f' + std::to_string(pair.mValue.mFloat);
+            }
+            if (pair.mValue.mType == ValueType::STRING)
+            {
+                line += '"' + pair.mValue.mString + '"';
+            }
+        }
+        line += '\n';
+        fileStream << line;
+    }
+
+    return true;
+}
+
+// ======================================
 Shade::KeyValueHandle Shade::KeyValueFile::GetContents() const
 {
     // Return a handle to the first element in the buffer
     return KeyValueHandle(mBuffer);
+}
+
+// ======================================
+Shade::KeyValueFile Shade::KeyValueFile::CreateFileForWrite()
+{
+    return {};
+}
+
+// ======================================
+void Shade::KeyValueFile::EndWriteNewFile()
+{
+    assert(mCurrentDepth == 0 && "Depth should be 0 once key value file is done writing");
+}
+
+// ======================================
+void Shade::KeyValueFile::AddIntEntry(const std::string& key, int value)
+{
+    mBuffer.emplace_back(KeyValuePair{ key, ValueOption::IntOption(value), mCurrentDepth });
+}
+
+// ======================================
+void Shade::KeyValueFile::AddFloatEntry(const std::string& key, float value)
+{
+    mBuffer.emplace_back(KeyValuePair{ key, ValueOption::FloatOption(value), mCurrentDepth });
+}
+
+// ======================================
+void Shade::KeyValueFile::AddStringEntry(const std::string& key, const std::string& value)
+{
+    mBuffer.emplace_back(KeyValuePair{ key, ValueOption::StringOption(value), mCurrentDepth });
+}
+
+// ======================================
+void Shade::KeyValueFile::PushList(const std::string& key)
+{
+    mBuffer.emplace_back(KeyValuePair{ key, ValueOption::ListOption(), mCurrentDepth });
+    mCurrentDepth++;
+}
+
+// ======================================
+void Shade::KeyValueFile::PopList()
+{
+    assert(mCurrentDepth > 0 && "Tried to pop list when depth is already 0");
+    mCurrentDepth--;
 }
