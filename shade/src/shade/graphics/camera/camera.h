@@ -1,5 +1,6 @@
 #pragma once
 
+#include "shade/common/vec.h"
 #include "shade/instance/service/service.h"
 
 namespace Shade {
@@ -23,6 +24,13 @@ namespace Shade {
 
         const CameraInfo& GetCameraInfo() const;
         void SetCameraPosition(float x, float y);
+
+        Shade::Vec2 WorldToScreen(Shade::Vec2 pos) const;
+        float WorldToScreenX(float x) const;
+        float WorldToScreenY(float y) const;
+        Shade::Vec2 ScreenToWorld(Shade::Vec2 pos) const;
+        float ScreenToWorldX(float x) const;
+        float ScreenToWorldY(float y) const;
 
     private:
         CameraInfo mCameraInfo;

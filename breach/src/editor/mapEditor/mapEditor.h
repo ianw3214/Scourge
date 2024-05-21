@@ -16,6 +16,34 @@ enum class SelectedType {
     PLAY_ZONE
 };
 
+// TODO: Consider if this should be shared w/ other widgets, maybe belongs in engine code
+class PositionSliderWidget {
+public:
+    void Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue);
+    bool HandleEvent(const Shade::InputEvent& event);
+
+    void SetPosition(float x, float y);
+
+    void ShowWidget(std::function<void(float)> xUpdate, std::function<void(float)> yUpdate);
+    void HideWidget();
+
+private:
+    bool mShow = false;
+    float mX = 0.f;
+    float mY = 0.f;
+
+    enum class DragDirection {
+        HORIZONTAL,
+        VERTICAL
+    };
+    bool mDragging = false;
+    DragDirection mDragDirection;
+
+    // These update functions pass in the delta offsets as their parameters
+    std::function<void(float)> mUpdateHorizontalCallback;
+    std::function<void(float)> mUpdateVerticalCallback;
+};
+
 class MapEditor : public Shade::EditorBase {
 public:
     MapEditor();
@@ -52,7 +80,10 @@ private:
     SelectedType mSelectedType = SelectedType::NONE;
     int mSelectedIndex = -1;
 
-    // Key states
+    // Widgets
+    PositionSliderWidget mSliderWidget;
+
+    // Input states
     bool mControlPressed = false;
     bool mOpenReleased = true; // TODO: This migth be good to just handle in the engine
 };
