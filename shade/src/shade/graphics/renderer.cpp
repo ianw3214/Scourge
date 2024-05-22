@@ -76,18 +76,20 @@ namespace {
     const char* colourFragmentShaderSource = "#version 330 core\n"
         "out vec4 FragColor;\n"
         "uniform vec4 InputColor;\n"
+        "uniform vec3 uColourMultiplier;\n"
         "void main()\n"
         "{\n"
-        "    FragColor = InputColor;\n"
+        "    FragColor = InputColor * vec4(uColourMultiplier, 1.0);\n"
         "}\0";
 
     const char* textureFragmentShaderSource = "#version 330 core\n"
         "out vec4 FragColor;\n"
         "in vec2 TextureCoord;\n"
         "uniform sampler2D uTexture;\n"
+        "uniform vec3 uColourMultiplier;\n"
         "void main()\n"
         "{\n"
-        "    FragColor = texture(uTexture, TextureCoord);\n"
+        "    FragColor = texture(uTexture, TextureCoord) * vec4(uColourMultiplier, 1.0);\n"
         "}\0";
 }
 
@@ -313,6 +315,8 @@ void Shade::RendererBase::DrawLine(float point1x, float point1y, float point2x, 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(colourShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawArrays(GL_LINES, 0, 2);
 }
 
@@ -336,6 +340,8 @@ void Shade::RendererBase::DrawLineNormalized(float point1x, float point1y, float
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawArrays(GL_LINES, 0, 2);
 }
 
@@ -367,6 +373,8 @@ void Shade::RendererBase::DrawLines(std::vector<Vec2> points, Colour colour, flo
     glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
     GLint depthUniformLocation = glGetUniformLocation(colourShaderProgram2D, "Depth");
     glUniform1f(depthUniformLocation, depth);
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(colourShaderProgram2D, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawArrays(GL_LINE_STRIP, 0, points.size());
 
     glDeleteBuffers(1, &VBO_lines);
@@ -400,6 +408,8 @@ void Shade::RendererBase::DrawCircle(float x, float y, float radius, Colour colo
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * NUM_SEGMENTS, vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(colourShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawArrays(GL_LINE_LOOP, 0, NUM_SEGMENTS);
 }
 
@@ -425,6 +435,8 @@ void Shade::RendererBase::DrawCircleNormalized(float x, float y, float radius, C
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * NUM_SEGMENTS, vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawArrays(GL_LINE_LOOP, 0, NUM_SEGMENTS);
 }
 
@@ -444,6 +456,8 @@ void Shade::RendererBase::DrawRectangle(float x, float y, float w, float h, Colo
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(colourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(colourShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -469,6 +483,8 @@ void Shade::RendererBase::DrawRectangleNormalized(float x, float y, float w, flo
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     GLint positionUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "InputColor");
     glUniform4f(positionUniformLocation, colour.r, colour.g, colour.b, 1.f);
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(normalizedColourShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -496,6 +512,8 @@ void Shade::RendererBase::DrawTexture(float x, float y, float w, float h, Resour
     glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     DrawTexture->BindTextureForRender();
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(textureShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -524,10 +542,25 @@ void Shade::RendererBase::DrawTextureNormalized(float x, float y, float w, float
     glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     DrawTexture->BindTextureForRender();
+    GLint uColourMultiplierUniformLocation = glGetUniformLocation(normalizedTextureShaderProgram, "uColourMultiplier");
+    glUniform3f(uColourMultiplierUniformLocation, mColourMultiplier.r, mColourMultiplier.g, mColourMultiplier.b);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
+// ======================================
 void Shade::RendererBase::DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth) const
 {
     DrawTextureNormalized(pos.x, pos.y, w, h, textureResource, textureSource, depth);
+}
+
+// ======================================
+void Shade::RendererBase::SetColourMultiplier(Colour colour)
+{
+    mColourMultiplier = colour;
+}
+
+// ======================================
+void Shade::RendererBase::ResetColourMultiplier()
+{
+    mColourMultiplier = Colour{ 1.f, 1.f, 1.f };
 }

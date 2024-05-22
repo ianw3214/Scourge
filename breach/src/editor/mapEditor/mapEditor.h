@@ -28,11 +28,22 @@ public:
     void HideWidget();
 
 private:
+    void UpdateMouseOverWidgetPart(float mouseX, float mouseY);
+
+private:
     bool mShow = false;
     float mX = 0.f;
     float mY = 0.f;
 
-    enum class DragDirection {
+    enum class WidgetPart : char {
+        NONE,
+        HORIZONTAL,
+        VERTICAL,
+        KNOB
+    };
+    WidgetPart mMouseOverWidgetPart = WidgetPart::NONE;
+
+    enum class DragDirection : char {
         HORIZONTAL,
         VERTICAL
     };

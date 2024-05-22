@@ -9,6 +9,7 @@
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/drawTexture.h"
 #include "shade/graphics/command/drawRectangle.h"
+#include "shade/graphics/command/setColourMultiplier.h"
 #include "shade/graphics/common.h"
 #include "shade/graphics/imgui/service.h"
 #include "shade/graphics/imgui/window.h"
@@ -44,8 +45,24 @@ void PositionSliderWidget::Render(std::vector<std::unique_ptr<Shade::RenderComma
         Shade::Texture* rightArrowTexture = resourceManager->GetResource<Shade::Texture>(rightArrowTextureHandle);
         Shade::ResourceHandle textureHandle = resourceManager->LoadResource<Shade::Texture>(MapEditorTextures::KnobTexture);
         Shade::Texture* texture = resourceManager->GetResource<Shade::Texture>(textureHandle);
+        if (mMouseOverWidgetPart == WidgetPart::VERTICAL)
+        {
+            commandQueue.emplace_back(std::make_unique<Shade::SetColourMultiplierCommand>(Shade::Colour{ 2.f, 2.f, 2.f }));
+        }
         commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(mX, mY + 20.f, static_cast<float>(upArrowTexture->GetWidth()), static_cast<float>(upArrowTexture->GetHeight()), upArrowTextureHandle, static_cast<int>(RenderLayer::UI)));
+        if (mMouseOverWidgetPart == WidgetPart::VERTICAL)
+        {
+            commandQueue.emplace_back(std::make_unique<Shade::ResetColourMultiplierCommand>());
+        }
+        if (mMouseOverWidgetPart == WidgetPart::HORIZONTAL)
+        {
+            commandQueue.emplace_back(std::make_unique<Shade::SetColourMultiplierCommand>(Shade::Colour{ 2.f, 2.f, 2.f }));
+        }
         commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(mX + 20.f, mY, static_cast<float>(rightArrowTexture->GetWidth()), static_cast<float>(rightArrowTexture->GetHeight()), rightArrowTextureHandle, static_cast<int>(RenderLayer::UI)));
+        if (mMouseOverWidgetPart == WidgetPart::HORIZONTAL)
+        {
+            commandQueue.emplace_back(std::make_unique<Shade::ResetColourMultiplierCommand>());
+        }
         commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(mX, mY, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()), textureHandle, static_cast<int>(RenderLayer::UI)));
     }
 }
@@ -57,17 +74,14 @@ bool PositionSliderWidget::HandleEvent(const Shade::InputEvent& event)
     {
         if (event.mMouseEvent == Shade::MouseEventType::PRESS)
         {
-            Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
-            Shade::Box verticalBox{ Shade::Vec2{ mX, mY + 50.f }, 40.f, 50.f };
-            Shade::Box horizontalBox{ Shade::Vec2{ mX + 50.f, mY }, 50.f, 40.f };
-            Shade::Vec2 mousePos = camera->ScreenToWorld(Shade::Vec2{ event.mMouseX, event.mMouseY });
-            if (Shade::PointInBox(mousePos, verticalBox))
+            UpdateMouseOverWidgetPart(event.mMouseX, event.mMouseY);
+            if (mMouseOverWidgetPart == WidgetPart::VERTICAL)
             {
                 mDragging = true;
                 mDragDirection = DragDirection::VERTICAL;
                 return true;
             }
-            if (Shade::PointInBox(mousePos, horizontalBox))
+            if (mMouseOverWidgetPart == WidgetPart::HORIZONTAL)
             {
                 mDragging = true;
                 mDragDirection = DragDirection::HORIZONTAL;
@@ -76,20 +90,28 @@ bool PositionSliderWidget::HandleEvent(const Shade::InputEvent& event)
         }
         if (event.mMouseEvent == Shade::MouseEventType::RELEASE && mDragging)
         {
+            UpdateMouseOverWidgetPart(event.mMouseX, event.mMouseY);
             mDragging = false;
             return true;
         }
-        if (event.mMouseEvent == Shade::MouseEventType::MOTION && mDragging)
+        if (event.mMouseEvent == Shade::MouseEventType::MOTION)
         {
-            if (mDragDirection == DragDirection::HORIZONTAL)
+            if (mDragging)
             {
-                mUpdateHorizontalCallback(event.mRelativeMouseX);
+                if (mDragDirection == DragDirection::HORIZONTAL)
+                {
+                    mUpdateHorizontalCallback(event.mRelativeMouseX);
+                }
+                if (mDragDirection == DragDirection::VERTICAL)
+                {
+                    mUpdateVerticalCallback(event.mRelativeMouseY);
+                }
+                return true;
             }
-            if (mDragDirection == DragDirection::VERTICAL)
+            else
             {
-                mUpdateVerticalCallback(event.mRelativeMouseY);
+                UpdateMouseOverWidgetPart(event.mMouseX, event.mMouseY);
             }
-            return true;
         }
     }
     return false;
@@ -114,6 +136,28 @@ void PositionSliderWidget::ShowWidget(std::function<void(float)> xUpdate, std::f
 void PositionSliderWidget::HideWidget()
 {
     mShow = false;
+}
+
+// ======================================
+//  - The passed in mouseX and mouseY should be raw screen coordinates
+void PositionSliderWidget::UpdateMouseOverWidgetPart(float mouseX, float mouseY)
+{
+    Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
+    Shade::Box verticalBox{ Shade::Vec2{ mX, mY + 50.f }, 40.f, 50.f };
+    Shade::Box horizontalBox{ Shade::Vec2{ mX + 50.f, mY }, 50.f, 40.f };
+    Shade::Vec2 mousePos = camera->ScreenToWorld(Shade::Vec2{ mouseX, mouseY });
+    if (Shade::PointInBox(mousePos, verticalBox))
+    {
+        mMouseOverWidgetPart = WidgetPart::VERTICAL;
+    }
+    else if (Shade::PointInBox(mousePos, horizontalBox))
+    {
+        mMouseOverWidgetPart = WidgetPart::HORIZONTAL;
+    }
+    else
+    {
+        mMouseOverWidgetPart = WidgetPart::NONE;
+    }
 }
 
 // ======================================
@@ -246,6 +290,8 @@ public:
                         char buf[32];
                         sprintf(buf, "Zone %d", mMapEditorRef.GetSelectedIndex());
                         ImGui::Text("Name", buf);
+                        ImGui::InputFloat("x", &playZone.mPosition.x, 1.f, 10.f);
+                        ImGui::InputFloat("y", &playZone.mPosition.y, 1.f, 10.f);
                         ImGui::InputFloat("Width", &playZone.mWidth, 1.f, 10.f);
                         ImGui::InputFloat("Height", &playZone.mHeight, 1.f, 10.f);
                         if (ImGui::Button("Delete play zone"))
