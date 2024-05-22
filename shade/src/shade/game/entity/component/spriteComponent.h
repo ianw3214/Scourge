@@ -12,8 +12,8 @@ namespace Shade {
     class DrawTextureCommand;
     class SpriteComponent : public Component {
     public:
-        SpriteComponent(std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
-        SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
+        SpriteComponent(std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
+        SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
 
         float GetRenderWidth() const;
         float GetRenderHeight() const;
@@ -28,6 +28,7 @@ namespace Shade {
         //  Render anchor might not be needed if  custom offsets are implemented
         RenderAnchor mRenderAnchor = RenderAnchor::MIDDLE;
         int mRenderLayer = 0;
+        bool mConstantDepth = false;
         ResourceHandle mTextureHandle = ResourceHandle::Invalid;
     };
 

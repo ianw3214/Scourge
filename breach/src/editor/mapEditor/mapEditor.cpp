@@ -356,8 +356,8 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
             Shade::ResourceHandle textureHandle = resourceManager->LoadResource<Shade::Texture>(background.mTexturePath);
             Shade::Texture* texture = resourceManager->GetResource<Shade::Texture>(textureHandle);
             const float drawX = Shade::RenderUtil::GetXForRenderAnchor(ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera), texture->GetWidth(), Shade::RenderAnchor::BOTTOM_MIDDLE);
-            const float drawY = Shade::RenderUtil::GetYForRenderAnchor(0.f, texture->GetHeight(), Shade::RenderAnchor::BOTTOM_MIDDLE);
-            commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX, drawY, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()), textureHandle, static_cast<int>(RenderLayer::BACKGROUND)));
+            const float drawY = Shade::RenderUtil::GetYForRenderAnchor(background.mWorldY, texture->GetHeight(), Shade::RenderAnchor::BOTTOM_MIDDLE);
+            commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX, drawY, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()), textureHandle, static_cast<int>(RenderLayer::BACKGROUND), true));
         }
         // Render map layout
         const MapLayout& layout = mMapData->GetLayout();
@@ -376,7 +376,7 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
             const BackgroundElement& background = backgrounds[mSelectedIndex];
             // TODO: Maybe draw at the center of the texture instead of random hard-coded offsets
             const float drawX = ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera) - hDrawOffset;
-            const float drawY = 50.f - vDrawOffset;
+            const float drawY = background.mWorldY + 50.f - vDrawOffset;
             mSliderWidget.SetPosition(drawX, drawY);  
 
             // TODO: Render outline of selected background as well

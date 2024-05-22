@@ -110,6 +110,8 @@ MapData::MapData(const std::string& name, std::vector<BackgroundElement>&& backg
 
 }
 
+
+#ifdef BUILD_BREACH_EDITOR
 // ======================================
 bool MapData::Save(const std::string& path) const
 {
@@ -145,3 +147,4 @@ Shade::KeyValueFile MapData::CreateKeyValueFile() const
 
     return file;
 }
+#endif

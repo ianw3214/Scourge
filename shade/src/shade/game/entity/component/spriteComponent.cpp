@@ -7,9 +7,10 @@
 #include "shade/graphics/texture.h"
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
+Shade::SpriteComponent::SpriteComponent(std::string texturePath, int renderLayer, RenderAnchor renderAnchor, bool constantDepth)
     : mRenderAnchor(renderAnchor)
     , mRenderLayer(renderLayer)
+    , mConstantDepth(constantDepth)
     , mTextureHandle(ResourceHandle::Invalid)
 {
     ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
@@ -25,11 +26,12 @@ Shade::SpriteComponent::SpriteComponent(std::string texturePath, int renderLayer
 }
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
+Shade::SpriteComponent::SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor, bool constantDepth)
     : mRenderWidth(renderWidth)
     , mRenderHeight(renderHeight)
     , mRenderAnchor(renderAnchor)
     , mRenderLayer(renderLayer)
+    , mConstantDepth(constantDepth)
     , mTextureHandle(ResourceHandle::Invalid)
 {
     ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
@@ -66,5 +68,5 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::SpriteComponent::CreateRenderC
 {
     const float drawX = GetRenderX();
     const float drawY = GetRenderY();
-    return std::make_unique<DrawTextureCommand>(drawX, drawY, mRenderWidth, mRenderHeight, mTextureHandle, mRenderLayer);
+    return std::make_unique<DrawTextureCommand>(drawX, drawY, mRenderWidth, mRenderHeight, mTextureHandle, mRenderLayer, mConstantDepth);
 }
