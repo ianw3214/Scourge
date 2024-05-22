@@ -72,6 +72,14 @@ Shade::Resource* MapData::Load(const std::string& path)
                         {
                             background.mParallax = backgroundHandle.GetFloat();
                         }
+                        if (backgroundHandle.GetKey() == "x")
+                        {
+                            background.mWorldX = backgroundHandle.GetFloat();
+                        }
+                        if (backgroundHandle.GetKey() == "y")
+                        {
+                            background.mWorldY = backgroundHandle.GetFloat();
+                        }
                         backgroundHandle.ToNext();
                     }
                     backgrounds.emplace_back(background);
@@ -129,6 +137,8 @@ Shade::KeyValueFile MapData::CreateKeyValueFile() const
         file.PushList(background.mName);
         file.AddStringEntry("path", background.mTexturePath);
         file.AddFloatEntry("parallax", background.mParallax);
+        file.AddFloatEntry("x", background.mWorldX);
+        file.AddFloatEntry("y", background.mWorldY);
         file.PopList();
     }
     file.PopList();

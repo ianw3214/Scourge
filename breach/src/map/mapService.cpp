@@ -51,7 +51,7 @@ bool MapService::LoadMap(const std::string& path)
     {
         std::unique_ptr<Shade::Entity>& backgroundEntity = entityFactory->CreateAndRegisterNewEntity();
         backgroundEntity->AddComponent(std::make_unique<Shade::SpriteComponent>(background.mTexturePath, static_cast<int>(RenderLayer::BACKGROUND), Shade::RenderAnchor::BOTTOM_MIDDLE));
-        backgroundEntity->AddComponent(std::make_unique<HorizontalParallaxComponent>(background.mParallax));
+        backgroundEntity->AddComponent(std::make_unique<HorizontalParallaxComponent>(background.mParallax, background.mWorldX, background.mWorldY));
     }    
 
     return true;

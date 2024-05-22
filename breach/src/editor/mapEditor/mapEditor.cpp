@@ -355,7 +355,7 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
         {
             Shade::ResourceHandle textureHandle = resourceManager->LoadResource<Shade::Texture>(background.mTexturePath);
             Shade::Texture* texture = resourceManager->GetResource<Shade::Texture>(textureHandle);
-            const float drawX = Shade::RenderUtil::GetXForRenderAnchor(ParallaxUtil::GetParallaxPos(0.f, background.mParallax, camera), texture->GetWidth(), Shade::RenderAnchor::BOTTOM_MIDDLE);
+            const float drawX = Shade::RenderUtil::GetXForRenderAnchor(ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera), texture->GetWidth(), Shade::RenderAnchor::BOTTOM_MIDDLE);
             const float drawY = Shade::RenderUtil::GetYForRenderAnchor(0.f, texture->GetHeight(), Shade::RenderAnchor::BOTTOM_MIDDLE);
             commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX, drawY, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()), textureHandle, static_cast<int>(RenderLayer::BACKGROUND)));
         }
@@ -375,7 +375,7 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
             constexpr float vDrawOffset = 20.f;
             const BackgroundElement& background = backgrounds[mSelectedIndex];
             // TODO: Maybe draw at the center of the texture instead of random hard-coded offsets
-            const float drawX = ParallaxUtil::GetParallaxPos(0.f, background.mParallax, camera) - hDrawOffset;
+            const float drawX = ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera) - hDrawOffset;
             const float drawY = 50.f - vDrawOffset;
             mSliderWidget.SetPosition(drawX, drawY);  
 
@@ -513,7 +513,14 @@ void MapEditor::SelectBackground(int index)
     mSelectedType = SelectedType::BACKGROUND;
     mSelectedIndex = index;
 
-    mSliderWidget.ShowWidget(nullptr, nullptr);
+    // This assumes the selected background is always in a good state
+    //  - Might want more error checking, but is fine for now...
+    BackgroundElement& background = mMapData->GetBackgroundsMutable()[mSelectedIndex];
+    mSliderWidget.ShowWidget([&background](float xOffset){
+        background.mWorldX += xOffset;
+    }, [&background](float yOffset){
+        background.mWorldY += yOffset;
+    });
 }
 
 // ======================================
