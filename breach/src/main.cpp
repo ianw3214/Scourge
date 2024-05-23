@@ -224,6 +224,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     Shade::EditorConfiguration config;
     config.mEditors.emplace_back(std::make_unique<MapEditor>());
     MainGameInstance.SetState(std::make_unique<Shade::EditorState>(MainGameInstance, config));
+
+    Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
+    editorService->SetRunGameCallback([&MainGameInstance](){
+        Shade::StateChangeService* stateChanger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::StateChangeService>();
+        stateChanger->SetNextState(std::make_unique<GameState>(MainGameInstance));
+    });
 #else
     MainGameInstance.SetState(std::make_unique<GameState>(MainGameInstance));
 #endif

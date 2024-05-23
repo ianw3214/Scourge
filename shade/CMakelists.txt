@@ -30,5 +30,5 @@ target_include_directories(Shade PRIVATE src vendor)
 add_subdirectory(src)
 
 if( BUILD_SHADE_EDITOR )
-add_compile_definitions(Breach EDITOR_SHADE)
+add_compile_definitions(Breach BUILD_SHADE_EDITOR)
 endif()

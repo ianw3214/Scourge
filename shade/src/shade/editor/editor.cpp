@@ -8,6 +8,25 @@
 #include "shade/graphics/imgui/service.h"
 
 // ======================================
+Shade::EditorService::EditorService()
+    : Service("Editor Service")
+{
+
+}
+
+// ======================================
+void Shade::EditorService::SetRunGameCallback(std::function<void()> runGameCallback)
+{
+    mRunGameCallback = runGameCallback;
+}
+
+// ======================================
+void Shade::EditorService::RunGame()
+{
+    mRunGameCallback();
+}
+
+// ======================================
 Shade::EditorModule::EditorModule(EditorConfiguration& config)
 {
     ImGuiService* imguiService = ServiceProvider::GetCurrentProvider()->GetService<ImGuiService>();

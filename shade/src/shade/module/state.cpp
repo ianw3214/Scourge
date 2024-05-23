@@ -48,3 +48,32 @@ void Shade::State::AddModule(std::unique_ptr<Module> module)
 {
     mModules.emplace_back(std::move(module));
 }
+
+// ======================================
+Shade::StateChangeService::StateChangeService()
+    : Shade::Service("State change service")
+{
+
+}
+
+// ======================================
+Shade::StateChangeService::~StateChangeService()
+{
+
+}
+
+// ======================================
+void Shade::StateChangeService::SetNextState(std::unique_ptr<State> state)
+{
+    mNextState = std::move(state);
+}
+
+// ======================================
+std::unique_ptr<Shade::State> Shade::StateChangeService::GetNextState()
+{
+    if (mNextState != nullptr)
+    {
+        return std::move(mNextState);
+    }
+    return nullptr;
+}

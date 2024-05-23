@@ -4,6 +4,8 @@
 
 #include "shade/editor/editor.h"
 #include "shade/editor/editorBase.h"
+#include "shade/instance/service/provider.h"
+#include "shade/logging/logService.h"
 
 namespace {
     // TODO: This is pretty unsafe and hacky, perhaps look for a better solution here
@@ -27,8 +29,14 @@ Shade::EditorOverviewWindow::EditorOverviewWindow(EditorModule& editor)
 // ======================================
 void Shade::EditorOverviewWindow::Draw()
 {
-    ImGui::Begin("Editor");
+    // TODO: Super big hack - FIX ASAP
+    //  - Need to destroy this window when editor gets destroyed as well
+    static bool gameRun = false;
+    if (gameRun) return;
 
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    
+    ImGui::Begin("Editor");
     const std::vector<std::unique_ptr<EditorBase>>& editors = mEditorRef.GetEditors();
     if (editors.size() == 0)
     {
@@ -40,5 +48,14 @@ void Shade::EditorOverviewWindow::Draw()
         ImGui::ListBox("Editors", &currListboxItem, VectorOfStringGetter, (void*)editors.data(), editors.size());
         // TODO: If selected item changes, need to handle editor enter/exit
     }
+
+    if (ImGui::Button("Run Game"))
+    {
+        Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
+        editorService->RunGame();
+
+        gameRun = true;
+    }
+
     ImGui::End();
 }

@@ -1,8 +1,10 @@
 #pragma once
 
+#include <functional>
 #include <vector>
 #include <memory>
 
+#include "shade/instance/service/service.h"
 #include "shade/module/module.h"
 #include "shade/module/state.h"
 
@@ -13,8 +15,20 @@ namespace Shade {
 
     // ======================================
     //  TODO: Maybe the configuration can be set through an "editor service" instead
+    //  - By using a service, editor state/configuration can be set even when the instance goes into a game
     struct EditorConfiguration {
         std::vector<std::unique_ptr<EditorBase>> mEditors;
+    };
+
+    // ======================================
+    class EditorService : public Shade::Service {
+    public:
+        EditorService();
+
+        void SetRunGameCallback(std::function<void()> runGameCallback);
+        void RunGame();
+    private:
+        std::function<void()> mRunGameCallback;
     };
 
     // ======================================

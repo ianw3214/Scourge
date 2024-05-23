@@ -3,6 +3,7 @@
 #include <chrono>
 #include <vector>
 
+#include "shade/editor/editor.h"
 #include "shade/file/fileSystem.h"
 #include "shade/game/entity/factory.h"
 #include "shade/graphics/camera/camera.h"
@@ -27,6 +28,7 @@ Shade::GameInstance::GameInstance()
     RegisterService(new CameraService());
     RegisterService(new LogService());
     RegisterService(new ImGuiService());
+    RegisterService(new StateChangeService());
 
     // Temporarily register services
     //  - There's GOT TO be a better way to do this... QQ
@@ -43,6 +45,10 @@ Shade::GameInstance::GameInstance()
 
     // Register gameplay related services
     RegisterService(new EntityFactory());
+
+#ifdef BUILD_SHADE_EDITOR
+    RegisterService(new EditorService());
+#endif
 
     LogService* logService = GetService<LogService>();
     logService->LogInfo("Shade engine initialized!");
@@ -90,6 +96,15 @@ void Shade::GameInstance::Run()
 
         mMainWindow->Update();
         mdeltaSeconds = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - updateStart).count()) / 1000000.f;
+
+        // TODO: Proper reset of instance state (delta time etc)
+        //  - Also proper enter/exit of states to handle initialization/cleanup
+        Shade::StateChangeService* stateChanger = GetService<Shade::StateChangeService>();
+        std::unique_ptr<State> nextState = stateChanger->GetNextState();
+        if (nextState != nullptr)
+        {
+            mCurrentState = std::move(nextState);
+        }
     }
 }
 
