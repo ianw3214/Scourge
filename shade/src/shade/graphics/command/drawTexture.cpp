@@ -48,6 +48,18 @@ Shade::DrawTextureCommand::DrawTextureCommand(Vec2 position, float width, float 
 }
 
 // ======================================
+Shade::DrawTextureCommand::DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, int layer, bool constantDepth)
+    : mPosition(position)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
+    , mLayer(layer)
+    , mConstantDepth(constantDepth)
+{
+
+}
+
+// ======================================
 Shade::DrawTextureCommand::DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, bool normalized)
     : mPosition(position)
     , mWidth(width)
@@ -101,6 +113,18 @@ Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, 
 }
 
 // ======================================
+Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, int layer, bool constantDepth)
+    : mPosition(xPosition, yPosition)
+    , mWidth(width)
+    , mHeight(height)
+    , mResourceHandle(textureResource)
+    , mLayer(layer)
+    , mConstantDepth(constantDepth)
+{
+
+}
+
+// ======================================
 Shade::DrawTextureCommand::DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized)
     : mPosition(xPosition, yPosition)
     , mWidth(width)
@@ -147,7 +171,7 @@ void Shade::DrawTextureCommand::Execute(RendererBase* renderer, const CameraInfo
     //      - What if textures want to "opt out" of this sorting
     //      - What if a texture's y position is greater than 1000.f?
     //      - What if a texture wants to offset from it's base y position?
-    const float depth = -mLayer * LAYER_CHUNK + (y / 10000.f);
+    const float depth = -mLayer * LAYER_CHUNK + (mConstantDepth ? 0.f : (y / 10000.f));
     if (mNormalized)
     {
         renderer->DrawTextureNormalized(x, y, mWidth, mHeight, mResourceHandle, mTextureSource, depth);

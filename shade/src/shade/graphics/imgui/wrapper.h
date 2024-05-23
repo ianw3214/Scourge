@@ -13,6 +13,9 @@ namespace Shade {
 
         void StartFrame();
         void EndFrame();
+
+        bool WantCaptureMouse();
+        bool WantCaptureKeyboard();
     }
 
 }

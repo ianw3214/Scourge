@@ -41,15 +41,20 @@ namespace Shade {
         void DrawRectangle(Vec2 pos, float w, float h, Colour colour, float depth = -1.f) const;
         void DrawRectangleNormalized(float x, float y, float w, float h, Colour colour, float depth = -1.f) const;
         void DrawRectangleNormalized(Vec2 pos, float w, float h, Colour colour, float depth = -1.f) const;
-        // These string will eventually become texture resource handles in the engine
         void DrawTexture(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth = 1.f) const;
         void DrawTexture(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth = 1.f) const;
         void DrawTextureNormalized(float x, float y, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth = 1.f) const;
         void DrawTextureNormalized(Vec2 pos, float w, float h, ResourceHandle textureResource, textureSourceInfo textureSource, float depth = 1.f) const;
+
+        void SetColourMultiplier(Colour colour);
+        void ResetColourMultiplier();
     private:
         // Food for thought - does this need to be a unique_ptr?
         //  Can this be turned into a struct w/o inheritance
         std::vector<std::unique_ptr<RenderCommand>> mCommandQueue;
+
+        // TODO: Plenty of optimization opportunity here, maybe use UBOs?
+        Colour mColourMultiplier = Colour{ 1.f, 1.f, 1.f };
     };
 
 }

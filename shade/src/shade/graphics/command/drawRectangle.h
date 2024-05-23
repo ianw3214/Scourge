@@ -4,6 +4,7 @@
 
 #include "shade/common/vec.h"
 #include "shade/common/colour.h"
+#include "shade/common/collision.h"
 
 namespace Shade {
 
@@ -18,6 +19,10 @@ namespace Shade {
         DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour);
         DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool filled);
         DrawRectangleCommand(float xPosition, float yPosition, float width, float height, Colour colour, bool filled, bool normalized);
+        DrawRectangleCommand(const Shade::Box& box);
+        DrawRectangleCommand(const Shade::Box& box, Colour colour);
+        DrawRectangleCommand(const Shade::Box& box, Colour colour, bool filled);
+        DrawRectangleCommand(const Shade::Box& box, Colour colour, bool filled, bool normalized);
 
         virtual void Execute(RendererBase* Renderer, const CameraInfo& camera) override;
     private:

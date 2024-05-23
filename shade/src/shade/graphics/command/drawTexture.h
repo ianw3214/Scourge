@@ -17,11 +17,13 @@ namespace Shade {
         DrawTextureCommand(Vec2 position, float width, float height);
         DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource);
         DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, int layer);
+        DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, int layer, bool constantDepth);
         DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, bool normalized);
         DrawTextureCommand(Vec2 position, float width, float height, ResourceHandle textureResource, bool normalized, textureSourceInfo textureSource);
         DrawTextureCommand(float xPosition, float yPosition, float width, float height);
         DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource);
         DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, int layer);
+        DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, int layer, bool constantDepth);
         DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized);
         DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized, textureSourceInfo textureSource);
         DrawTextureCommand(float xPosition, float yPosition, float width, float height, ResourceHandle textureResource, bool normalized, textureSourceInfo textureSource, int layer);
@@ -33,6 +35,7 @@ namespace Shade {
             float mHeight = 1.f;
             int mLayer = 0;
             ResourceHandle mResourceHandle = ResourceHandle::Invalid;
+            bool mConstantDepth = false;    // If true, depth will not change based on y position
             bool mNormalized = false;
             textureSourceInfo mTextureSource = {};
     };

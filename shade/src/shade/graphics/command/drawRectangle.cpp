@@ -95,10 +95,54 @@ Shade::DrawRectangleCommand::DrawRectangleCommand(float xPosition, float yPositi
 
 
 // ======================================
+Shade::DrawRectangleCommand::DrawRectangleCommand(const Shade::Box& box)
+    : mPosition(box.mPosition)
+    , mWidth(box.mWidth)
+    , mHeight(box.mHeight)
+{
+
+}
+
+// ======================================
+Shade::DrawRectangleCommand::DrawRectangleCommand(const Shade::Box& box, Colour colour)
+    : mPosition(box.mPosition)
+    , mWidth(box.mWidth)
+    , mHeight(box.mHeight)
+    , mColour(colour)
+{
+
+}
+
+
+// ======================================
+Shade::DrawRectangleCommand::DrawRectangleCommand(const Shade::Box& box, Colour colour, bool filled)
+    : mPosition(box.mPosition)
+    , mWidth(box.mWidth)
+    , mHeight(box.mHeight)
+    , mColour(colour)
+    , mFilled(filled)
+{
+
+}
+
+// ======================================
+Shade::DrawRectangleCommand::DrawRectangleCommand(const Shade::Box& box, Colour colour, bool filled, bool normalized)
+    : mPosition(box.mPosition)
+    , mWidth(box.mWidth)
+    , mHeight(box.mHeight)
+    , mColour(colour)
+    , mFilled(filled)
+    , mNormalized(normalized)
+{
+
+}
+
+// ======================================
 void Shade::DrawRectangleCommand::Execute(RendererBase* renderer, const CameraInfo& camera) 
 {
     const float x = mPosition.x + camera.mOffsetX;
     const float y = mPosition.y + camera.mOffsetY;
+    Shade::Vec2 adjustPosition = Shade::Vec2{ x, y };
     if (mNormalized)
     {
         // TODO: Filled
@@ -111,14 +155,13 @@ void Shade::DrawRectangleCommand::Execute(RendererBase* renderer, const CameraIn
         }
         else
         {
-            // TODO: Implementing this
-            //  - maybe optimize
+            // TODO: Could this be optimized to not create a NEW vector every time it's called
             std::vector<Shade::Vec2> points = {
-                mPosition,
-                mPosition.Up(mHeight),
-                mPosition.Up(mHeight).Right(mWidth),
-                mPosition.Right(mWidth),
-                mPosition
+                adjustPosition,
+                adjustPosition.Up(mHeight),
+                adjustPosition.Up(mHeight).Right(mWidth),
+                adjustPosition.Right(mWidth),
+                adjustPosition
             };
             renderer->DrawLines(points, mColour);
         }

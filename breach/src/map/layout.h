@@ -9,13 +9,20 @@
 class MapLayout {
 public:
     static MapLayout LoadFromKeyValueHandle(Shade::KeyValueHandle handle);
+    void SaveToKeyValueFile(Shade::KeyValueFile& file) const;
 public:
     MapLayout() = default;
     MapLayout(const std::vector<Shade::Box>&& playZones);
 
     const std::vector<Shade::Box>& GetPlayZones() const;
+
 private:
     // Gameplay related layout
     std::vector<Shade::Box> mPlayZones;
     Shade::Vec2 mPlayerStart;
+
+#ifdef BUILD_BREACH_EDITOR
+public:
+    std::vector<Shade::Box>& GetPlayZonesMutable() { return mPlayZones; }
+#endif
 };

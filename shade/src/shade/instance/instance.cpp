@@ -30,6 +30,7 @@ Shade::GameInstance::GameInstance()
 
     // Temporarily register services
     //  - There's GOT TO be a better way to do this... QQ
+    // TODO: This has to take debug builds into account as well
     ImGuiService* imguiService = GetService<ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<LogWindow>());
 
@@ -51,13 +52,16 @@ Shade::GameInstance::GameInstance()
 Shade::GameInstance::~GameInstance() = default;
 
 // ======================================
-void Shade::GameInstance::SetState(std::unique_ptr<State> state)
+//  - Returns a reference to the newly set state
+//      - The returned reference can be used to modify the state further, but should not be stored long-term
+std::unique_ptr<Shade::State>& Shade::GameInstance::SetState(std::unique_ptr<State> state)
 {
     if (mCurrentState != nullptr)
     {
         // TODO: Might want to handle this somehow
     }
     mCurrentState = std::move(state);
+    return mCurrentState;
 }
 
 // ======================================

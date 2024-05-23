@@ -88,11 +88,30 @@ namespace Shade {
         KeyValueFile(std::vector<KeyValuePair>&& buffer);
 
         static std::unique_ptr<KeyValueFile> LoadFile(std::ifstream& fileStream);
+        bool SaveFile(std::ofstream& fileStream) const;
 
         // Returns the handle to the first key/value pair in the buffer
         KeyValueHandle GetContents() const;
+
+        // Writing to file/direct buffer modifications
+        // - This should be called before writing a new file to ensure state is cleared
+        static KeyValueFile CreateFileForWrite();
+        void EndWriteNewFile();
+        // - The helper functions should be used for file writing to ensure depth is properly accounted for 
+        void AddIntEntry(const std::string& key, int value);
+        void AddFloatEntry(const std::string& key, float value);
+        void AddStringEntry(const std::string& key, const std::string& value);
+        void PushList(const std::string& key);
+        void PopList();
+
+    protected:
+        KeyValueFile() {}
+
     private:
         std::vector<KeyValuePair> mBuffer;
+
+        // State for writing to file/direct buffer modifications
+        uint8_t mCurrentDepth = 0;
     };
 
 }

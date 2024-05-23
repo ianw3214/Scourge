@@ -9,6 +9,10 @@ target_link_libraries(Breach Shade)
 set(SHADE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../shade)
 target_include_directories(Breach PRIVATE ${SHADE_PATH}/src)
 
+target_link_libraries(Breach Vendor)
+set(VENDOR_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../vendor)
+target_include_directories(Breach PRIVATE ${VENDOR_PATH})
+
 if (WIN32)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Breach)
 set_property(TARGET Breach PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
@@ -20,14 +24,25 @@ target_include_directories(Breach PRIVATE src)
 if (WIN32)
 # Set subsystem to windows for windowed application
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
-# copy the .dll file to the same folder as the executable
+# copy the Shade .dll file to the same folder as the executable
 add_custom_command(
     TARGET Breach POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     $<TARGET_FILE_DIR:Shade>
     $<TARGET_FILE_DIR:Breach>)
+# Copy the Vendor .dll file to the same folder as the executable
+# TODO: Perhaps this should be a static library? Investigate more...
+add_custom_command(
+    TARGET Breach POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    $<TARGET_FILE_DIR:Vendor>
+    $<TARGET_FILE_DIR:Breach>)
 endif()
 
 if( DEBUG_BREACH ) 
 add_compile_definitions(Breach DEBUG_BREACH)
+endif()
+
+if( BUILD_BREACH_EDITOR )
+add_compile_definitions(Breach BUILD_BREACH_EDITOR)
 endif()

@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.22)
+project(Vendor)
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+add_library(Vendor SHARED)
+
+find_package(SDL2 REQUIRED)
+target_link_libraries(Vendor SDL2::SDL2)
+
+set_property(TARGET Vendor PROPERTY CXX_STANDARD 20)
+target_compile_definitions(Vendor PRIVATE BUILD_DLL)
+
+target_include_directories(Vendor PRIVATE stb)
+target_sources(Vendor PRIVATE stb/stb_image.h)
+
+target_include_directories(Vendor PRIVATE imgui)
+target_sources(Vendor PRIVATE imgui/imconfig.h)
+target_sources(Vendor PRIVATE imgui/imgui_demo.cpp)
+target_sources(Vendor PRIVATE imgui/imgui_draw.cpp)
+target_sources(Vendor PRIVATE imgui/imgui_internal.h)
+target_sources(Vendor PRIVATE imgui/imgui_tables.cpp)
+target_sources(Vendor PRIVATE imgui/imgui_widgets.cpp)
+target_sources(Vendor PRIVATE imgui/imgui.cpp)
+target_sources(Vendor PRIVATE imgui/imgui.h)
+target_sources(Vendor PRIVATE imgui/imstb_rectpack.h)
+target_sources(Vendor PRIVATE imgui/imstb_textedit.h)
+target_sources(Vendor PRIVATE imgui/imstb_truetype.h)
+target_sources(Vendor PRIVATE imgui/misc/cpp/imgui_stdlib.h)
+target_sources(Vendor PRIVATE imgui/misc/cpp/imgui_stdlib.cpp)
+# This needs to support multi-platform in the future
+target_sources(Vendor PRIVATE imgui/backends/imgui_impl_sdl2.h)
+target_sources(Vendor PRIVATE imgui/backends/imgui_impl_sdl2.cpp)
+target_sources(Vendor PRIVATE imgui/backends/imgui_impl_opengl3.h)
+target_sources(Vendor PRIVATE imgui/backends/imgui_impl_opengl3.cpp)

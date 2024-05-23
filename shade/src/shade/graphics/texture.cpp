@@ -3,7 +3,7 @@
 // The opengl specific stuff could probably be moved to a more platform specific thing as well?
 //  - needs more investigation + planning
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "stb/stb_image.h"
 
 // ======================================
 Shade::Resource* Shade::Texture::Load(const std::string& path)

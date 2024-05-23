@@ -37,6 +37,8 @@ void Shade::InputHandler::Update()
     while(SDL_PollEvent(&event))
     {
         ImGuiWrapper::HandleEvent(&event);
+        const bool ImGuiCaptureMouse = ImGuiWrapper::WantCaptureMouse();
+        const bool ImGuiCaptureKeyboard = ImGuiWrapper::WantCaptureKeyboard();
         if (event.type == SDL_QUIT)
         {
             NotifyGame(GameNotification::Quit);
@@ -70,23 +72,26 @@ void Shade::InputHandler::Update()
             mEvents.emplace(InputEvent::CreateButtonRelease(static_cast<ControllerButton>(event.jbutton.button)));
         }
         // Mouse events
-        if (event.type == SDL_MOUSEBUTTONDOWN)
+        //  - SDL uses the top left as the origin for moues coordinates, so it needs to be inverted
+        //  - Currently position inversion is hard coded to a default window height
+        //      - TODO: Once height is adjustable, need to change this to adapt to current window height
+        if (event.type == SDL_MOUSEBUTTONDOWN && !ImGuiCaptureMouse)
         {
             int x, y;
             SDL_GetMouseState( &x, &y );
-            mEvents.emplace(InputEvent::CreateMousePress(x, y));
+            mEvents.emplace(InputEvent::CreateMousePress(x, 720.f - y));
         }
-        if (event.type == SDL_MOUSEBUTTONUP)
+        if (event.type == SDL_MOUSEBUTTONUP && !ImGuiCaptureMouse)
         {
             int x, y;
             SDL_GetMouseState( &x, &y );
-            mEvents.emplace(InputEvent::CreateMouseRelease(x, y));
+            mEvents.emplace(InputEvent::CreateMouseRelease(x, 720.f - y));
         }
-        if (event.type == SDL_MOUSEMOTION)
+        if (event.type == SDL_MOUSEMOTION && !ImGuiCaptureMouse)
         {
             int x, y;
             SDL_GetMouseState( &x, &y );
-            mEvents.emplace(InputEvent::CreateMouseMotion(x, y, event.motion.xrel, event.motion.yrel));
+            mEvents.emplace(InputEvent::CreateMouseMotion(x, 720.f - y, static_cast<float>(event.motion.xrel), static_cast<float>(-event.motion.yrel)));
         }
     }
 }

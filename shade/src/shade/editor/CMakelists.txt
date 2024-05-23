@@ -1,0 +1,4 @@
+target_sources(Shade PRIVATE editorBase.h editorBase.cpp)
+target_sources(Shade PRIVATE editor.h editor.cpp)
+
+add_subdirectory(ui)

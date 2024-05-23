@@ -40,3 +40,19 @@ std::unique_ptr<Shade::KeyValueFile> Shade::FileSystem::LoadKeyValueFile(const s
 
     return nullptr;
 }
+
+// ======================================
+bool Shade::FileSystem::SaveKeyValueFile(const std::string& path, const KeyValueFile& fileData)
+{
+    std::ofstream fileStream(path);
+    if (fileStream.is_open())
+    {
+        return fileData.SaveFile(fileStream);
+    }
+    else
+    {
+        // TODO: Error...
+    }
+
+    return false;
+}

@@ -12,3 +12,7 @@ add_subdirectory(file)
 add_subdirectory(logging)
 
 add_subdirectory(game)
+
+if (BUILD_SHADE_EDITOR)
+    add_subdirectory(editor)
+endif()

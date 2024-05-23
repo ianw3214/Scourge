@@ -59,10 +59,11 @@ Shade::Resource* MapData::Load(const std::string& path)
                 while(backgroundListHandle.IsValid())
                 {
                     BackgroundElement background;
+                    // TODO: Perhaps the name only needs to be set in the editor, can omit for gameplay?
+                    background.mName = backgroundListHandle.GetKey();
                     Shade::KeyValueHandle backgroundHandle = backgroundListHandle.GetListHead();
                     while (backgroundHandle.IsValid())
                     {
-                        
                         if (backgroundHandle.GetKey() == "path")
                         {
                             background.mTexturePath = backgroundHandle.GetString();
@@ -70,6 +71,14 @@ Shade::Resource* MapData::Load(const std::string& path)
                         if (backgroundHandle.GetKey() == "parallax")
                         {
                             background.mParallax = backgroundHandle.GetFloat();
+                        }
+                        if (backgroundHandle.GetKey() == "x")
+                        {
+                            background.mWorldX = backgroundHandle.GetFloat();
+                        }
+                        if (backgroundHandle.GetKey() == "y")
+                        {
+                            background.mWorldY = backgroundHandle.GetFloat();
                         }
                         backgroundHandle.ToNext();
                     }
@@ -100,3 +109,42 @@ MapData::MapData(const std::string& name, std::vector<BackgroundElement>&& backg
 {
 
 }
+
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+bool MapData::Save(const std::string& path) const
+{
+    Shade::FileSystem* fileSystem = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FileSystem>();
+    
+    Shade::KeyValueFile keyValueData = CreateKeyValueFile();
+    return fileSystem->SaveKeyValueFile(path, keyValueData);
+}
+
+// ======================================
+Shade::KeyValueFile MapData::CreateKeyValueFile() const
+{
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    Shade::KeyValueFile file = Shade::KeyValueFile::CreateFileForWrite();
+
+    file.AddStringEntry("name", mName);
+
+    file.PushList("layout");
+    mLayout.SaveToKeyValueFile(file);
+    file.PopList();
+
+    file.PushList("background");
+    for (const BackgroundElement& background : mBackgrounds)
+    {
+        file.PushList(background.mName);
+        file.AddStringEntry("path", background.mTexturePath);
+        file.AddFloatEntry("parallax", background.mParallax);
+        file.AddFloatEntry("x", background.mWorldX);
+        file.AddFloatEntry("y", background.mWorldY);
+        file.PopList();
+    }
+    file.PopList();
+
+    return file;
+}
+#endif
