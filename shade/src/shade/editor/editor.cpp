@@ -1,5 +1,7 @@
 #include "editor.h"
 
+#include <cassert>
+
 #include "shade/editor/editorBase.h"
 #include "shade/editor/ui/overview.h"
 #include "shade/instance/service/provider.h"
@@ -25,7 +27,7 @@ void Shade::EditorModule::Update(float deltaSeconds)
 {
     if (!mEditors.empty())
     {
-        // TODO: Bounds checking
+        assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
         return mEditors[mCurrentEditor]->Update(deltaSeconds);
     }
 }
@@ -35,7 +37,7 @@ void Shade::EditorModule::Render(std::vector<std::unique_ptr<RenderCommand>>& co
 {
     if (!mEditors.empty())
     {
-        // TODO: Bounds checking
+        assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
         return mEditors[mCurrentEditor]->Render(commandQueue);
     }
 }
@@ -45,7 +47,7 @@ bool Shade::EditorModule::HandleEvent(const InputEvent& event)
 {
     if (!mEditors.empty())
     {
-        // TODO: Bounds checking
+        assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
         return mEditors[mCurrentEditor]->HandleEvent(event);
     }
     return false;
@@ -72,13 +74,13 @@ const std::vector<std::unique_ptr<Shade::EditorBase>>& Shade::EditorModule::GetE
 // ======================================
 const std::unique_ptr<Shade::EditorBase>& Shade::EditorModule::GetCurrentEditor() const
 {
-    // TODO: Bounds checking
+    assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
     return mEditors[mCurrentEditor];
 }
 
 // ======================================
 size_t Shade::EditorModule::GetCurrentEditorIndex() const
 {
-    // TODO: Asserts on index bounds
+    assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
     return mCurrentEditor;
 }

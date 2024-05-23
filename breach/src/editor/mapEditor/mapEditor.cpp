@@ -1,6 +1,7 @@
 #include "mapEditor.h"
 
 #include <string>
+#include <cassert>
 
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
@@ -38,6 +39,8 @@ void PositionSliderWidget::Render(std::vector<std::unique_ptr<Shade::RenderComma
 {
     if (mShow)
     {
+        const float drawX = mX - 20.f;
+        const float drawY = mY - 20.f;
         Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
         Shade::ResourceHandle upArrowTextureHandle = resourceManager->LoadResource<Shade::Texture>(MapEditorTextures::UpArrowTexture);
         Shade::Texture* upArrowTexture = resourceManager->GetResource<Shade::Texture>(upArrowTextureHandle);
@@ -49,7 +52,7 @@ void PositionSliderWidget::Render(std::vector<std::unique_ptr<Shade::RenderComma
         {
             commandQueue.emplace_back(std::make_unique<Shade::SetColourMultiplierCommand>(Shade::Colour{ 2.f, 2.f, 2.f }));
         }
-        commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(mX, mY + 20.f, static_cast<float>(upArrowTexture->GetWidth()), static_cast<float>(upArrowTexture->GetHeight()), upArrowTextureHandle, static_cast<int>(RenderLayer::UI)));
+        commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX, drawY + 20.f, static_cast<float>(upArrowTexture->GetWidth()), static_cast<float>(upArrowTexture->GetHeight()), upArrowTextureHandle, static_cast<int>(RenderLayer::UI)));
         if (mMouseOverWidgetPart == WidgetPart::VERTICAL)
         {
             commandQueue.emplace_back(std::make_unique<Shade::ResetColourMultiplierCommand>());
@@ -58,12 +61,12 @@ void PositionSliderWidget::Render(std::vector<std::unique_ptr<Shade::RenderComma
         {
             commandQueue.emplace_back(std::make_unique<Shade::SetColourMultiplierCommand>(Shade::Colour{ 2.f, 2.f, 2.f }));
         }
-        commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(mX + 20.f, mY, static_cast<float>(rightArrowTexture->GetWidth()), static_cast<float>(rightArrowTexture->GetHeight()), rightArrowTextureHandle, static_cast<int>(RenderLayer::UI)));
+        commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX + 20.f, drawY, static_cast<float>(rightArrowTexture->GetWidth()), static_cast<float>(rightArrowTexture->GetHeight()), rightArrowTextureHandle, static_cast<int>(RenderLayer::UI)));
         if (mMouseOverWidgetPart == WidgetPart::HORIZONTAL)
         {
             commandQueue.emplace_back(std::make_unique<Shade::ResetColourMultiplierCommand>());
         }
-        commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(mX, mY, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()), textureHandle, static_cast<int>(RenderLayer::UI)));
+        commandQueue.emplace_back(std::make_unique<Shade::DrawTextureCommand>(drawX, drawY, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()), textureHandle, static_cast<int>(RenderLayer::UI)));
     }
 }
 
@@ -142,9 +145,12 @@ void PositionSliderWidget::HideWidget()
 //  - The passed in mouseX and mouseY should be raw screen coordinates
 void PositionSliderWidget::UpdateMouseOverWidgetPart(float mouseX, float mouseY)
 {
+    const float drawX = mX - 20.f;
+    const float drawY = mY - 20.f;
+
     Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
-    Shade::Box verticalBox{ Shade::Vec2{ mX, mY + 50.f }, 40.f, 50.f };
-    Shade::Box horizontalBox{ Shade::Vec2{ mX + 50.f, mY }, 50.f, 40.f };
+    Shade::Box verticalBox{ Shade::Vec2{ drawX, drawY + 50.f }, 40.f, 50.f };
+    Shade::Box horizontalBox{ Shade::Vec2{ drawX + 50.f, drawY }, 50.f, 40.f };
     Shade::Vec2 mousePos = camera->ScreenToWorld(Shade::Vec2{ mouseX, mouseY });
     if (Shade::PointInBox(mousePos, verticalBox))
     {
@@ -371,12 +377,9 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
         const std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgrounds();
         if (mSelectedType == SelectedType::BACKGROUND && mSelectedIndex >= 0 && mSelectedIndex < backgrounds.size())
         {
-            constexpr float hDrawOffset = 20.f;
-            constexpr float vDrawOffset = 20.f;
             const BackgroundElement& background = backgrounds[mSelectedIndex];
-            // TODO: Maybe draw at the center of the texture instead of random hard-coded offsets
-            const float drawX = ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera) - hDrawOffset;
-            const float drawY = background.mWorldY + 50.f - vDrawOffset;
+            const float drawX = ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera);
+            const float drawY = background.mWorldY + 50.f;
             mSliderWidget.SetPosition(drawX, drawY);  
 
             // TODO: Render outline of selected background as well
@@ -385,11 +388,9 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
         const std::vector<Shade::Box>& playZones = mMapData->GetLayout().GetPlayZones();
         if (mSelectedType == SelectedType::PLAY_ZONE && mSelectedIndex >= 0 && mSelectedIndex < playZones.size())
         {
-            constexpr float hDrawOffset = 20.f;
-            constexpr float vDrawOffset = 20.f;
             const Shade::Box& playZone = playZones[mSelectedIndex];
-            const float drawX = playZone.mPosition.x - hDrawOffset;
-            const float drawY = playZone.mPosition.y - vDrawOffset;
+            const float drawX = playZone.mPosition.x;
+            const float drawY = playZone.mPosition.y;
             mSliderWidget.SetPosition(drawX, drawY);  
         }
 
@@ -494,7 +495,11 @@ void MapEditor::OpenFile()
 void MapEditor::SaveFile()
 {
     Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-    // TODO: Possible empty map data?
+    if (mMapData == nullptr)
+    {
+        logger->LogError("Tried saving map when no map is open...");
+        return;
+    }
     bool saveResult = mMapData->Save(MapEditorConstants::TempTargetFilePath);
     if (saveResult)
     {
@@ -509,7 +514,8 @@ void MapEditor::SaveFile()
 // ======================================
 void MapEditor::SelectBackground(int index)
 {
-    // TODO: Check the index before storing? can be an assert
+    assert(index >= 0 && index < mMapData->GetBackgrounds().size() && "Background index out of bounds");
+
     mSelectedType = SelectedType::BACKGROUND;
     mSelectedIndex = index;
 
@@ -526,7 +532,8 @@ void MapEditor::SelectBackground(int index)
 // ======================================
 void MapEditor::SelectPlayZone(int index)
 {
-    // TODO: Check the index before storing? can be an assert
+    assert(index >= 0 && index < mMapData->GetLayout().GetPlayZones().size() && "Play zone index out of bounds");
+
     mSelectedType = SelectedType::PLAY_ZONE;
     mSelectedIndex = index;
 
@@ -598,8 +605,7 @@ void MapEditor::MoveSelectedUp()
     }
     if (mSelectedType == SelectedType::PLAY_ZONE)
     {
-        // TODO: Assert here
-        //  - Order doesn't matter for play zones, this should not need to be implemented
+        assert(false && "Ordering is irrelevant for play zones, do not implement...");
     }
 }
 
@@ -617,8 +623,7 @@ void MapEditor::MoveSelectedDown()
     }
     if (mSelectedType == SelectedType::PLAY_ZONE)
     {
-        // TODO: Assert here
-        //  - Order doesn't matter for play zones, this should not need to be implemented
+        assert(false && "Ordering is irrelevant for play zones, do not implement...");
     }
 }
 
