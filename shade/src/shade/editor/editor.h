@@ -25,9 +25,18 @@ namespace Shade {
     public:
         EditorService();
 
+        void RegisterEditor(std::unique_ptr<EditorBase> editor);
+        const std::vector<std::unique_ptr<EditorBase>>& GetEditors() const;
+        const std::unique_ptr<EditorBase>& GetCurrentEditor() const;
+        std::unique_ptr<EditorBase>& GetCurrentEditorMutable();
+        size_t GetCurrentEditorIndex() const;
+
         void SetRunGameCallback(std::function<void()> runGameCallback);
         void RunGame();
     private:
+        std::vector<std::unique_ptr<EditorBase>> mEditors;
+        size_t mCurrentEditor = 0;
+        
         std::function<void()> mRunGameCallback;
     };
 
@@ -40,15 +49,6 @@ namespace Shade {
         virtual void Update(float deltaSeconds) override;
         virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue) override;
         virtual bool HandleEvent(const InputEvent& event) override;
-
-        void RegisterEditor(std::unique_ptr<EditorBase> editor);
-
-        const std::vector<std::unique_ptr<EditorBase>>& GetEditors() const;
-        const std::unique_ptr<EditorBase>& GetCurrentEditor() const;
-        size_t GetCurrentEditorIndex() const;
-    private:
-        std::vector<std::unique_ptr<EditorBase>> mEditors;
-        size_t mCurrentEditor = 0;
     };
 
     // ======================================

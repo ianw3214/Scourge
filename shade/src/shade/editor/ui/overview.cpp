@@ -29,32 +29,25 @@ Shade::EditorOverviewWindow::EditorOverviewWindow(EditorModule& editor)
 // ======================================
 void Shade::EditorOverviewWindow::Draw()
 {
-    // TODO: Super big hack - FIX ASAP
-    //  - Need to destroy this window when editor gets destroyed as well
-    static bool gameRun = false;
-    if (gameRun) return;
-
+    Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
     Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
     
     ImGui::Begin("Editor");
-    const std::vector<std::unique_ptr<EditorBase>>& editors = mEditorRef.GetEditors();
+    const std::vector<std::unique_ptr<EditorBase>>& editors = editorService->GetEditors();
     if (editors.size() == 0)
     {
         ImGui::Text("No editors found...");
     }
     else
     {
-        int currListboxItem = static_cast<int>(mEditorRef.GetCurrentEditorIndex());
+        int currListboxItem = static_cast<int>(editorService->GetCurrentEditorIndex());
         ImGui::ListBox("Editors", &currListboxItem, VectorOfStringGetter, (void*)editors.data(), editors.size());
         // TODO: If selected item changes, need to handle editor enter/exit
     }
 
     if (ImGui::Button("Run Game"))
     {
-        Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
         editorService->RunGame();
-
-        gameRun = true;
     }
 
     ImGui::End();

@@ -15,6 +15,45 @@ Shade::EditorService::EditorService()
 }
 
 // ======================================
+void Shade::EditorService::RegisterEditor(std::unique_ptr<EditorBase> editor)
+{
+    if (mEditors.empty())
+    {
+        editor->OnEnter();
+    }
+
+    // TODO: Checking that no duplicate editors are registered
+    mEditors.emplace_back(std::move(editor));
+}
+
+// ======================================
+const std::vector<std::unique_ptr<Shade::EditorBase>>& Shade::EditorService::GetEditors() const
+{
+    return mEditors;
+}
+
+// ======================================
+const std::unique_ptr<Shade::EditorBase>& Shade::EditorService::GetCurrentEditor() const
+{
+    assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
+    return mEditors[mCurrentEditor];
+}
+
+// ======================================
+std::unique_ptr<Shade::EditorBase>& Shade::EditorService::GetCurrentEditorMutable()
+{
+    assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
+    return mEditors[mCurrentEditor];
+}
+
+// ======================================
+size_t Shade::EditorService::GetCurrentEditorIndex() const
+{
+    assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
+    return mCurrentEditor;
+}
+
+// ======================================
 void Shade::EditorService::SetRunGameCallback(std::function<void()> runGameCallback)
 {
     mRunGameCallback = runGameCallback;
@@ -29,12 +68,13 @@ void Shade::EditorService::RunGame()
 // ======================================
 Shade::EditorModule::EditorModule(EditorConfiguration& config)
 {
+    Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
     ImGuiService* imguiService = ServiceProvider::GetCurrentProvider()->GetService<ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<EditorOverviewWindow>(*this));
 
     for (std::unique_ptr<EditorBase>& editor : config.mEditors)
     {
-        RegisterEditor(std::move(editor));
+        editorService->RegisterEditor(std::move(editor));
     }
 }
 
@@ -44,62 +84,21 @@ Shade::EditorModule::~EditorModule() = default;
 // ======================================
 void Shade::EditorModule::Update(float deltaSeconds) 
 {
-    if (!mEditors.empty())
-    {
-        assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
-        return mEditors[mCurrentEditor]->Update(deltaSeconds);
-    }
+    Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
+    return editorService->GetCurrentEditorMutable()->Update(deltaSeconds);
 }
 
 // ======================================
 void Shade::EditorModule::Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue) 
 {
-    if (!mEditors.empty())
-    {
-        assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
-        return mEditors[mCurrentEditor]->Render(commandQueue);
-    }
+    Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
+    return editorService->GetCurrentEditorMutable()->Render(commandQueue);
 }
 
 // ======================================
 bool Shade::EditorModule::HandleEvent(const InputEvent& event) 
 {
-    if (!mEditors.empty())
-    {
-        assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
-        return mEditors[mCurrentEditor]->HandleEvent(event);
-    }
+    Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
+    return editorService->GetCurrentEditorMutable()->HandleEvent(event);
     return false;
-}
-
-// ======================================
-void Shade::EditorModule::RegisterEditor(std::unique_ptr<EditorBase> editor)
-{
-    if (mEditors.empty())
-    {
-        editor->OnEnter();
-    }
-
-    // TODO: Checking that no duplicate editors are registered
-    mEditors.emplace_back(std::move(editor));
-}
-
-// ======================================
-const std::vector<std::unique_ptr<Shade::EditorBase>>& Shade::EditorModule::GetEditors() const
-{
-    return mEditors;
-}
-
-// ======================================
-const std::unique_ptr<Shade::EditorBase>& Shade::EditorModule::GetCurrentEditor() const
-{
-    assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
-    return mEditors[mCurrentEditor];
-}
-
-// ======================================
-size_t Shade::EditorModule::GetCurrentEditorIndex() const
-{
-    assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
-    return mCurrentEditor;
 }
