@@ -97,6 +97,4 @@ private:
 
     // Input states
     bool mControlPressed = false;
-    bool mOpenReleased = true; // TODO: This migth be good to just handle in the engine
-    bool mSaveReleased = true; // TODO: This migth be good to just handle in the engine
 };

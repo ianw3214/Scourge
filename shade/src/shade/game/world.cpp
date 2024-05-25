@@ -60,6 +60,7 @@ bool Shade::GameWorldModule::HandleEvent(const InputEvent& event)
                 StopBooleanEvent(gameEvent);
             }
         }
+        return true;
     }
     if (event.mType == InputEventType::CONTROLLER_BUTTON)
     {
@@ -75,6 +76,7 @@ bool Shade::GameWorldModule::HandleEvent(const InputEvent& event)
                 StopBooleanEvent(gameEvent);
             }
         }
+        return true;
     }
     if (event.mType == InputEventType::CONTROLLER_AXIS)
     {
@@ -83,6 +85,7 @@ bool Shade::GameWorldModule::HandleEvent(const InputEvent& event)
             const std::string gameEvent = mInputMapping.GetControllerAxisEvent(event.mControllerAxis);
             UpdateIntEvent(gameEvent, event.mControllerValue);
         }
+        return true;
     }
-    return true;
+    return false;
 }

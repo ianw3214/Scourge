@@ -14,13 +14,6 @@ namespace Shade {
     class ServiceProvider;
 
     // ======================================
-    //  TODO: Maybe the configuration can be set through an "editor service" instead
-    //  - By using a service, editor state/configuration can be set even when the instance goes into a game
-    struct EditorConfiguration {
-        std::vector<std::unique_ptr<EditorBase>> mEditors;
-    };
-
-    // ======================================
     class EditorService : public Shade::Service {
     public:
         EditorService();
@@ -32,18 +25,21 @@ namespace Shade {
         size_t GetCurrentEditorIndex() const;
 
         void SetRunGameCallback(std::function<void()> runGameCallback);
+        void SetStopGameCallback(std::function<void()> stopGameCallback);
         void RunGame();
+        void StopGame();
     private:
         std::vector<std::unique_ptr<EditorBase>> mEditors;
         size_t mCurrentEditor = 0;
         
         std::function<void()> mRunGameCallback;
+        std::function<void()> mStopGameCallback;
     };
 
     // ======================================
     class EditorModule : public Shade::Module {
     public:
-        EditorModule(EditorConfiguration& config);
+        EditorModule();
         ~EditorModule();
 
         virtual void Update(float deltaSeconds) override;
@@ -52,10 +48,21 @@ namespace Shade {
     };
 
     // ======================================
+    //  - This module should be put into games being run via the editor
+    //  - Retains any state necessary for the editor and allows the game to return to the editor
+    class EditorContextModule : public Shade::Module {
+    public:
+        EditorContextModule();
+        ~EditorContextModule();
+
+        virtual bool HandleEvent(const InputEvent& event) override;
+    };
+
+    // ======================================
     class EditorState : public Shade::State {
     public:
-        EditorState(Shade::ServiceProvider& serviceProviderRef, EditorConfiguration& config) : Shade::State() {
-            AddModule(std::make_unique<EditorModule>(config));
+        EditorState(Shade::ServiceProvider& serviceProviderRef) : Shade::State() {
+            AddModule(std::make_unique<EditorModule>());
         }
     };
 

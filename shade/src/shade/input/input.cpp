@@ -33,6 +33,9 @@ Shade::InputHandler::~InputHandler()
 // ======================================
 void Shade::InputHandler::Update()
 {
+    // TODO: Hacky fix - might want a better long term solution
+    static std::vector<KeyCode> sPressedKeys;
+
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
@@ -51,12 +54,21 @@ void Shade::InputHandler::Update()
         if (event.type == SDL_KEYDOWN)
         {
             const KeyCode pressedKey = static_cast<KeyCode>(event.key.keysym.scancode);
-            mEvents.emplace(InputEvent::CreateKeyPress(pressedKey));
+            if (std::find(sPressedKeys.begin(), sPressedKeys.end(), pressedKey) == sPressedKeys.end())
+            {
+                mEvents.emplace(InputEvent::CreateKeyPress(pressedKey));
+                sPressedKeys.emplace_back(pressedKey);
+            }
         }
         if (event.type == SDL_KEYUP)
         {
             const KeyCode releasedKey = static_cast<KeyCode>(event.key.keysym.scancode);
-            mEvents.emplace(InputEvent::CreateKeyRelease(releasedKey));
+            auto keyIterator = std::find(sPressedKeys.begin(), sPressedKeys.end(), releasedKey);
+            if (keyIterator != sPressedKeys.end())
+            {
+                mEvents.emplace(InputEvent::CreateKeyRelease(releasedKey));
+                sPressedKeys.erase(keyIterator);
+            }
         }
         // Controller events
         for (int i = 0; i < static_cast<size_t>(ControllerAxis::SHADE_AXIS_MAX); ++i)

@@ -221,14 +221,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     Shade::GameInstance MainGameInstance;
 #ifdef BUILD_BREACH_EDITOR
-    Shade::EditorConfiguration config;
-    config.mEditors.emplace_back(std::make_unique<MapEditor>());
-    MainGameInstance.SetState(std::make_unique<Shade::EditorState>(MainGameInstance, config));
-
     Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
+    editorService->RegisterEditor(std::make_unique<MapEditor>());
+    MainGameInstance.SetState(std::make_unique<Shade::EditorState>(MainGameInstance));
+
     editorService->SetRunGameCallback([&MainGameInstance](){
         Shade::StateChangeService* stateChanger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::StateChangeService>();
-        stateChanger->SetNextState(std::make_unique<GameState>(MainGameInstance));
+        std::unique_ptr<GameState> gameState = std::make_unique<GameState>(MainGameInstance);
+        gameState->AddModule(std::make_unique<Shade::EditorContextModule>());
+        stateChanger->SetNextState(std::move(gameState));
+    });
+    editorService->SetStopGameCallback([&MainGameInstance](){
+        Shade::StateChangeService* stateChanger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::StateChangeService>();
+        stateChanger->SetNextState(std::make_unique<Shade::EditorState>(MainGameInstance));
     });
 #else
     MainGameInstance.SetState(std::make_unique<GameState>(MainGameInstance));

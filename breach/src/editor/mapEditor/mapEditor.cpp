@@ -436,26 +436,16 @@ bool MapEditor::HandleEvent(const Shade::InputEvent& event)
         }
         if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_O)
         {
-            if (event.mKeyEvent == Shade::KeyEventType::PRESS && mOpenReleased)
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS)
             {
-                mOpenReleased = false;
                 OpenFile();
-            }
-            if (event.mKeyEvent == Shade::KeyEventType::RELEASE)
-            {
-                mOpenReleased = true;
             }
         }
         if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_S)
         {
-            if (event.mKeyEvent == Shade::KeyEventType::PRESS && mSaveReleased)
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS)
             {
-                mSaveReleased = false;
                 SaveFile();
-            }
-            if (event.mKeyEvent == Shade::KeyEventType::RELEASE)
-            {
-                mSaveReleased = true;
             }
         }
     }
