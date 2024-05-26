@@ -20,8 +20,7 @@ namespace {
 }
 
 // ======================================
-Shade::EditorOverviewWindow::EditorOverviewWindow(EditorModule& editor)
-    : mEditorRef(editor)
+Shade::EditorOverviewWindow::EditorOverviewWindow()
 {
 
 }

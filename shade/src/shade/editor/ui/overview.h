@@ -8,11 +8,9 @@ namespace Shade {
 
     class EditorOverviewWindow : public ImGuiWindow {
     public:
-        EditorOverviewWindow(EditorModule& editor);
+        EditorOverviewWindow();
 
         void Draw() override;
-    private:
-        EditorModule& mEditorRef;
     };
 
 }

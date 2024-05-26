@@ -10,10 +10,12 @@
 #include "shade/logging/logService.h"
 
 // ======================================
+// - This needs to be created after the ImGui service so that the window can be properly initialized
 Shade::EditorService::EditorService()
     : Service("Editor Service")
 {
-
+    ImGuiService* imguiService = ServiceProvider::GetCurrentProvider()->GetService<ImGuiService>();
+    imguiService->RegisterWindow(std::make_unique<EditorOverviewWindow>());
 }
 
 // ======================================
@@ -85,8 +87,7 @@ void Shade::EditorService::StopGame()
 // ======================================
 Shade::EditorModule::EditorModule()
 {
-    ImGuiService* imguiService = ServiceProvider::GetCurrentProvider()->GetService<ImGuiService>();
-    imguiService->RegisterWindow(std::make_unique<EditorOverviewWindow>(*this));
+    
 }
 
 // ======================================
