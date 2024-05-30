@@ -31,7 +31,7 @@ namespace Shade {
         AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
 
         virtual void Update(float deltaSeconds) override;
-        virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand() override;
+        virtual void AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue) override;
 
         // 'restartSameAnimation' will determine whether the animation should play from the starting frame if the new animation is the same as the existing one
         void ChangeAnimationState(const std::string& newState, bool restartSameAnimation = true);

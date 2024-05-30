@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "shade/game/entity/component/component.h"
 #include "shade/graphics/common.h"
@@ -9,7 +10,7 @@
 
 namespace Shade {
 
-    class DrawTextureCommand;
+    class RenderCommand;
     class SpriteComponent : public Component {
     public:
         SpriteComponent(std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
@@ -21,7 +22,7 @@ namespace Shade {
         float GetRenderX() const;
         float GetRenderY() const;
 
-        virtual std::unique_ptr<DrawTextureCommand> CreateRenderCommand();
+        virtual void AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue);
     protected:
         float mRenderWidth = 0.f;
         float mRenderHeight = 0.f;

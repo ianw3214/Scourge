@@ -38,7 +38,8 @@ void Shade::GameWorldModule::Render(std::vector<std::unique_ptr<RenderCommand>>&
     {
         if (SpriteComponent* sprite = entity->GetCachedSpriteComponent())
         {
-            commandQueue.emplace_back(sprite->CreateRenderCommand());
+            // commandQueue.emplace_back(sprite->CreateRenderCommand());
+            sprite->AddRenderCommands(commandQueue);
         }
     }
 }

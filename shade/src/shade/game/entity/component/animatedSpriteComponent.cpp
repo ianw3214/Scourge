@@ -56,7 +56,7 @@ void Shade::AnimatedSpriteComponent::Update(float deltaSeconds)
 }
 
 // ======================================
-std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::CreateRenderCommand()
+void Shade::AnimatedSpriteComponent::AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
     textureSourceInfo SourceInfo;
     const float FrameWidth = 1.0 / mTileSheetInfo.mColumns;
@@ -68,7 +68,7 @@ std::unique_ptr<Shade::DrawTextureCommand> Shade::AnimatedSpriteComponent::Creat
     
     const float DrawX = GetRenderX();
     const float DrawY = GetRenderY();
-    return std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle, false, SourceInfo, mRenderLayer);
+    commandQueue.emplace_back(std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle, false, SourceInfo, mRenderLayer));
 }
 
 // ======================================

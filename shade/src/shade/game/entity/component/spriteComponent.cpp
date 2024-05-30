@@ -64,9 +64,9 @@ float Shade::SpriteComponent::GetRenderY() const
 
 
 // ======================================
-std::unique_ptr<Shade::DrawTextureCommand> Shade::SpriteComponent::CreateRenderCommand()
+void Shade::SpriteComponent::AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
     const float drawX = GetRenderX();
     const float drawY = GetRenderY();
-    return std::make_unique<DrawTextureCommand>(drawX, drawY, mRenderWidth, mRenderHeight, mTextureHandle, mRenderLayer, mConstantDepth);
+    commandQueue.emplace_back(std::make_unique<DrawTextureCommand>(drawX, drawY, mRenderWidth, mRenderHeight, mTextureHandle, mRenderLayer, mConstantDepth));
 }
