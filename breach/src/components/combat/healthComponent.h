@@ -7,6 +7,8 @@ class HealthComponent : public Shade::Component
 public:
     HealthComponent(float maxHealth);
 
+    void Update(float deltaSeconds) override;
+
     float GetCurrentHealth() const { return mCurrHealth; }
     float GetMaxHealth() const { return mMaxHealth; }
 
@@ -16,5 +18,8 @@ public:
     bool mIsInvulnerable = false;
 private:
     float mCurrHealth = 0.f;
+    float mDamageFlashTimer = 0.f;
+
+    // Health component properties
     float mMaxHealth = 0.f;
 };

@@ -7,6 +7,7 @@
 #include "shade/game/entity/component/component.h"
 #include "shade/graphics/common.h"
 #include "shade/resource/handle.h"
+#include "shade/common/colour.h"
 
 namespace Shade {
 
@@ -22,6 +23,9 @@ namespace Shade {
         float GetRenderX() const;
         float GetRenderY() const;
 
+        void SetColourMultiplier(Colour colour);
+        void ResetColourMultiplier();
+
         virtual void AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue);
     protected:
         float mRenderWidth = 0.f;
@@ -31,6 +35,7 @@ namespace Shade {
         int mRenderLayer = 0;
         bool mConstantDepth = false;
         ResourceHandle mTextureHandle = ResourceHandle::Invalid;
+        Colour mColourMultiplier = { 1.f, 1.f, 1.f };
     };
 
 }

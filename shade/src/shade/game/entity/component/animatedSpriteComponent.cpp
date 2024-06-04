@@ -2,6 +2,7 @@
 
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/command/drawTexture.h"
+#include "shade/graphics/command/setColourMultiplier.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
 
@@ -58,6 +59,13 @@ void Shade::AnimatedSpriteComponent::Update(float deltaSeconds)
 // ======================================
 void Shade::AnimatedSpriteComponent::AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
+    bool useMultiplier = false;
+    if (mColourMultiplier.r != 1.f || mColourMultiplier.g != 1.f || mColourMultiplier.b != 1.f)
+    {
+        useMultiplier = true;
+        commandQueue.emplace_back(std::make_unique<SetColourMultiplierCommand>(mColourMultiplier));
+    }
+
     textureSourceInfo SourceInfo;
     const float FrameWidth = 1.0 / mTileSheetInfo.mColumns;
     const float FrameHeight = 1.0 / mTileSheetInfo.mRows;
@@ -69,6 +77,11 @@ void Shade::AnimatedSpriteComponent::AddRenderCommands(std::vector<std::unique_p
     const float DrawX = GetRenderX();
     const float DrawY = GetRenderY();
     commandQueue.emplace_back(std::make_unique<DrawTextureCommand>(DrawX, DrawY, mRenderWidth, mRenderHeight, mTextureHandle, false, SourceInfo, mRenderLayer));
+
+    if (useMultiplier)
+    {
+        commandQueue.emplace_back(std::make_unique<ResetColourMultiplierCommand>());
+    }
 }
 
 // ======================================
