@@ -29,6 +29,8 @@ void Shade::GameWorldModule::Update(float deltaSeconds)
     {
         entity->Update(deltaSeconds);
     }
+
+    DeleteMarkedEntities();
 }
 
 // ======================================

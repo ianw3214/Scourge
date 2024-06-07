@@ -25,6 +25,9 @@ namespace Shade {
 
         void Update(float deltaSeconds);
 
+        void MarkForDelete();
+        bool IsMarkedForDelete() const;
+
         void SetPositionX(float newX);
         void SetPositionY(float newY);
         float GetPositionX() const;
@@ -57,6 +60,8 @@ namespace Shade {
         // Store a reference to the game world
         GameplayEventSource& mGameEventSource;
         EntityContainer& mEntityContainer;
+
+        bool mMarkDelete = false;
     };
 
 }

@@ -38,6 +38,14 @@ float HealthComponent::DecrementHealth(float amount)
 
     mDamageFlashTimer = 0.3f;
 
+    // Decrement amount from current health
     mCurrHealth = mCurrHealth > amount ? mCurrHealth - amount : 0.f;
+
+    // Death handling
+    if (mCurrHealth <= 0.f)
+    {
+        mEntityRef->MarkForDelete();
+    }
+
     return mCurrHealth;
 }

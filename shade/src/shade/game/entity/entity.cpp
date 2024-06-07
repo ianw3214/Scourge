@@ -34,6 +34,18 @@ void Shade::Entity::Update(float deltaSeconds)
 }
 
 // ======================================
+void Shade::Entity::MarkForDelete()
+{
+    mMarkDelete = true;
+}
+
+// ======================================
+bool Shade::Entity::IsMarkedForDelete() const
+{
+    return mMarkDelete;
+}
+
+// ======================================
 void Shade::Entity::SetPositionX(float newX)
 {
     x = newX;
