@@ -378,11 +378,17 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
         if (mSelectedType == SelectedType::BACKGROUND && mSelectedIndex >= 0 && mSelectedIndex < backgrounds.size())
         {
             const BackgroundElement& background = backgrounds[mSelectedIndex];
-            const float drawX = ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera);
-            const float drawY = background.mWorldY + 50.f;
-            mSliderWidget.SetPosition(drawX, drawY);  
+            const float widgetX = ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera);
+            const float widgetY = background.mWorldY + 50.f;
+            mSliderWidget.SetPosition(widgetX, widgetY);  
 
-            // TODO: Render outline of selected background as well
+            // TODO: Either draw this earlier or cache the draw details to avoid a second search?
+            Shade::ResourceHandle textureHandle = resourceManager->LoadResource<Shade::Texture>(background.mTexturePath);
+            Shade::Texture* texture = resourceManager->GetResource<Shade::Texture>(textureHandle);
+            const float drawX = Shade::RenderUtil::GetXForRenderAnchor(ParallaxUtil::GetParallaxPos(background.mWorldX, background.mParallax, camera), texture->GetWidth(), Shade::RenderAnchor::BOTTOM_MIDDLE);
+            const float drawY = Shade::RenderUtil::GetYForRenderAnchor(background.mWorldY, texture->GetHeight(), Shade::RenderAnchor::BOTTOM_MIDDLE);
+            Shade::Box backgroundBox = Shade::Box{ Shade::Vec2{ drawX, drawY }, static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight()) };
+            commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(backgroundBox, Shade::Colour{ 0.9f, 0.6f, 0.1f}, false));
         }
 
         const std::vector<Shade::Box>& playZones = mMapData->GetLayout().GetPlayZones();
