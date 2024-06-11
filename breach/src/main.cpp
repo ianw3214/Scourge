@@ -192,7 +192,7 @@ public:
 #endif
         AddEntity(std::move(TestKnight));
 
-        InitializeWorldFromMap("assets/breach/maps/test.kv");
+        InitializeWorldFromMap("assets/breach/maps/interior.kv");
     }
 private:
     // ======================================

@@ -440,14 +440,14 @@ bool MapEditor::HandleEvent(const Shade::InputEvent& event)
         {
             mControlPressed = event.mKeyEvent == Shade::KeyEventType::PRESS;
         }
-        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_O)
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_O && mControlPressed)
         {
             if (event.mKeyEvent == Shade::KeyEventType::PRESS)
             {
                 OpenFile();
             }
         }
-        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_S)
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_S && mControlPressed)
         {
             if (event.mKeyEvent == Shade::KeyEventType::PRESS)
             {
