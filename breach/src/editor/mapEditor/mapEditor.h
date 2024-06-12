@@ -55,6 +55,8 @@ private:
     std::function<void(float)> mUpdateVerticalCallback;
 };
 
+// TODO: More things might want to be shared between background elements and play zones to make refactoring easier
+//  - e.g. Common base class
 class MapEditor : public Shade::EditorBase {
 public:
     MapEditor();
@@ -77,6 +79,7 @@ public:
     void DeleteSelected();
     void MoveSelectedUp();
     void MoveSelectedDown();
+    void DuplicateSelected();
     bool HasSelected(SelectedType type) const;
     bool IsSelected(SelectedType type, int index) const;
     int GetSelectedIndex() const;

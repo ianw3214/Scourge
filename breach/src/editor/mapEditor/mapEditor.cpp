@@ -274,6 +274,10 @@ public:
                             mMapEditorRef.DeleteSelected();
                         }
                         ImGui::SameLine();
+                        if (ImGui::Button("Duplicate"))
+                        {
+                            mMapEditorRef.DuplicateSelected();
+                        }
                         if (ImGui::Button("Move up"))
                         {
                             mMapEditorRef.MoveSelectedUp();
@@ -454,6 +458,13 @@ bool MapEditor::HandleEvent(const Shade::InputEvent& event)
                 SaveFile();
             }
         }
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_D && mControlPressed)
+        {
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS)
+            {
+                DuplicateSelected();
+            }
+        }
     }
     return false;
 }
@@ -620,6 +631,23 @@ void MapEditor::MoveSelectedDown()
     if (mSelectedType == SelectedType::PLAY_ZONE)
     {
         assert(false && "Ordering is irrelevant for play zones, do not implement...");
+    }
+}
+
+// ======================================
+void MapEditor::DuplicateSelected()
+{
+    if (mSelectedType == SelectedType::BACKGROUND)
+    {
+        std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgroundsMutable();
+        backgrounds.emplace_back(backgrounds[mSelectedIndex]);
+
+        backgrounds.back().mName.append("_copy");
+        SelectBackground(backgrounds.size() - 1);
+    }
+    if (mSelectedType == SelectedType::PLAY_ZONE)
+    {
+        assert(false && "Duplication is not implemented for play zones, do not implement...");
     }
 }
 
