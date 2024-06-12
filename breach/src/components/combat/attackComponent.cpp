@@ -9,8 +9,9 @@
 #include "components/combat/hitboxComponent.h"
 #include "components/combat/healthComponent.h"
 #include "components/facingComponent.h"
-#include "components/movement/moveComponent.h"
 #include "components/movement/locomotionComponent.h"
+#include "components/movement/moveComponent.h"
+#include "components/movement/staggerComponent.h"
 
 // TODO: Remove - Temporary for determining player or AI
 #include "components/ai/stateMachineAIComponent.h"
@@ -129,6 +130,18 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
                 if (HealthComponent* health = entity->GetComponent<HealthComponent>())
                 {
                     health->DecrementHealth(attackInfo.mDamage);
+
+                    // TODO: More thought needs to be put into the stagger design
+                    //  - Certain enemies may not want to be staggered (bosses, gigantic enemies, etc)
+                    //      - Boss staggers can be implemented as a short timed delay rather than full animation
+                    //  - A "weight class" system can be used to determine stagger times/triggers
+                    //  - Some attacks also may not want to stagger enemies or do so at different times (light attacks)
+                    //  - Stagger direction also needs to be accounted for here
+                    if (StaggerComponent* stagger = entity->GetComponent<StaggerComponent>())
+                    {
+                        // TODO: Replace hard-coded number - embed into attack data
+                        stagger->TryStagger(0.1f);
+                    }
                 }
             }
         }

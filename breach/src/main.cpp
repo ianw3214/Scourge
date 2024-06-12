@@ -26,8 +26,9 @@
 #include "components/combat/healthComponent.h"
 #include "components/combat/hitboxComponent.h"
 #include "components/facingComponent.h"
-#include "components/movement/moveComponent.h"
 #include "components/movement/locomotionComponent.h"
+#include "components/movement/moveComponent.h"
+#include "components/movement/staggerComponent.h"
 #include "components/player/cameraFollowComponent.h"
 #include "components/player/playerInputComponent.h"
 
@@ -122,8 +123,10 @@ public:
         animStateInfo3["run_right"] = { 6, 9 };
         animStateInfo3["attack_left"] = { 10, 13, "idle_left" };
         animStateInfo3["attack_right"] = { 14, 17, "idle_right" };
-        animStateInfo3["recharge_left"] = { 18, 18 };
-        animStateInfo3["recharge_right"] = { 19, 19 };
+        animStateInfo3["recharge_left"] = { 13, 13 };
+        animStateInfo3["recharge_right"] = { 17, 17 };
+        animStateInfo3["stagger_left"] = { 18, 18 };
+        animStateInfo3["stagger_right"] = { 19, 19 };
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
@@ -140,6 +143,7 @@ public:
         TestKnight->AddComponent(std::make_unique<FacingComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
+        TestKnight->AddComponent(std::make_unique<StaggerComponent>());
 
         // AI state machine definition
         AIState idleState, moveState, attackState;
@@ -164,6 +168,12 @@ public:
             locomotion->mMovingDown = player->GetPositionY() < AIEntity->GetPositionY();
         };
         moveState.mTransitions.push_back([](Shade::Entity* AIEntity){
+            StaggerComponent* stagger = AIEntity->GetComponent<StaggerComponent>();
+            if (stagger && stagger->IsStaggering())
+            {
+                return "";
+            }
+
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
             const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();
@@ -174,7 +184,14 @@ public:
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
-            attackComponent->TryDoAttack(player->GetPositionX() > AIEntity->GetPositionX() ? "attack_right" : "attack_left");
+
+            const bool isRight = player->GetPositionX() > AIEntity->GetPositionX();
+            bool attacked = attackComponent->TryDoAttack(isRight ? "attack_right" : "attack_left");
+            if (attacked)
+            {
+                FacingComponent* facing = AIEntity->GetComponent<FacingComponent>();
+                facing->mDirection = isRight ? FacingDirection::RIGHT : FacingDirection::LEFT;
+            }
         };
         attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();

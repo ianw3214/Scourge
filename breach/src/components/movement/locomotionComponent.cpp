@@ -2,6 +2,7 @@
 
 #include "components/facingComponent.h"
 #include "components/movement/moveComponent.h"
+#include "components/movement/staggerComponent.h"
 
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
@@ -9,6 +10,12 @@
 // ======================================
 void LocomotionComponent::Update(float deltaSeconds)
 {
+    StaggerComponent* stagger = mEntityRef->GetComponent<StaggerComponent>();
+    if (stagger && stagger->IsStaggering())
+    {
+        return;
+    }
+
     FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
     BaseMovementComponent* move = mEntityRef->GetComponent<BaseMovementComponent>();
     if (!mEnable)
