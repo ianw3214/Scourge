@@ -85,6 +85,11 @@ void AttackComponent::Update(float deltaSeconds)
                 HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
                 health->mIsInvulnerable = false;
             }
+            // TODO: Not all attacks will disable stagger - need to set in attack
+            if (StaggerComponent* stagger = mEntityRef->GetComponent<StaggerComponent>())
+            {
+                stagger->EnableStagger();
+            }
         }
     }
 }
@@ -140,7 +145,7 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
                     if (StaggerComponent* stagger = entity->GetComponent<StaggerComponent>())
                     {
                         // TODO: Replace hard-coded number - embed into attack data
-                        stagger->TryStagger(0.1f);
+                        stagger->TryStagger(0.5f);
                     }
                 }
             }
@@ -184,5 +189,12 @@ bool AttackComponent::DoAttack(const std::string& name)
     mCurrentAttack = name;
     mCurrentAttackTimer = attackInfo.mDuration;
     mCurrentAttackFacing = facing->mDirection;
+
+    // TODO: Not all attacks will disable stagger - need to set in attack
+    if (StaggerComponent* stagger = mEntityRef->GetComponent<StaggerComponent>())
+    {
+        stagger->DisableStagger();
+    }
+
     return true;
 }

@@ -130,8 +130,8 @@ public:
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
-        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 1.4f, AttackHitInfo(16, 100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
-        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 1.4f, AttackHitInfo(12, -240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.7f, AttackHitInfo(16, 100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.7f, AttackHitInfo(12, -240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
         TestKnight->AddComponent(std::move(enemyAttack));
         // TODO: Temp hacky code - find better fix
         AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();
@@ -146,14 +146,31 @@ public:
         TestKnight->AddComponent(std::make_unique<StaggerComponent>());
 
         // AI state machine definition
+        // TODO: Move temp cooldown code into blackboard or something similar
+        static float attackCooldown = 0.f;
         AIState idleState, moveState, attackState;
+        idleState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
+            if (attackCooldown > 0.f)
+            {
+                attackCooldown -= deltaSeconds;
+            }
+        };
         idleState.mTransitions.push_back([](Shade::Entity* AIEntity){ 
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
             const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();
-            return (diff_x * diff_x + diff_y * diff_y) < 1000000.f ? "move" : "";
+            if ((diff_x * diff_x + diff_y * diff_y) > 40000.f )
+            {
+                return "move";
+            }
+            return attackCooldown > 0.f ? "" : "attack";
         });
         moveState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
+            if (attackCooldown > 0.f)
+            {
+                attackCooldown -= deltaSeconds;
+            }
+
             LocomotionComponent* locomotion = AIEntity->GetComponent<LocomotionComponent>();
             if (locomotion == nullptr)
             {
@@ -177,11 +194,13 @@ public:
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
             const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();
-            return (diff_x * diff_x + diff_y * diff_y) < 40000.f ? "attack" : "";
+            return (diff_x * diff_x + diff_y * diff_y) < 40000.f ? (attackCooldown > 0.f ? "idle" : "attack") : "";
         });
         attackState.mUpdate = [](Shade::Entity* AIEntity, float deltaSeconds) {
         };
         attackState.mOnEnter = [](Shade::Entity* AIEntity){
+            attackCooldown = 1.5f;
+
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
 
@@ -196,7 +215,6 @@ public:
         attackState.mTransitions.push_back([](Shade::Entity* AIEntity) {
             AttackComponent* attackComponent = AIEntity->GetComponent<AttackComponent>();
             return attackComponent->IsDoingAttack() ? "" : "idle";
-
         });
         std::unordered_map<std::string, AIState> stateInfo;
         stateInfo["idle"] = idleState;

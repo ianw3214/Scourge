@@ -15,5 +15,4 @@ public:
 
 private:
     std::unordered_map<std::string, float> mFloats;
-
 };
