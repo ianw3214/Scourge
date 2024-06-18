@@ -156,6 +156,12 @@ public:
             }
         };
         idleState.mTransitions.push_back([](Shade::Entity* AIEntity){ 
+            StaggerComponent* stagger = AIEntity->GetComponent<StaggerComponent>();
+            if (stagger && stagger->IsStaggering())
+            {
+                return "";
+            }
+
             Shade::Entity* player = PlayerRegistry::GetCachedPlayer();
             const float diff_x = AIEntity->GetPositionX() - player->GetPositionX();
             const float diff_y = AIEntity->GetPositionY() - player->GetPositionY();

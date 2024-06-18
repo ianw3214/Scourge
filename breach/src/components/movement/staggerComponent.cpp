@@ -47,6 +47,27 @@ void StaggerComponent::TryStagger(float time)
 }
 
 // ======================================
+// TODO: Potentially refactor to share common code w/ above function
+//  - Alternatively, have the attacks handle changing the entities direction and just use the normal TryStagger
+void StaggerComponent::TryStaggerInDirection(float time, FacingDirection direction)
+{
+    if (!mCanStagger)
+    {
+        return;
+    }
+
+    mStaggerTimer = time;
+
+    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(direction == FacingDirection::RIGHT ? "stagger_right" : "stagger_left", false);
+    // Update the facing to face the direction that the stagger is in
+    FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
+    facing->mDirection = direction;
+
+    // TODO: Potentially handle inturrupting actions here as well
+    //  - e.g. inturrupted attack
+}
+
+// ======================================
 void StaggerComponent::DisableStagger()
 {
     mCanStagger = false;

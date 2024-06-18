@@ -2,6 +2,8 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "components/facingComponent.h"
+
 class StaggerComponent : public Shade::Component
 {
 public:
@@ -11,6 +13,7 @@ public:
 
     bool IsStaggering() const;
     void TryStagger(float time);
+    void TryStaggerInDirection(float time, FacingDirection direction);
     
     void DisableStagger();
     void EnableStagger();

@@ -145,7 +145,7 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
                     if (StaggerComponent* stagger = entity->GetComponent<StaggerComponent>())
                     {
                         // TODO: Replace hard-coded number - embed into attack data
-                        stagger->TryStagger(0.5f);
+                        stagger->TryStaggerInDirection(0.5f, mCurrentAttackFacing == FacingDirection::RIGHT ? FacingDirection::LEFT : FacingDirection::RIGHT);
                     }
                 }
             }
