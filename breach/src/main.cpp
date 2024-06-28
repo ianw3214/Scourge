@@ -30,6 +30,7 @@
 #include "components/movement/moveComponent.h"
 #include "components/movement/staggerComponent.h"
 #include "components/player/cameraFollowComponent.h"
+#include "components/player/mapTransitionComponent.h"
 #include "components/player/playerInputComponent.h"
 
 #include "map/mapService.h"

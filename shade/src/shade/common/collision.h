@@ -7,8 +7,8 @@ namespace Shade {
     struct Box {
         // The position represents the bottom left corner of the box
         Vec2 mPosition = Shade::Vec2{ 0.f, 0.f };
-        float mWidth = 0.f;
-        float mHeight = 0.f;
+        float mWidth = 10.f;
+        float mHeight = 10.f;
 
         Box() {}
         Box(const Vec2& position, float width, float height)

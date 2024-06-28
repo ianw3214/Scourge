@@ -7,6 +7,7 @@
 MapLayout MapLayout::LoadFromKeyValueHandle(Shade::KeyValueHandle handle)
 {
     std::vector<Shade::Box> playZones;
+    std::vector<MapTransitionZone> mapTransitions;
     while(handle.IsValid())
     {
         if (handle.GetKey() == "zones")
@@ -40,9 +41,44 @@ MapLayout MapLayout::LoadFromKeyValueHandle(Shade::KeyValueHandle handle)
                 zoneListHandle.ToNext();
             }
         }
+        if (handle.GetKey() == "transitions")
+        {
+            Shade::KeyValueHandle transitionListHandle = handle.GetListHead();
+            while(transitionListHandle.IsValid())
+            {
+                MapTransitionZone transitionInfo;
+                Shade::KeyValueHandle transitionHandle = transitionListHandle.GetListHead();
+                while (transitionHandle.IsValid())
+                {
+                    if (transitionHandle.GetKey() == "transition")
+                    {
+                        transitionInfo.mMapTransition = transitionHandle.GetString();
+                    }
+                    if (transitionHandle.GetKey() == "x")
+                    {
+                        transitionInfo.mZoneDefinition.mPosition.x = transitionHandle.GetFloat();
+                    }
+                    if (transitionHandle.GetKey() == "y")
+                    {
+                        transitionInfo.mZoneDefinition.mPosition.y = transitionHandle.GetFloat();
+                    }
+                    if (transitionHandle.GetKey() == "w")
+                    {
+                        transitionInfo.mZoneDefinition.mWidth = transitionHandle.GetFloat();
+                    }
+                    if (transitionHandle.GetKey() == "h")
+                    {
+                        transitionInfo.mZoneDefinition.mHeight = transitionHandle.GetFloat();
+                    }
+                    transitionHandle.ToNext();
+                }
+                mapTransitions.emplace_back(transitionInfo);
+                transitionListHandle.ToNext();
+            }
+        }
         handle.ToNext();
     }
-    return MapLayout(std::move(playZones));
+    return MapLayout(std::move(playZones), std::move(mapTransitions));
 }
 
 // ======================================
@@ -63,11 +99,27 @@ void MapLayout::SaveToKeyValueFile(Shade::KeyValueFile& file) const
         index++;
     }
     file.PopList();
+
+    file.PushList("transitions");
+    index = 0;
+    for (const MapTransitionZone& transition : mMapTransitions)
+    {
+        file.PushList(std::string("transition") + std::to_string(index));
+        file.AddStringEntry("transition", transition.mMapTransition);
+        file.AddFloatEntry("x", transition.mZoneDefinition.mPosition.x);
+        file.AddFloatEntry("y", transition.mZoneDefinition.mPosition.y);
+        file.AddFloatEntry("w", transition.mZoneDefinition.mWidth);
+        file.AddFloatEntry("h", transition.mZoneDefinition.mHeight);
+        file.PopList();
+        index++;
+    }
+    file.PopList();
 }
 
 // ======================================
-MapLayout::MapLayout(const std::vector<Shade::Box>&& playZones)
+MapLayout::MapLayout(std::vector<Shade::Box>&& playZones, std::vector<MapTransitionZone>&& transitions)
     : mPlayZones(playZones)
+    , mMapTransitions(transitions)
 {
 
 }
@@ -76,4 +128,10 @@ MapLayout::MapLayout(const std::vector<Shade::Box>&& playZones)
 const std::vector<Shade::Box>& MapLayout::GetPlayZones() const
 {
     return mPlayZones;
+}
+
+// ======================================
+const std::vector<MapTransitionZone>& MapLayout::GetMapTransitions() const
+{
+    return mMapTransitions;
 }

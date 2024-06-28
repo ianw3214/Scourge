@@ -44,6 +44,10 @@ void CustomDebugModule::Render(std::vector<std::unique_ptr<Shade::RenderCommand>
     {
         commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(playZone, Shade::Colour{ 0.3f, 1.0f, 0.5f }, false));
     }
+    for (const MapTransitionZone& transition : layout.GetMapTransitions())
+    {
+        commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(transition.mZoneDefinition, Shade::Colour{ 0.8f, 0.7f, 0.2f }, false));
+    }
 
     // Other layouts
     for (const DebugRect& rect : mDebugRects)

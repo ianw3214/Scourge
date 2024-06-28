@@ -13,7 +13,8 @@ class MapData;
 enum class SelectedType {
     NONE,
     BACKGROUND,
-    PLAY_ZONE
+    PLAY_ZONE,
+    TRANSITION_ZONE,
 };
 
 // TODO: Consider if this should be shared w/ other widgets, maybe belongs in engine code
@@ -75,6 +76,7 @@ public:
 
     void SelectBackground(int index);
     void SelectPlayZone(int index);
+    void SelectTransitionZone(int index);
     void Unselect();
     void DeleteSelected();
     void MoveSelectedUp();

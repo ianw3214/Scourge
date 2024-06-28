@@ -257,6 +257,26 @@ public:
                     ImGui::TreePop();
                 }
 
+                std::vector<MapTransitionZone>& transitionZones = layout.GetMapTransitionsMutable();
+                if (ImGui::TreeNode("Transition zones"))
+                {
+                    if (ImGui::Button("Add Transition Zone"))
+                    {
+                        transitionZones.emplace_back();
+                    }
+                    // Render transition zones in reverse order for consistency w/ backgrounds
+                    char buf[32];
+                    for (int n = transitionZones.size() - 1; n >= 0; n--)
+                    {
+                        sprintf(buf, "Transition %d", n);
+                        if (ImGui::Selectable(buf, mMapEditorRef.IsSelected(SelectedType::TRANSITION_ZONE, n)))
+                        {
+                            mMapEditorRef.SelectTransitionZone(n);
+                        }
+                    }                                                                                                                                        
+                    ImGui::TreePop();
+                }
+
                 if (mMapEditorRef.HasSelected(SelectedType::BACKGROUND))
                 {
                     BackgroundElement& background = backgrounds[mMapEditorRef.GetSelectedIndex()];
@@ -305,6 +325,25 @@ public:
                         ImGui::InputFloat("Width", &playZone.mWidth, 1.f, 10.f);
                         ImGui::InputFloat("Height", &playZone.mHeight, 1.f, 10.f);
                         if (ImGui::Button("Delete play zone"))
+                        {
+                            mMapEditorRef.DeleteSelected();
+                        }
+                        ImGui::TreePop();
+                    }
+                }
+
+                if (mMapEditorRef.HasSelected(SelectedType::TRANSITION_ZONE))
+                {
+                    MapTransitionZone& transitionZone = transitionZones[mMapEditorRef.GetSelectedIndex()];
+                    ImGui::SetNextItemOpen(true);
+                    if (ImGui::TreeNode("Selected transition zone"))
+                    {
+                        ImGui::InputText("Transition", &(transitionZone.mMapTransition));
+                        ImGui::InputFloat("x", &transitionZone.mZoneDefinition.mPosition.x, 1.f, 10.f);
+                        ImGui::InputFloat("y", &transitionZone.mZoneDefinition.mPosition.y, 1.f, 10.f);
+                        ImGui::InputFloat("Width", &transitionZone.mZoneDefinition.mWidth, 1.f, 10.f);
+                        ImGui::InputFloat("Height", &transitionZone.mZoneDefinition.mHeight, 1.f, 10.f);
+                        if (ImGui::Button("Delete transition zone"))
                         {
                             mMapEditorRef.DeleteSelected();
                         }
@@ -375,9 +414,14 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
         {
             commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(playZone, Shade::Colour{ 0.3f, 1.0f, 0.5f }, false));
         }
+        for (const MapTransitionZone& transitionZone : layout.GetMapTransitions())
+        {
+            commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(transitionZone.mZoneDefinition, Shade::Colour{ 0.8f, 0.7f, 0.3f }, false));
+        }
 
         // Render widgets on top of map elements
         // TODO: Play zones might be able to be rendered in the same way
+        //  - Consider: Can the widget just automatically be rendered based on an offset w/o specifically checking the selected element?
         const std::vector<BackgroundElement>& backgrounds = mMapData->GetBackgrounds();
         if (mSelectedType == SelectedType::BACKGROUND && mSelectedIndex >= 0 && mSelectedIndex < backgrounds.size())
         {
@@ -401,6 +445,15 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
             const Shade::Box& playZone = playZones[mSelectedIndex];
             const float drawX = playZone.mPosition.x;
             const float drawY = playZone.mPosition.y;
+            mSliderWidget.SetPosition(drawX, drawY);  
+        }
+
+        const std::vector<MapTransitionZone>& transitionZones = mMapData->GetLayout().GetMapTransitions();
+        if (mSelectedType == SelectedType::TRANSITION_ZONE && mSelectedIndex >= 0 && mSelectedIndex < playZones.size())
+        {
+            const MapTransitionZone& transitionZone = transitionZones[mSelectedIndex];
+            const float drawX = transitionZone.mZoneDefinition.mPosition.x;
+            const float drawY = transitionZone.mZoneDefinition.mPosition.y;
             mSliderWidget.SetPosition(drawX, drawY);  
         }
 
@@ -555,6 +608,24 @@ void MapEditor::SelectPlayZone(int index)
 }
 
 // ======================================
+void MapEditor::SelectTransitionZone(int index)
+{
+    assert(index >= 0 && index < mMapData->GetLayout().GetMapTransitions().size() && "Map transition index out of bounds");
+
+    mSelectedType = SelectedType::TRANSITION_ZONE;
+    mSelectedIndex = index;
+
+    // This assumes the selected map transition is always in a good state
+    //  - Might want more error checking, but is fine for now...
+    Shade::Box& box = mMapData->GetLayoutMutable().GetMapTransitionsMutable()[mSelectedIndex].mZoneDefinition;
+    mSliderWidget.ShowWidget([&box](float xOffset){
+        box.mPosition.x += xOffset;
+    }, [&box](float yOffset){
+        box.mPosition.y += yOffset;
+    });
+}
+
+// ======================================
 bool MapEditor::HasSelected(SelectedType type) const
 {
     if (mSelectedType == type)
@@ -568,6 +639,11 @@ bool MapEditor::HasSelected(SelectedType type) const
         {
             const std::vector<Shade::Box>& playZones = mMapData->GetLayout().GetPlayZones();
             return mSelectedIndex >= 0 && mSelectedIndex < playZones.size();
+        }
+        if (mSelectedType == SelectedType::TRANSITION_ZONE)
+        {
+            const std::vector<MapTransitionZone>& transitions = mMapData->GetLayout().GetMapTransitions();
+            return mSelectedIndex >= 0 && mSelectedIndex < transitions.size();
         }
     }
     return false;
@@ -595,6 +671,11 @@ void MapEditor::DeleteSelected()
         std::vector<Shade::Box>& playZones = mMapData->GetLayoutMutable().GetPlayZonesMutable();
         playZones.erase(playZones.begin() + mSelectedIndex);
     }
+    if (mSelectedType == SelectedType::TRANSITION_ZONE)
+    {
+        std::vector<MapTransitionZone>& transitions = mMapData->GetLayoutMutable().GetMapTransitionsMutable();
+        transitions.erase(transitions.begin() + mSelectedIndex);
+    }
     Unselect();
 }
 
@@ -614,6 +695,10 @@ void MapEditor::MoveSelectedUp()
     {
         assert(false && "Ordering is irrelevant for play zones, do not implement...");
     }
+    if (mSelectedType == SelectedType::TRANSITION_ZONE)
+    {
+        assert(false && "Ordering is irrelevant for transition zones, do not implement...");
+    }
 }
 
 // ======================================
@@ -632,6 +717,10 @@ void MapEditor::MoveSelectedDown()
     {
         assert(false && "Ordering is irrelevant for play zones, do not implement...");
     }
+    if (mSelectedType == SelectedType::TRANSITION_ZONE)
+    {
+        assert(false && "Ordering is irrelevant for transition zones, do not implement...");
+    }
 }
 
 // ======================================
@@ -648,6 +737,10 @@ void MapEditor::DuplicateSelected()
     if (mSelectedType == SelectedType::PLAY_ZONE)
     {
         assert(false && "Duplication is not implemented for play zones, do not implement...");
+    }
+    if (mSelectedType == SelectedType::TRANSITION_ZONE)
+    {
+        assert(false && "Duplication is not implemented for transition zones, do not implement...");
     }
 }
 
