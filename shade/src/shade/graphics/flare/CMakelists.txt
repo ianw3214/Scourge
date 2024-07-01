@@ -1,0 +1,2 @@
+target_sources(Shade PRIVATE effect.h flareService.h)
+target_sources(Shade PRIVATE effect.cpp flareService.cpp)

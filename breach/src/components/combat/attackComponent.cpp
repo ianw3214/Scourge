@@ -1,9 +1,14 @@
 #include "attackComponent.h"
 
+#include "definitions.h"
+
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
+#include "shade/graphics/flare/flareService.h"
+#include "shade/graphics/texture.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
+#include "shade/resource/manager.h"
 
 #include "debug/util.h"
 #include "components/combat/hitboxComponent.h"
@@ -148,6 +153,15 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
                         stagger->TryStaggerInDirection(0.5f, mCurrentAttackFacing == FacingDirection::RIGHT ? FacingDirection::LEFT : FacingDirection::RIGHT);
                     }
                 }
+                // TODO: This should be data-driven by the attack
+                // TODO: Better calculation of where the vfx should play
+                Shade::Vec2 vfxPosition = attackBox.mPosition;
+                vfxPosition.x += attackBox.mWidth / 2.f - (mCurrentAttackFacing == FacingDirection::RIGHT ? 0.f : 40.f);
+                vfxPosition.y += attackBox.mHeight / 2.f;
+                Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+                Shade::ResourceHandle hardCodedHandle  = resourceManager->LoadResource<Shade::Texture>(mCurrentAttackFacing == FacingDirection::RIGHT ? "assets/breach/VFX/whack_right.png" : "assets/breach/VFX/whack_left.png");
+                Shade::FlareService* flareVFX = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FlareService>();
+                flareVFX->SpawnEffect(Shade::Effect{ vfxPosition, 40.f, 30.f, hardCodedHandle, static_cast<int>(RenderLayer::VFX_TOP), 0.25f});
             }
         }
     }
@@ -190,7 +204,7 @@ bool AttackComponent::DoAttack(const std::string& name)
     mCurrentAttackTimer = attackInfo.mDuration;
     mCurrentAttackFacing = facing->mDirection;
 
-    // TODO: Not all attacks will disable stagger - need to set in attack
+    // TODO: Not all attacks will disable stagger - need to set in attack`
     if (StaggerComponent* stagger = mEntityRef->GetComponent<StaggerComponent>())
     {
         stagger->DisableStagger();

@@ -8,6 +8,7 @@
 #include "shade/game/entity/factory.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
+#include "shade/graphics/flare/flareService.h"
 #include "shade/graphics/imgui/service.h"
 #include "shade/graphics/imgui/wrapper.h"
 #include "shade/graphics/renderer.h"
@@ -45,6 +46,7 @@ Shade::GameInstance::GameInstance()
 
     // Register gameplay related services
     RegisterService(new EntityFactory());
+    RegisterService(new FlareService());
 
 #ifdef BUILD_SHADE_EDITOR
     RegisterService(new EditorService());
@@ -90,6 +92,9 @@ void Shade::GameInstance::Run()
 
         std::vector<std::unique_ptr<RenderCommand>> RenderCommands;
         mCurrentState->RenderModules(RenderCommands);
+        Shade::FlareService* flareVFX = GetService<Shade::FlareService>();
+        flareVFX->RenderVFX(RenderCommands, mdeltaSeconds);
+
         // TODO: Once this is multithreaded, should also check previous render queue is done
         mRenderer->SwapCommandQueue(RenderCommands);
         mRenderer->ProcessCommandQueue();
