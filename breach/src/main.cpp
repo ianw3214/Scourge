@@ -59,6 +59,7 @@ public:
     CustomGameWorld() : Shade::GameWorldModule()
     {
         // Initialize input mappings
+        //  - Is this the right place to initialize this? Perhaps needs a bit more thought...
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_W, "move_up");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_S, "move_down");
         mInputMapping.AddKeyEventMapping(Shade::KeyCode::SHADE_KEY_A, "move_left");
@@ -75,6 +76,12 @@ public:
         mInputMapping.AddAxisEventMapping(Shade::ControllerAxis::SHADE_AXIS_LEFTY, "move_v");
         SetEventsFromMapping(mInputMapping);
 
+        InitializeWorldFromMap("assets/breach/maps/interior.kv");
+        // TODO: Once entity loading is more properly setup then this doesn't need to be as hard-coded
+        MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
+        Shade::Vec2 start = mapService->GetLayout().GetPlayerStart();
+
+        // TODO: All of the following loading should be done by loading from a file
         // Initialize a player entity
         Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 6 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
@@ -100,8 +107,8 @@ public:
         //  - A 2 round initialization would be better: differentiate construction and initialization
         AttackComponent* playerAttackComp = PlayerEntity->GetComponent<AttackComponent>();
         playerAttackComp->RegisterAttacksToAnimFrames();
-        PlayerEntity->SetPositionX(200.f);
-        PlayerEntity->SetPositionY(200.f);
+        PlayerEntity->SetPositionX(start.x);
+        PlayerEntity->SetPositionY(start.y);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>());
         PlayerEntity->AddComponent(std::make_unique<LocomotionComponent>(350.f));
         PlayerEntity->AddComponent(std::make_unique<FacingComponent>());
@@ -109,6 +116,7 @@ public:
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
         PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
         PlayerEntity->AddComponent(std::make_unique<HitboxComponent>(72.f, 128.f));
+        PlayerEntity->AddComponent(std::make_unique<MapTransitionComponent>());
 #ifdef DEBUG_BREACH
         PlayerEntity->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
@@ -260,8 +268,6 @@ public:
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
         AddEntity(std::move(TestKnight));
-
-        InitializeWorldFromMap("assets/breach/maps/interior.kv");
     }
 private:
     // ======================================

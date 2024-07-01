@@ -20,10 +20,11 @@ public:
     void SaveToKeyValueFile(Shade::KeyValueFile& file) const;
 public:
     MapLayout() = default;
-    MapLayout(std::vector<Shade::Box>&& playZones, std::vector<MapTransitionZone>&& transitions);
+    MapLayout(std::vector<Shade::Box>&& playZones, std::vector<MapTransitionZone>&& transitions, Shade::Vec2 start);
 
     const std::vector<Shade::Box>& GetPlayZones() const;
     const std::vector<MapTransitionZone>& GetMapTransitions() const;
+    const Shade::Vec2 GetPlayerStart() const;
 
 private:
     // Gameplay related layout

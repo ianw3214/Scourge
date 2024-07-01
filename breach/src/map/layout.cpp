@@ -8,6 +8,7 @@ MapLayout MapLayout::LoadFromKeyValueHandle(Shade::KeyValueHandle handle)
 {
     std::vector<Shade::Box> playZones;
     std::vector<MapTransitionZone> mapTransitions;
+    Shade::Vec2 startPosition;
     while(handle.IsValid())
     {
         if (handle.GetKey() == "zones")
@@ -76,9 +77,25 @@ MapLayout MapLayout::LoadFromKeyValueHandle(Shade::KeyValueHandle handle)
                 transitionListHandle.ToNext();
             }
         }
+        if (handle.GetKey() == "start")
+        {
+            Shade::KeyValueHandle startHandle = handle.GetListHead();
+            while(startHandle.IsValid())
+            {
+                if (startHandle.GetKey() == "x")
+                {
+                    startPosition.x = startHandle.GetFloat();
+                }
+                if (startHandle.GetKey() == "y")
+                {
+                    startPosition.y = startHandle.GetFloat();
+                }
+                startHandle.ToNext();
+            }
+        }
         handle.ToNext();
     }
-    return MapLayout(std::move(playZones), std::move(mapTransitions));
+    return MapLayout(std::move(playZones), std::move(mapTransitions), startPosition);
 }
 
 // ======================================
@@ -114,12 +131,18 @@ void MapLayout::SaveToKeyValueFile(Shade::KeyValueFile& file) const
         index++;
     }
     file.PopList();
+
+    file.PushList("start");
+    file.AddFloatEntry("x", mPlayerStart.x);
+    file.AddFloatEntry("y", mPlayerStart.y);
+    file.PopList();
 }
 
 // ======================================
-MapLayout::MapLayout(std::vector<Shade::Box>&& playZones, std::vector<MapTransitionZone>&& transitions)
+MapLayout::MapLayout(std::vector<Shade::Box>&& playZones, std::vector<MapTransitionZone>&& transitions, Shade::Vec2 start)
     : mPlayZones(playZones)
     , mMapTransitions(transitions)
+    , mPlayerStart(start)
 {
 
 }
@@ -134,4 +157,10 @@ const std::vector<Shade::Box>& MapLayout::GetPlayZones() const
 const std::vector<MapTransitionZone>& MapLayout::GetMapTransitions() const
 {
     return mMapTransitions;
+}
+
+// ======================================
+const Shade::Vec2 MapLayout::GetPlayerStart() const
+{
+    return mPlayerStart;
 }

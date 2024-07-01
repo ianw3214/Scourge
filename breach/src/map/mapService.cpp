@@ -46,7 +46,6 @@ bool MapService::LoadMap(const std::string& path)
 
     // TODO: Consider if the background should even be implemented as entities
     //  - There's usually not much interaction outside of just displaying an image w/ parallax
-    std::vector<std::unique_ptr<Shade::Entity>> entities;
     for (const BackgroundElement& background : mapData->GetBackgrounds())
     {
         std::unique_ptr<Shade::Entity>& backgroundEntity = entityFactory->CreateAndRegisterNewEntity();
