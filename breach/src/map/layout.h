@@ -36,5 +36,6 @@ private:
 public:
     std::vector<Shade::Box>& GetPlayZonesMutable() { return mPlayZones; }
     std::vector<MapTransitionZone>& GetMapTransitionsMutable() { return mMapTransitions; }
+    Shade::Vec2& GetPlayerStartMutable() { return mPlayerStart; }
 #endif
 };

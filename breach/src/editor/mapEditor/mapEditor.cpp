@@ -8,6 +8,7 @@
 
 #include "shade/file/fileSystem.h"
 #include "shade/graphics/camera/camera.h"
+#include "shade/graphics/command/drawCircle.h"
 #include "shade/graphics/command/drawTexture.h"
 #include "shade/graphics/command/drawRectangle.h"
 #include "shade/graphics/command/setColourMultiplier.h"
@@ -277,6 +278,15 @@ public:
                     ImGui::TreePop();
                 }
 
+                // TODO: This is very basic interaction to use player start
+                //  - Should hook this up w/ the slider widget to get things easier to work with
+                if (ImGui::TreeNode("Player start"))
+                {
+                    ImGui::DragFloat("x", &layout.GetPlayerStartMutable().x, 1.f, -1000.f, 1000.f);
+                    ImGui::DragFloat("y", &layout.GetPlayerStartMutable().y, 1.f, -1000.f, 1000.f);
+                    ImGui::TreePop();
+                }
+
                 if (mMapEditorRef.HasSelected(SelectedType::BACKGROUND))
                 {
                     BackgroundElement& background = backgrounds[mMapEditorRef.GetSelectedIndex()];
@@ -418,6 +428,7 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
         {
             commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(transitionZone.mZoneDefinition, Shade::Colour{ 0.8f, 0.7f, 0.3f }, false));
         }
+        commandQueue.emplace_back(std::make_unique<Shade::DrawCircleCommand>(layout.GetPlayerStart(), 12.f, Shade::Colour{ 0.8f, 0.6f, 0.4f}, false));
 
         // Render widgets on top of map elements
         // TODO: Play zones might be able to be rendered in the same way

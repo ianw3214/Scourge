@@ -1,2 +1,2 @@
-target_sources(Shade PRIVATE command.h drawRectangle.h drawLine.h drawTexture.h setColourMultiplier.h)
-target_sources(Shade PRIVATE command.cpp drawRectangle.cpp drawLine.cpp drawTexture.cpp setColourMultiplier.cpp)
+target_sources(Shade PRIVATE command.h drawRectangle.h drawLine.h drawTexture.h drawCircle.h setColourMultiplier.h)
+target_sources(Shade PRIVATE command.cpp drawRectangle.cpp drawLine.cpp drawTexture.cpp drawCircle.cpp setColourMultiplier.cpp)
