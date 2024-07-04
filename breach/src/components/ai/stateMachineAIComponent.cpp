@@ -1,7 +1,10 @@
 #include "stateMachineAIComponent.h"
 
+#include "shade/game/entity/entity.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
+
+#include "components/combat/healthComponent.h"
 
 // ======================================
 StateMachineAIComponent::StateMachineAIComponent(const std::string& initialState, std::unordered_map<std::string, AIState> states)
@@ -13,6 +16,12 @@ StateMachineAIComponent::StateMachineAIComponent(const std::string& initialState
 
 void StateMachineAIComponent::Update(float deltaSeconds) 
 {
+    HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+    if (health && health->IsDead())
+    {
+        return;
+    }
+    
     if (mStates.find(mCurrentState) == mStates.end())
     {
         Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();

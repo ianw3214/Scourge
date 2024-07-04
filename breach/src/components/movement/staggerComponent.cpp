@@ -1,9 +1,10 @@
 #include "staggerComponent.h"
 
-#include "components/facingComponent.h"
-
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
+
+#include "components/combat/healthComponent.h"
+#include "components/facingComponent.h"
 
 // ======================================
 StaggerComponent::StaggerComponent()
@@ -52,6 +53,12 @@ void StaggerComponent::TryStagger(float time)
 void StaggerComponent::TryStaggerInDirection(float time, FacingDirection direction)
 {
     if (!mCanStagger)
+    {
+        return;
+    }
+
+    HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+    if (health && health->IsDead())
     {
         return;
     }

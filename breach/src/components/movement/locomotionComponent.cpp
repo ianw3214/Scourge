@@ -1,6 +1,7 @@
 #include "locomotionComponent.h"
 
 #include "components/facingComponent.h"
+#include "components/combat/healthComponent.h"
 #include "components/movement/moveComponent.h"
 #include "components/movement/staggerComponent.h"
 
@@ -10,6 +11,12 @@
 // ======================================
 void LocomotionComponent::Update(float deltaSeconds)
 {
+    HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+    if (health && health->IsDead())
+    {
+        return;
+    }
+
     StaggerComponent* stagger = mEntityRef->GetComponent<StaggerComponent>();
     if (stagger && stagger->IsStaggering())
     {

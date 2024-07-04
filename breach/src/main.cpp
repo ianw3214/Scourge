@@ -23,6 +23,7 @@
 #include "components/ai/blackBoardComponent.h"
 #include "components/ai/stateMachineAIComponent.h"
 #include "components/combat/attackComponent.h"
+#include "components/combat/deathHandlingComponent.h"
 #include "components/combat/healthComponent.h"
 #include "components/combat/hitboxComponent.h"
 #include "components/facingComponent.h"
@@ -97,8 +98,8 @@ public:
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 0.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, AttackHitInfo(24, -98.f, 30.f, 98.f, 90.f, 10.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 0.f, 30.f, 98.f, 90.f, 100.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, AttackHitInfo(24, -98.f, 30.f, 98.f, 90.f, 100.f, AttackTarget::ENEMY)));
         playerAttack->RegisterAttackInfo("dash_left", AttackInfo("roll_left", true, true, 0.4f, 800.f));
         playerAttack->RegisterAttackInfo("dash_right", AttackInfo("roll_right", true, true, 0.4f, 800.f));
         PlayerEntity->AddComponent(std::move(playerAttack));
@@ -124,7 +125,7 @@ public:
         PlayerRegistry::CachePlayer(NewPlayerRef.get());
 
         // Testing a knight entity
-        Shade::TilesheetInfo tileSheetInfo3 { 480, 420, 5, 5 };
+        Shade::TilesheetInfo tileSheetInfo3 { 480, 420, 6, 6 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo3;
         animStateInfo3["idle_left"] = { 0, 0 };
         animStateInfo3["idle_right"] = { 1, 1 };
@@ -138,6 +139,10 @@ public:
         animStateInfo3["stagger_right"] = { 19, 19 };
         animStateInfo3["special_charge"] = { 20, 22, "special_hold" };
         animStateInfo3["special_hold"] = { 22, 24 };
+        animStateInfo3["die_left"] = { 25, 27, "dead_left" };
+        animStateInfo3["dead_left"] = { 27, 27 };
+        animStateInfo3["die_right"] = { 28, 30, "dead_right" };
+        animStateInfo3["dead_right"] = { 30, 30 };
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
@@ -154,6 +159,7 @@ public:
         TestKnight->AddComponent(std::make_unique<LocomotionComponent>());
         TestKnight->AddComponent(std::make_unique<FacingComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
+        TestKnight->AddComponent(std::make_unique<DeathHandlingComponent>());
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
         TestKnight->AddComponent(std::make_unique<StaggerComponent>());
 

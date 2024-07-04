@@ -3,6 +3,8 @@
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/entity.h"
 
+#include "components/combat/deathHandlingComponent.h"
+
 // ======================================
 HealthComponent::HealthComponent(float maxHealth)
     : mCurrHealth(maxHealth)
@@ -31,6 +33,11 @@ void HealthComponent::Update(float deltaSeconds)
 // ======================================
 float HealthComponent::DecrementHealth(float amount)
 {
+    if (IsDead())
+    {
+        return mCurrHealth;
+    }
+
     if (mIsInvulnerable)
     {
         return mCurrHealth;
@@ -44,7 +51,15 @@ float HealthComponent::DecrementHealth(float amount)
     // Death handling
     if (mCurrHealth <= 0.f)
     {
-        mEntityRef->MarkForDelete();
+        if (DeathHandlingComponent* deathHandler = mEntityRef->GetComponent<DeathHandlingComponent>())
+        {
+            // TODO: Remove hard-coded number here
+            deathHandler->HandleDeath(3.f);
+        }
+        else
+        {
+            mEntityRef->MarkForDelete();
+        }
     }
 
     return mCurrHealth;

@@ -120,6 +120,11 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
     Shade::Box attackBox = Shade::Box(Shade::Vec2{ mEntityRef->GetPositionX() + attackInfo.mOffsetX, mEntityRef->GetPositionY() + attackInfo.mOffsetY}, attackInfo.mWidth, attackInfo.mHeight);
     for (const auto& entity : mEntityRef->GetWorldEntities())
     {
+        HealthComponent* health = entity->GetComponent<HealthComponent>();
+        if (health && health->IsDead())
+        {
+            continue;
+        }
         if (entity.get() == mEntityRef)
         {
             continue;
@@ -137,7 +142,7 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
         {
             if (hitbox->Intersects(attackBox))
             {
-                if (HealthComponent* health = entity->GetComponent<HealthComponent>())
+                if (health != nullptr)
                 {
                     health->DecrementHealth(attackInfo.mDamage);
 

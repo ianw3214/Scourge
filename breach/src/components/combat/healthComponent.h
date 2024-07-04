@@ -9,6 +9,8 @@ public:
 
     void Update(float deltaSeconds) override;
 
+    // TODO: IsDead might want to be put into a common entity function somehow since it's so commonly used
+    bool IsDead() const { return mCurrHealth <= 0.f; }
     float GetCurrentHealth() const { return mCurrHealth; }
     float GetMaxHealth() const { return mMaxHealth; }
 
