@@ -147,9 +147,21 @@ Shade::KeyValueHandle Shade::KeyValueHandle::GetListHead() const
 {
     assert(IsList() && "Expected list type to access list value");
     assert(mIndex < mBufferRef.size() && "Index access should be within buffer bounds");
-    // TODO: More error checking on the format
-    //  - If the next item is not exactly 1 depth below, should return an invalid handle
-    return KeyValueHandle(mBufferRef, mIndex + 1);
+
+    KeyValueHandle nextHandle = KeyValueHandle(mBufferRef, mIndex + 1);
+
+    // TODO: Potentially log a content error if the depth is more than 2 above the current
+    //  - That results in a content error since the following data would never be parsed in that case
+    // If the next item is not exactly 1 depth below, should return an invalid handle
+    if (mIndex + 1 < mBufferRef.size())
+    {
+        if (mBufferRef[mIndex].mDepth + 1 != mBufferRef[mIndex + 1].mDepth)
+        {
+            nextHandle.Invalidate();
+        }
+    }
+    
+    return nextHandle;
 }
 
 // ======================================

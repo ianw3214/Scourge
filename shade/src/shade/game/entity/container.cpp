@@ -16,6 +16,12 @@ std::vector<std::unique_ptr<Shade::Entity>>& Shade::EntityContainer::GetEntities
 }
 
 // ======================================
+void Shade::EntityContainer::ClearAllEntities()
+{
+    mEntities.clear();
+}
+
+// ======================================
 void Shade::EntityContainer::DeleteMarkedEntities()
 {
     mEntities.resize(std::distance(mEntities.begin(), std::remove_if(mEntities.begin(), mEntities.end(), [](const std::unique_ptr<Entity>& entity){

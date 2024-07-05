@@ -18,7 +18,10 @@ void MapTransitionComponent::Update(float deltaSeconds)
         {
             // TODO: Somehow transition here
             Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-            logger->LogInfo("Should transition maps!!!");
+            logger->LogInfo("Changing to map: " + transition.mMapTransition);
+
+            MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
+            mapService->QueueMap(transition.mMapTransition);
         }
     }
 }

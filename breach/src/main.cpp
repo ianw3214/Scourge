@@ -78,6 +78,13 @@ public:
         SetEventsFromMapping(mInputMapping);
 
         InitializeWorldFromMap("assets/breach/maps/interior.kv");
+        
+        Debug_AddEntities();
+    }
+private:
+    // ======================================
+    // TODO: This should be replaced by an actual serialized entity loading system
+    void Debug_AddEntities() {
         // TODO: Once entity loading is more properly setup then this doesn't need to be as hard-coded
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
         Shade::Vec2 start = mapService->GetLayout().GetPlayerStart();
@@ -275,7 +282,6 @@ public:
 #endif
         AddEntity(std::move(TestKnight));
     }
-private:
     // ======================================
     void InitializeWorldFromMap(const std::string& mapPath)
     {
@@ -284,6 +290,20 @@ private:
         Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
         mapService->LoadMap(mapPath);
+    }
+    // ======================================
+    virtual void Update(float deltaSeconds) override
+    {
+        GameWorldModule::Update(deltaSeconds);
+        
+        MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
+        if (mapService->HasQueuedMap())
+        {
+            // Clear existing entities first
+            ClearAllEntities();
+            mapService->LoadQueuedMap();
+            Debug_AddEntities();
+        }
     }
 };
 

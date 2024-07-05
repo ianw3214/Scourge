@@ -24,6 +24,18 @@ MapService::MapService()
 MapService::~MapService() = default;
 
 // ======================================
+bool MapService::HasQueuedMap() const
+{
+    return !mQueuedMap.empty();
+}
+
+// ======================================
+void MapService::QueueMap(const std::string& path)
+{
+    mQueuedMap = path;
+}
+
+// ======================================
 bool MapService::LoadMap(const std::string& path)
 {
     Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
@@ -42,6 +54,12 @@ bool MapService::LoadMap(const std::string& path)
         logger->LogInfo(std::string("Map loaded from file: ") + mapData->GetName());
     }
 
+    // Clear existing map info if it exists
+    //  - Don't need to exlipcitly clear map layout since there is no heap memory management needed there (for now)
+    // TODO: What's a good way to clear entities here? need to access entity container
+    //  - Currently being done by the level, maybe should just stick with that?
+
+    // Set the map layout using the loaded map details
     SetMapLayout(mapData->GetLayout());
 
     // TODO: Consider if the background should even be implemented as entities
@@ -55,6 +73,17 @@ bool MapService::LoadMap(const std::string& path)
     }    
 
     return true;
+}
+
+// ======================================
+bool MapService::LoadQueuedMap()
+{
+    bool result = LoadMap(mQueuedMap);
+    if (result)
+    {
+        mQueuedMap.clear();
+    }
+    return result;
 }
 
 // ======================================

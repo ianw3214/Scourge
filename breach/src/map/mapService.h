@@ -16,7 +16,10 @@ public:
     MapService();
     ~MapService();
 
+    bool HasQueuedMap() const;
+    void QueueMap(const std::string& path);
     bool LoadMap(const std::string& path);
+    bool LoadQueuedMap();
 
     const MapLayout& GetLayout() const;
 
@@ -25,4 +28,5 @@ protected:
 
 private:
     MapLayout mCurrentLayout;
+    std::string mQueuedMap;
 };

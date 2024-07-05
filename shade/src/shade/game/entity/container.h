@@ -12,6 +12,7 @@ namespace Shade {
         std::unique_ptr<Entity>& AddEntity(std::unique_ptr<Entity> entity);
         std::vector<std::unique_ptr<Entity>>& GetEntities();
 
+        void ClearAllEntities();
         void DeleteMarkedEntities();
 
     protected:
