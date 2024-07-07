@@ -105,8 +105,8 @@ private:
         std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 0.f, 30.f, 98.f, 90.f, 100.f, AttackTarget::ENEMY)));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, AttackHitInfo(24, -98.f, 30.f, 98.f, 90.f, 100.f, AttackTarget::ENEMY)));
+        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 40.f, AttackTarget::ENEMY, { AttackHitBox(0.f, 30.f, 98.f, 90.f)} )));
+        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, AttackHitInfo(24, 40.f, AttackTarget::ENEMY, { AttackHitBox(-98.f, 30.f, 98.f, 90.f)} )));
         playerAttack->RegisterAttackInfo("dash_left", AttackInfo("roll_left", true, true, 0.4f, 800.f));
         playerAttack->RegisterAttackInfo("dash_right", AttackInfo("roll_right", true, true, 0.4f, 800.f));
         PlayerEntity->AddComponent(std::move(playerAttack));
@@ -153,9 +153,9 @@ private:
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
         TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
-        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.7f, AttackHitInfo(16, 100.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
-        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.7f, AttackHitInfo(12, -240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
-        enemyAttack->RegisterAttackInfo("special", AttackInfo("special_charge", true, 1.2f, AttackHitInfo(12, -240.f, 0.f, 140.f, 200.f, 30.f, AttackTarget::PLAYER)));
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.7f, AttackHitInfo(16, 30.f, AttackTarget::PLAYER, { AttackHitBox(100.f, 0.f, 140.f, 200.f)} )));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.7f, AttackHitInfo(12, 30.f, AttackTarget::PLAYER, { AttackHitBox(-240.f, 0.f, 140.f, 200.f)} )));
+        enemyAttack->RegisterAttackInfo("special", AttackInfo("special_charge", true, 1.2f, AttackHitInfo(12, 30.f, AttackTarget::PLAYER, { AttackHitBox(-240.f, 0.f, 140.f, 200.f)} )));
         TestKnight->AddComponent(std::move(enemyAttack));
         // TODO: Temp hacky code - find better fix
         AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();

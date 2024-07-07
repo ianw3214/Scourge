@@ -21,3 +21,9 @@ uint32_t Shade::ResourceHandle::GetID() const
 {
     return mId;
 }
+
+// ======================================
+bool Shade::ResourceHandle::IsValid() const
+{
+    return mIndex != -1 && mId != -1;
+}

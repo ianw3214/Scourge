@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shade/game/entity/component/component.h"
+#include "shade/graphics/flare/flareService.h"
 
 #include "components/facingComponent.h"
 
@@ -18,20 +19,32 @@ enum class AttackTarget {
 };
 
 // ======================================
-struct AttackHitInfo {
-    uint32_t mTriggerFrame = std::numeric_limits<uint32_t>::max();
-
+struct AttackHitBox {
     float mOffsetX = 0.f;
     float mOffsetY = 0.f;
     float mWidth = 10.f;
     float mHeight = 10.f;
 
+    Shade::Effect mEffect;
+    float mEffectOffsetX = 0.f;
+    float mEffectOffsetY = 0.f;
+
+    AttackHitBox() = default;
+    AttackHitBox(float offsetX, float offsetY, float width, float height) : mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height) {}
+    AttackHitBox(float offsetX, float offsetY, float width, float height, Shade::Effect effect, float effectOffsetX, float effectOffsetY) : mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height), mEffect(effect), mEffectOffsetX(effectOffsetX), mEffectOffsetY(effectOffsetY) {}
+};
+
+// ======================================
+struct AttackHitInfo {
+    uint32_t mTriggerFrame = std::numeric_limits<uint32_t>::max();
     float mDamage = 1.f;
     AttackTarget mTarget = AttackTarget::ENEMY;
 
+    std::vector<AttackHitBox> mAttackBoxes;
+
     AttackHitInfo() = default;
-    AttackHitInfo(uint32_t triggerFrame, float offsetX, float offsetY, float width, float height, float damage, AttackTarget target)
-        : mTriggerFrame(triggerFrame), mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height), mDamage(damage), mTarget(target) {}
+    AttackHitInfo(uint32_t triggerFrame, float damage, AttackTarget target, std::vector<AttackHitBox>&& attackBoxes)
+        : mTriggerFrame(triggerFrame), mDamage(damage), mTarget(target), mAttackBoxes(attackBoxes) {}
 };
 
 // ======================================

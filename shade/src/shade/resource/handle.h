@@ -11,6 +11,8 @@ namespace Shade {
         size_t GetIndex() const;
         uint32_t GetID() const;
 
+        bool IsValid() const;
+
         static const ResourceHandle Invalid;
     private:
         size_t mIndex;

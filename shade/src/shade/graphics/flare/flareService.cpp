@@ -23,7 +23,10 @@ void Shade::FlareService::RenderVFX(std::vector<std::unique_ptr<RenderCommand>>&
         effect.mLifetime -= deltaSeconds;
         if (effect.mLifetime > 0.f)
         {
-            commandQueue.emplace_back(std::make_unique<DrawTextureCommand>(effect.mPosition, effect.mWidth, effect.mHeight, effect.mTextureHandle, effect.mRenderLayer));
+            if (effect.mTextureHandle.IsValid())
+            {
+                commandQueue.emplace_back(std::make_unique<DrawTextureCommand>(effect.mPosition, effect.mWidth, effect.mHeight, effect.mTextureHandle, effect.mRenderLayer));
+            }
         }
     }
 
