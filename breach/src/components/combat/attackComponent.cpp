@@ -142,6 +142,12 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
         // Check the actual hit box for hits on enemies
         for (const auto& entity : mEntityRef->GetWorldEntities())
         {
+            // The attack has already hit the entity, don't hit it twice
+            if (std::find(mCurrentHitEnemies.begin(), mCurrentHitEnemies.end(), entity.get()) != mCurrentHitEnemies.end())
+            {
+                continue;
+            }
+
             HealthComponent* health = entity->GetComponent<HealthComponent>();
             if (health && health->IsDead())
             {
@@ -180,6 +186,9 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
                             stagger->TryStaggerInDirection(0.5f, mCurrentAttackFacing == FacingDirection::RIGHT ? FacingDirection::LEFT : FacingDirection::RIGHT);
                         }
                     }
+                    
+                    mCurrentHitEnemies.emplace_back(entity.get());
+
                     // TODO: This should be data-driven by the attack
                     // TODO: Better calculation of where the vfx should play
                     Shade::Vec2 vfxPosition = attackBox.mPosition;
@@ -229,6 +238,7 @@ bool AttackComponent::DoAttack(const std::string& name)
         health->mIsInvulnerable = true;
     }
     mCurrentAttack = name;
+    mCurrentHitEnemies.clear();
     mCurrentAttackTimer = attackInfo.mDuration;
     mCurrentAttackFacing = facing->mDirection;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shade/game/entity/component/component.h"
+#include "shade/game/entity/entity.h"
 #include "shade/graphics/flare/flareService.h"
 
 #include "components/facingComponent.h"
@@ -90,6 +91,7 @@ private:
     std::unordered_map<std::string, AttackInfo> mAttackMap;
 
     std::string mCurrentAttack;
+    std::vector<Shade::Entity*> mCurrentHitEnemies; // Entity pointers are used directly for checks, no lifetime safety needed
     float mCurrentAttackTimer = 0.f;
     FacingDirection mCurrentAttackFacing;
     
