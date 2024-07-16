@@ -4,5 +4,6 @@ target_sources(Shade PRIVATE renderer.cpp texture.cpp)
 add_subdirectory(command)
 add_subdirectory(camera)
 add_subdirectory(flare)
+add_subdirectory(anim)
 
 add_subdirectory(imgui)
