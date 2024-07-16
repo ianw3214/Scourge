@@ -29,9 +29,12 @@ AttackComponent::AttackComponent()
 }
 
 // ======================================
-void AttackComponent::RegisterAttackInfo(const std::string& name, const AttackInfo& attack)
+AttackInfo& AttackComponent::RegisterAttackInfo(const std::string& name, const AttackInfo& attack)
 {
+    // TODO: Check against duplicate attack registration?
     mAttackMap[name] = attack;
+
+    return mAttackMap[name];
 }
 
 // ======================================
@@ -121,13 +124,22 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
 {
     for (const AttackHitBox& attackHitBox : attackInfo.mAttackBoxes)
     {
+        Shade::Box attackBox = Shade::Box(Shade::Vec2{ mEntityRef->GetPositionX() + attackHitBox.mOffsetX, mEntityRef->GetPositionY() + attackHitBox.mOffsetY}, attackHitBox.mWidth, attackHitBox.mHeight);
+
         // Spawn vfx if specified by the attack
-        if (attackHitBox.mEffect.mTextureHandle.IsValid())
+        if (attackHitBox.mEffectTexture.IsValid())
         {
             // TODO: Working on this...
+            Shade::FlareService* flareVFX = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FlareService>();
+            Shade::Vec2 vfxPosition = attackBox.mPosition;
+            vfxPosition.x += attackHitBox.mEffectOffsetX;
+            vfxPosition.y += attackHitBox.mEffectOffsetY;
+            // TODO: Adjustable render layers?
+            // TODO: Adjustable vfx lifetime
+            // TODO: Don't want to manually specify width/height here
+            flareVFX->SpawnEffect(Shade::Effect{ vfxPosition, 80.f, 140.f, attackHitBox.mEffectTexture, static_cast<int>(RenderLayer::DEFAULT), 0.25f});
         }
         // Check the actual hit box for hits on enemies
-        Shade::Box attackBox = Shade::Box(Shade::Vec2{ mEntityRef->GetPositionX() + attackHitBox.mOffsetX, mEntityRef->GetPositionY() + attackHitBox.mOffsetY}, attackHitBox.mWidth, attackHitBox.mHeight);
         for (const auto& entity : mEntityRef->GetWorldEntities())
         {
             HealthComponent* health = entity->GetComponent<HealthComponent>();

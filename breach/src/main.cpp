@@ -17,6 +17,7 @@
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/command/drawLine.h"
+#include "shade/graphics/texture.h"
 #include "shade/resource/manager.h"
 #include "shade/logging/logService.h"
 
@@ -131,6 +132,9 @@ private:
         std::unique_ptr<Shade::Entity>& NewPlayerRef = AddEntity(std::move(PlayerEntity));
         PlayerRegistry::CachePlayer(NewPlayerRef.get());
 
+        Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+        Shade::ResourceHandle fireVFX = resourceManager->LoadResource<Shade::Texture>("assets/breach/VFX/fire.png");
+
         // Testing a knight entity
         Shade::TilesheetInfo tileSheetInfo3 { 480, 420, 6, 6 };
         std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo3;
@@ -155,7 +159,9 @@ private:
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
         enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.7f, AttackHitInfo(16, 30.f, AttackTarget::PLAYER, { AttackHitBox(100.f, 0.f, 140.f, 200.f)} )));
         enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.7f, AttackHitInfo(12, 30.f, AttackTarget::PLAYER, { AttackHitBox(-240.f, 0.f, 140.f, 200.f)} )));
-        enemyAttack->RegisterAttackInfo("special", AttackInfo("special_charge", true, 1.2f, AttackHitInfo(12, 30.f, AttackTarget::PLAYER, { AttackHitBox(-240.f, 0.f, 140.f, 200.f)} )));
+        AttackInfo& specialAttack = enemyAttack->RegisterAttackInfo("special", AttackInfo("special_charge", true, 1.2f, AttackHitInfo(21, 30.f, AttackTarget::PLAYER, { AttackHitBox(-140.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(60.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, 60.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, -60.f, 80.f, 80.f, fireVFX, 0.f, 0.f) } )));
+        // TODO: Currently this second triggers multiple times since the animation loops, need to figure out a better fix for this...
+        specialAttack.mHitInfo.emplace_back(AttackHitInfo(22, 30.f, AttackTarget::PLAYER, { AttackHitBox(-200.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(120.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, 100.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, -100.f, 80.f, 80.f, fireVFX, 0.f, 0.f) } ));
         TestKnight->AddComponent(std::move(enemyAttack));
         // TODO: Temp hacky code - find better fix
         AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();

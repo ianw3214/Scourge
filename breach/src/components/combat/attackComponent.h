@@ -25,13 +25,13 @@ struct AttackHitBox {
     float mWidth = 10.f;
     float mHeight = 10.f;
 
-    Shade::Effect mEffect;
+    Shade::ResourceHandle mEffectTexture = Shade::ResourceHandle::Invalid;
     float mEffectOffsetX = 0.f;
     float mEffectOffsetY = 0.f;
 
     AttackHitBox() = default;
     AttackHitBox(float offsetX, float offsetY, float width, float height) : mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height) {}
-    AttackHitBox(float offsetX, float offsetY, float width, float height, Shade::Effect effect, float effectOffsetX, float effectOffsetY) : mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height), mEffect(effect), mEffectOffsetX(effectOffsetX), mEffectOffsetY(effectOffsetY) {}
+    AttackHitBox(float offsetX, float offsetY, float width, float height, Shade::ResourceHandle effectTexture, float effectOffsetX, float effectOffsetY) : mOffsetX(offsetX), mOffsetY(offsetY), mWidth(width), mHeight(height), mEffectTexture(effectTexture), mEffectOffsetX(effectOffsetX), mEffectOffsetY(effectOffsetY) {}
 };
 
 // ======================================
@@ -72,7 +72,7 @@ class AttackComponent : public Shade::Component {
 public:
     AttackComponent();
 
-    void RegisterAttackInfo(const std::string& name, const AttackInfo& attack);
+    AttackInfo& RegisterAttackInfo(const std::string& name, const AttackInfo& attack);
     // This must be called after the animated sprite component has been set up
     void RegisterAttacksToAnimFrames();
 

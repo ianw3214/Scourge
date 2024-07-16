@@ -17,6 +17,13 @@ void StaggerComponent::Update(float deltaSeconds)
 {
     if (mStaggerTimer > 0.f)
     {
+        HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();
+        if (health && health->IsDead())
+        {
+            mStaggerTimer = 0.f;
+            return;
+        }
+
         FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
         mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "stagger_right" : "stagger_left", false);
 
