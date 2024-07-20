@@ -13,6 +13,14 @@ StaggerComponent::StaggerComponent()
 }
 
 // ======================================
+StaggerComponent::StaggerComponent(const std::string& staggerLeftAnim, const std::string& staggerRightAnim)
+    : mStaggerLeftAnim(staggerLeftAnim)
+    , mStaggerRightAnim(staggerRightAnim)
+{
+
+}
+
+// ======================================
 void StaggerComponent::Update(float deltaSeconds) 
 {
     if (mStaggerTimer > 0.f)
@@ -25,7 +33,7 @@ void StaggerComponent::Update(float deltaSeconds)
         }
 
         FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-        mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "stagger_right" : "stagger_left", false);
+        mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? mStaggerRightAnim : mStaggerLeftAnim, false);
 
         mStaggerTimer -= deltaSeconds;
     }
@@ -48,7 +56,7 @@ void StaggerComponent::TryStagger(float time)
     mStaggerTimer = time;
 
     FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "stagger_right" : "stagger_left", false);
+    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? mStaggerRightAnim : mStaggerLeftAnim, false);
 
     // TODO: Potentially handle inturrupting actions here as well
     //  - e.g. inturrupted attack
@@ -72,7 +80,7 @@ void StaggerComponent::TryStaggerInDirection(float time, FacingDirection directi
 
     mStaggerTimer = time;
 
-    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(direction == FacingDirection::RIGHT ? "stagger_right" : "stagger_left", false);
+    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(direction == FacingDirection::RIGHT ? mStaggerRightAnim : mStaggerLeftAnim, false);
     // Update the facing to face the direction that the stagger is in
     FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
     facing->mDirection = direction;

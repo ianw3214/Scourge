@@ -54,11 +54,11 @@ void LocomotionComponent::Update(float deltaSeconds)
     }
     if (bMoving)
     {
-        mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "run_right" : "run_left", false);
+        mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? mMoveRightAnim : mMoveLeftAnim, false);
     }
     else
     {
-        mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "idle_right" : "idle_left", false);
+        mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? mIdleRightAnim : mIdleLeftAnim, false);
     }
     // Reset movement flags after using them
     mMovingLeft = false;

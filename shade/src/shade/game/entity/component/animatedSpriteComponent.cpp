@@ -26,6 +26,34 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
 }
 
 // ======================================
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, const AnimationFrameData* frameData, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+    : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
+    , mCurrentState(initialState)
+{
+    // TODO: Assert on incoming anim frame data
+    mTileSheetInfo = TilesheetInfo{ frameData->GetFrameWidth(), frameData->GetFrameHeight(), frameData->GetColumns(), frameData->GetRows() };
+    for (const AnimationFrameInfo& frame : frameData->GetAnimationFrames())
+    {
+        mStates[frame.mName] = AnimationStateInfo{ frame.mStart, frame.mEnd };
+    }
+    // TODO: Crash if the current state isn't an actual valid state
+    // Update current frame based on the initial state
+    mCurrentFrame = mStates[mCurrentState].mStartFrame;
+}
+
+// ======================================
+void Shade::AnimatedSpriteComponent::SetAnimationTransition(const std::string& animation, const std::string& transition)
+{
+    mStates[animation].mTransition = transition;
+}
+
+// ======================================
+void Shade::AnimatedSpriteComponent::AddAnimationState(const std::string& name, uint16_t start, uint16_t end, const std::string& transition)
+{
+    mStates[name] = { start, end, transition };
+}
+
+// ======================================
 void Shade::AnimatedSpriteComponent::Update(float deltaSeconds) 
 {
     mElapsedTime += deltaSeconds;
