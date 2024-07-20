@@ -16,7 +16,6 @@ void MapTransitionComponent::Update(float deltaSeconds)
     {
         if (Shade::PointInBox(mEntityRef->GetPosition(), transition.mZoneDefinition))
         {
-            // TODO: Somehow transition here
             Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
             logger->LogInfo("Changing to map: " + transition.mMapTransition);
 

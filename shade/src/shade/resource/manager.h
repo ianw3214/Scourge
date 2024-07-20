@@ -12,6 +12,8 @@ namespace Shade {
 
     class Resource;
 
+    // TODO: Ability to load a resource and then immediately release it
+    //  - Alternatively, load a resource but let caller take ownership
     class ResourceManager : public Service {
     public:
         ResourceManager();
@@ -43,7 +45,12 @@ namespace Shade {
         if (it == mHandleMap.end())
         {
             const size_t index = mResources.size();
-            mResources.emplace_back(T::Load(path));
+            Resource* loadedResource = T::Load(path);
+            if (loadedResource == nullptr)
+            {
+                return ResourceHandle::Invalid;
+            }
+            mResources.emplace_back(loadedResource);
             const uint32_t id = mResources.back()->GetResourceID();
             ResourceHandle Handle(index, id);
             mHandleMap.emplace(path, Handle);
