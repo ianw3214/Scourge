@@ -14,6 +14,9 @@ target_compile_definitions(Vendor PRIVATE BUILD_DLL)
 target_include_directories(Vendor PRIVATE stb)
 target_sources(Vendor PRIVATE stb/stb_image.h)
 
+target_include_directories(Vendor PRIVATE nlohmann/single_include)
+target_sources(Vendor PRIVATE nlohmann/single_include/nlohmann/json.hpp)
+
 target_include_directories(Vendor PRIVATE imgui)
 target_sources(Vendor PRIVATE imgui/imconfig.h)
 target_sources(Vendor PRIVATE imgui/imgui_demo.cpp)

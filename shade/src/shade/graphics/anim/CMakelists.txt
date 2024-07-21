@@ -1,0 +1,2 @@
+target_sources(Shade PRIVATE animationFrameData.h)
+target_sources(Shade PRIVATE animationFrameData.cpp)

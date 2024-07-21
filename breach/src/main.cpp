@@ -14,6 +14,7 @@
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
 #include "shade/game/world.h"
+#include "shade/graphics/anim/animationFrameData.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/command/drawLine.h"
@@ -43,6 +44,9 @@
 #include "debug/basicDebugComponent.h"
 
 #include <vector>
+
+// TODO: TEMP DEBUG
+#include "shade/file/fileSystem.h"
 
 // ======================================
 // TODO: This is a pretty hacky system, figure out a better way to track this in the future
@@ -134,34 +138,24 @@ private:
 
         Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
         Shade::ResourceHandle fireVFX = resourceManager->LoadResource<Shade::Texture>("assets/breach/VFX/fire.png");
+        Shade::ResourceHandle knightAnimHandle = resourceManager->LoadResource<Shade::AnimationFrameData>("assets/textures/knight2.json");
+        Shade::AnimationFrameData* knightAnim = resourceManager->GetResource<Shade::AnimationFrameData>(knightAnimHandle);
 
         // Testing a knight entity
-        Shade::TilesheetInfo tileSheetInfo3 { 480, 420, 6, 6 };
-        std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo3;
-        animStateInfo3["idle_left"] = { 0, 0 };
-        animStateInfo3["idle_right"] = { 1, 1 };
-        animStateInfo3["run_left"] = { 2, 5 };
-        animStateInfo3["run_right"] = { 6, 9 };
-        animStateInfo3["attack_left"] = { 10, 13, "idle_left" };
-        animStateInfo3["attack_right"] = { 14, 17, "idle_right" };
-        animStateInfo3["recharge_left"] = { 13, 13 };
-        animStateInfo3["recharge_right"] = { 17, 17 };
-        animStateInfo3["stagger_left"] = { 18, 18 };
-        animStateInfo3["stagger_right"] = { 19, 19 };
-        animStateInfo3["special_charge"] = { 20, 22, "special_hold" };
-        animStateInfo3["special_hold"] = { 22, 24 };
-        animStateInfo3["die_left"] = { 25, 27, "dead_left" };
-        animStateInfo3["dead_left"] = { 27, 27 };
-        animStateInfo3["die_right"] = { 28, 30, "dead_right" };
-        animStateInfo3["dead_right"] = { 30, 30 };
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
-        TestKnight->AddComponent(std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", tileSheetInfo3, animStateInfo3, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE));
+        std::unique_ptr<Shade::AnimatedSpriteComponent> enemySprite = std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", knightAnim, "IDLE_LEFT", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
+        enemySprite->SetAnimationTransition("ATTACK_LEFT", "IDLE_LEFT");
+        enemySprite->SetAnimationTransition("ATTACK_RIGHT", "IDLE_RIGHT");
+        enemySprite->SetAnimationTransition("SPECIAL_CHARGE", "SPECIAL_HOLD");
+        enemySprite->SetAnimationTransition("DIE_LEFT", "DEAD_LEFT");
+        enemySprite->SetAnimationTransition("DIE_RIGHT", "DEAD_RIGHT");
+        TestKnight->AddComponent(std::move(enemySprite));
         std::unique_ptr<AttackComponent> enemyAttack = std::make_unique<AttackComponent>();
-        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.7f, AttackHitInfo(16, 30.f, AttackTarget::PLAYER, { AttackHitBox(100.f, 0.f, 140.f, 200.f)} )));
-        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.7f, AttackHitInfo(12, 30.f, AttackTarget::PLAYER, { AttackHitBox(-240.f, 0.f, 140.f, 200.f)} )));
-        AttackInfo& specialAttack = enemyAttack->RegisterAttackInfo("special", AttackInfo("special_charge", true, 1.2f, AttackHitInfo(21, 30.f, AttackTarget::PLAYER, { AttackHitBox(-140.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(60.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, 60.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, -60.f, 80.f, 80.f, fireVFX, 0.f, 0.f) } )));
+        enemyAttack->RegisterAttackInfo("attack_right", AttackInfo("ATTACK_RIGHT", true, 0.7f, AttackHitInfo(16, 30.f, AttackTarget::PLAYER, { AttackHitBox(100.f, 0.f, 140.f, 200.f)} )));
+        enemyAttack->RegisterAttackInfo("attack_left", AttackInfo("ATTACK_LEFT", true, 0.7f, AttackHitInfo(12, 30.f, AttackTarget::PLAYER, { AttackHitBox(-240.f, 0.f, 140.f, 200.f)} )));
+        AttackInfo& specialAttack = enemyAttack->RegisterAttackInfo("special", AttackInfo("SPECIAL_CHARGE", true, 1.2f, AttackHitInfo(24, 30.f, AttackTarget::PLAYER, { AttackHitBox(-140.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(60.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, 60.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, -60.f, 80.f, 80.f, fireVFX, 0.f, 0.f) } )));
         // TODO: Currently this second triggers multiple times since the animation loops, need to figure out a better fix for this...
-        specialAttack.mHitInfo.emplace_back(AttackHitInfo(22, 30.f, AttackTarget::PLAYER, { AttackHitBox(-200.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(120.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, 100.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, -100.f, 80.f, 80.f, fireVFX, 0.f, 0.f) } ));
+        specialAttack.mHitInfo.emplace_back(AttackHitInfo(25, 30.f, AttackTarget::PLAYER, { AttackHitBox(-200.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(120.f, 0.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, 100.f, 80.f, 80.f, fireVFX, 0.f, 0.f), AttackHitBox(-40.f, -100.f, 80.f, 80.f, fireVFX, 0.f, 0.f) } ));
         TestKnight->AddComponent(std::move(enemyAttack));
         // TODO: Temp hacky code - find better fix
         AttackComponent* enemyAttackComp = TestKnight->GetComponent<AttackComponent>();
@@ -169,12 +163,12 @@ private:
         TestKnight->SetPositionX(-100.f);
         TestKnight->SetPositionY(100.f);
         TestKnight->AddComponent(std::make_unique<BaseMovementComponent>());
-        TestKnight->AddComponent(std::make_unique<LocomotionComponent>());
+        TestKnight->AddComponent(std::make_unique<LocomotionComponent>("IDLE_LEFT", "IDLE_RIGHT", "WALK_LEFT", "WALK_RIGHT"));
         TestKnight->AddComponent(std::make_unique<FacingComponent>());
         TestKnight->AddComponent(std::make_unique<HealthComponent>(300.f));
-        TestKnight->AddComponent(std::make_unique<DeathHandlingComponent>());
+        TestKnight->AddComponent(std::make_unique<DeathHandlingComponent>("DIE_LEFT", "DIE_RIGHT"));
         TestKnight->AddComponent(std::make_unique<HitboxComponent>(120.f, 240.f));
-        TestKnight->AddComponent(std::make_unique<StaggerComponent>());
+        TestKnight->AddComponent(std::make_unique<StaggerComponent>("STAGGER_LEFT", "STAGGER_RIGHT"));
 
         // AI state machine definition
         // TODO: Move temp cooldown code into blackboard or something similar

@@ -1,3 +1,4 @@
 target_sources(Shade PRIVATE textFile.h textFile.cpp)
 target_sources(Shade PRIVATE keyValueFile.h keyValueFile.cpp)
+target_sources(Shade PRIVATE jsonFile.h jsonFile.cpp)
 target_sources(Shade PRIVATE fileSystem.h fileSystem.cpp)

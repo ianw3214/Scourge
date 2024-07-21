@@ -4,10 +4,13 @@
 
 #include "components/facingComponent.h"
 
+#include <string>
+
 class StaggerComponent : public Shade::Component
 {
 public:
     StaggerComponent();
+    StaggerComponent(const std::string& staggerLeftAnim, const std::string& staggerRightAnim);
 
     void Update(float deltaSeconds) override;
 
@@ -22,4 +25,7 @@ private:
     float mStaggerTimer = 0.f;
 
     bool mCanStagger = true;
+
+    std::string mStaggerLeftAnim = "stagger_left";
+    std::string mStaggerRightAnim = "stagger_right";
 };

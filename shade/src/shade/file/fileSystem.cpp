@@ -42,6 +42,22 @@ std::unique_ptr<Shade::KeyValueFile> Shade::FileSystem::LoadKeyValueFile(const s
 }
 
 // ======================================
+std::unique_ptr<Shade::JsonFile> Shade::FileSystem::LoadJsonFile(const std::string& path)
+{
+    std::ifstream rawFile(path);
+    if (rawFile.is_open())
+    {
+        return JsonFile::LoadFile(rawFile);
+    }
+    else
+    {
+        // TODO: Error...
+    }
+
+    return nullptr;
+}
+
+// ======================================
 bool Shade::FileSystem::SaveKeyValueFile(const std::string& path, const KeyValueFile& fileData)
 {
     std::ofstream fileStream(path);

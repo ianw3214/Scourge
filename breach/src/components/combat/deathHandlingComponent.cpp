@@ -12,6 +12,13 @@ DeathHandlingComponent::DeathHandlingComponent()
 }
 
 // ======================================
+DeathHandlingComponent::DeathHandlingComponent(const std::string& dieLeftAnim, const std::string& dieRightAnim)
+    : mDieLeftAnim(dieLeftAnim), mDieRightAnim(dieRightAnim)
+{
+
+}
+
+// ======================================
 void DeathHandlingComponent::Update(float deltaSeconds) 
 {
     if (mDeleteTimer > 0.f)
@@ -31,5 +38,5 @@ void DeathHandlingComponent::HandleDeath(float deathTime)
 
     // TODO: Allow the animations to be set rather than hard-coding the strings here
     FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
-    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? "die_right" : "die_left");
+    mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? mDieRightAnim : mDieLeftAnim);
 }

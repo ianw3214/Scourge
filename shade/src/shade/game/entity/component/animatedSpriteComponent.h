@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "shade/game/entity/component/spriteComponent.h"
+#include "shade/graphics/anim/animationFrameData.h"
 
 namespace Shade {
 
@@ -29,6 +30,10 @@ namespace Shade {
         // TODO: This is a super long constructor
         //  - try to trim it down by separating out the initialization
         AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
+        AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, const AnimationFrameData* frameData, const std::string& initialState, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
+
+        // TODO: Temp debug adding function - remove when proper loading is implemented
+        void SetAnimationTransition(const std::string& animation, const std::string& transition);
 
         virtual void Update(float deltaSeconds) override;
         virtual void AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue) override;
