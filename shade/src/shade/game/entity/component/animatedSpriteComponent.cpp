@@ -48,12 +48,6 @@ void Shade::AnimatedSpriteComponent::SetAnimationTransition(const std::string& a
 }
 
 // ======================================
-void Shade::AnimatedSpriteComponent::AddAnimationState(const std::string& name, uint16_t start, uint16_t end, const std::string& transition)
-{
-    mStates[name] = { start, end, transition };
-}
-
-// ======================================
 void Shade::AnimatedSpriteComponent::Update(float deltaSeconds) 
 {
     mElapsedTime += deltaSeconds;

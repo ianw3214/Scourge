@@ -34,7 +34,6 @@ namespace Shade {
 
         // TODO: Temp debug adding function - remove when proper loading is implemented
         void SetAnimationTransition(const std::string& animation, const std::string& transition);
-        void AddAnimationState(const std::string& name, uint16_t start, uint16_t end, const std::string& transition = "");
 
         virtual void Update(float deltaSeconds) override;
         virtual void AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue) override;
