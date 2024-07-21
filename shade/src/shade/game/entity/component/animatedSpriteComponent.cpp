@@ -1,5 +1,7 @@
 #include "animatedSpriteComponent.h"
 
+#include <cassert>
+
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/command/drawTexture.h"
 #include "shade/graphics/command/setColourMultiplier.h"
@@ -20,7 +22,8 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
     , mStates(states)
     , mCurrentState(initialState)
 {
-    // TODO: Crash if the current state isn't an actual valid state
+    assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
+
     // Update current frame based on the initial state
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
 }
@@ -30,14 +33,15 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
     : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
     , mCurrentState(initialState)
 {
-    // TODO: Assert on incoming anim frame data
+    assert(frameData != nullptr && "Null frame data passed in to initialize animated sprite component");
+
     mTileSheetInfo = TilesheetInfo{ frameData->GetFrameWidth(), frameData->GetFrameHeight(), frameData->GetColumns(), frameData->GetRows() };
     for (const AnimationFrameInfo& frame : frameData->GetAnimationFrames())
     {
         mStates[frame.mName] = AnimationStateInfo{ frame.mStart, frame.mEnd };
     }
-    // TODO: Crash if the current state isn't an actual valid state
-    // Update current frame based on the initial state
+    assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
+
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
 }
 
@@ -55,7 +59,8 @@ void Shade::AnimatedSpriteComponent::Update(float deltaSeconds)
     if (mElapsedTime > frameTime)
     {
         mElapsedTime = 0.f;
-        // TODO: Crash if the current state isn't an actual valid state
+        
+        assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
         AnimationStateInfo StateInfo = mStates[mCurrentState];
         if (++mCurrentFrame > StateInfo.mEndFrame) 
         {

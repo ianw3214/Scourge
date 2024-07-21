@@ -143,7 +143,7 @@ private:
 
         // Testing a knight entity
         std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
-        std::unique_ptr<Shade::AnimatedSpriteComponent> enemySprite = std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", knightAnim, "idle_left", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
+        std::unique_ptr<Shade::AnimatedSpriteComponent> enemySprite = std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", knightAnim, "IDLE_LEFT", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         enemySprite->SetAnimationTransition("ATTACK_LEFT", "IDLE_LEFT");
         enemySprite->SetAnimationTransition("ATTACK_RIGHT", "IDLE_RIGHT");
         enemySprite->SetAnimationTransition("SPECIAL_CHARGE", "SPECIAL_HOLD");
