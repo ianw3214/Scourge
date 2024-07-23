@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include "shade/instance/service/service.h"
 
@@ -26,7 +27,7 @@ namespace Shade {
         void UnRegisterEntityWorldInfo();
 
         std::unique_ptr<Entity> CreateNewEntity();
-        std::unique_ptr<Entity>& CreateAndRegisterNewEntity();
+        std::unique_ptr<Entity>& CreateAndRegisterNewEntity(const std::string& filePath = "");
     private:
         std::unique_ptr<EntityWorldInfo> mEntityWorldInfo;
     };

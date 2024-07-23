@@ -9,6 +9,7 @@
 #include "shade/module/state.h"
 #include "shade/editor/editor.h"
 #include "shade/editor/editorBase.h"
+#include "shade/game/entity/factory.h"
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
@@ -142,7 +143,8 @@ private:
         Shade::AnimationFrameData* knightAnim = resourceManager->GetResource<Shade::AnimationFrameData>(knightAnimHandle);
 
         // Testing a knight entity
-        std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
+        // std::unique_ptr<Shade::Entity> TestKnight = std::make_unique<Shade::Entity>(*this, *this);
+        std::unique_ptr<Shade::Entity>& TestKnight = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/knight.kv");
         std::unique_ptr<Shade::AnimatedSpriteComponent> enemySprite = std::make_unique<Shade::AnimatedSpriteComponent>(480.f, 420.f, "assets/textures/knight2.png", knightAnim, "IDLE_LEFT", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         enemySprite->SetAnimationTransition("ATTACK_LEFT", "IDLE_LEFT");
         enemySprite->SetAnimationTransition("ATTACK_RIGHT", "IDLE_RIGHT");
@@ -280,7 +282,7 @@ private:
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
-        AddEntity(std::move(TestKnight));
+        // AddEntity(std::move(TestKnight));
     }
     // ======================================
     void InitializeWorldFromMap(const std::string& mapPath)
