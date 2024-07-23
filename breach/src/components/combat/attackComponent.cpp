@@ -18,6 +18,8 @@
 #include "components/movement/moveComponent.h"
 #include "components/movement/staggerComponent.h"
 
+#include <cassert>
+
 // TODO: Remove - Temporary for determining player or AI
 #include "components/ai/stateMachineAIComponent.h"
 
@@ -31,9 +33,13 @@ AttackComponent::AttackComponent()
 // ======================================
 AttackInfo& AttackComponent::RegisterAttackInfo(const std::string& name, const AttackInfo& attack)
 {
-    // TODO: Check against duplicate attack registration?
-    mAttackMap[name] = attack;
+    if (mAttackMap.find(name) != mAttackMap.end())
+    {
+        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logService->LogWarning(std::string("Registering attack that already exists: ") + name);
+    }
 
+    mAttackMap[name] = attack;
     return mAttackMap[name];
 }
 
@@ -64,7 +70,7 @@ void AttackComponent::Update(float deltaSeconds)
 {
     if (!mCurrentAttack.empty())
     {
-        // TODO: Add an assert that current attack exists in the map
+        assert(mAttackMap.find(mCurrentAttack) != mAttackMap.end() && "Current attack was not found in list of attacks");
         const AttackInfo& attackInfo = mAttackMap[mCurrentAttack];
         if (attackInfo.mMoveSpeed > 0.f)
         {
@@ -120,7 +126,7 @@ bool AttackComponent::TryDoAttack(const std::string& name)
 
 // ======================================
 //  - TODO: Why does this return a bool? Either define it well or just turn this into void
-bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
+void AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
 {
     for (const AttackHitBox& attackHitBox : attackInfo.mAttackBoxes)
     {
@@ -129,7 +135,6 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
         // Spawn vfx if specified by the attack
         if (attackHitBox.mEffectTexture.IsValid())
         {
-            // TODO: Working on this...
             Shade::FlareService* flareVFX = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FlareService>();
             Shade::Vec2 vfxPosition = attackBox.mPosition;
             vfxPosition.x += attackHitBox.mEffectOffsetX;
@@ -205,7 +210,6 @@ bool AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
         DebugUtils::DrawDebugRectOutline(Shade::Vec2{ mEntityRef->GetPositionX() + attackHitBox.mOffsetX, mEntityRef->GetPositionY() + attackHitBox.mOffsetY}, attackHitBox.mWidth, attackHitBox.mHeight, Shade::Colour{ 0.15f, 0.15f, 0.15f}, 0.5f);
 #endif
     }
-    return true;
 }
 
 // ======================================

@@ -82,7 +82,7 @@ public:
     bool IsDoingAttack() const;
     
     bool TryDoAttack(const std::string& name);
-    bool TriggerAttackHitEvent(const AttackHitInfo& attackHitInfo);
+    void TriggerAttackHitEvent(const AttackHitInfo& attackHitInfo);
 
 private:
     bool DoAttack(const std::string& name);

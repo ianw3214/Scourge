@@ -6,6 +6,7 @@
 #include "shade/editor/editor.h"
 #include "shade/file/fileSystem.h"
 #include "shade/game/entity/factory.h"
+#include "shade/game/entity/serialization/loader.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/command/command.h"
 #include "shade/graphics/flare/flareService.h"
@@ -46,6 +47,7 @@ Shade::GameInstance::GameInstance()
 
     // Register gameplay related services
     RegisterService(new EntityFactory());
+    RegisterService(new EntityLoaderService());
     RegisterService(new FlareService());
 
 #ifdef BUILD_SHADE_EDITOR

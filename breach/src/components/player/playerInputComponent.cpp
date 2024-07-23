@@ -13,6 +13,14 @@
 void PlayerInputComponent::Update(float deltaSeconds) {
     LocomotionComponent* locomotion = mEntityRef->GetComponent<LocomotionComponent>();
     AttackComponent* attackComponent = mEntityRef->GetComponent<AttackComponent>();
+
+    float controllerMoveHorizontal = mEntityRef->GetIntEvent("move_h").mValue;
+    float controllerMoveVertical = mEntityRef->GetIntEvent("move_v").mValue;
+    locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld || controllerMoveVertical < -10000;
+    locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld || controllerMoveVertical > 10000;
+    locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld || controllerMoveHorizontal > 10000;
+    locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld || controllerMoveHorizontal < -10000;
+
     if (locomotion == nullptr)
     {
         Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
@@ -38,12 +46,4 @@ void PlayerInputComponent::Update(float deltaSeconds) {
         attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "dash_right" : "dash_left");
         return;
     }
-    // TODO: These should really be int events, since that is how SDL represents the values
-    //  - alternatively, noramlize the values to float values
-    float controllerMoveHorizontal = mEntityRef->GetIntEvent("move_h").mValue;
-    float controllerMoveVertical = mEntityRef->GetIntEvent("move_v").mValue;
-    locomotion->mMovingUp = mEntityRef->GetBooleanEvent("move_up").mHeld || controllerMoveVertical < -10000;
-    locomotion->mMovingDown = mEntityRef->GetBooleanEvent("move_down").mHeld || controllerMoveVertical > 10000;
-    locomotion->mMovingRight = mEntityRef->GetBooleanEvent("move_right").mHeld || controllerMoveHorizontal > 10000;
-    locomotion->mMovingLeft = mEntityRef->GetBooleanEvent("move_left").mHeld || controllerMoveHorizontal < -10000;
 }

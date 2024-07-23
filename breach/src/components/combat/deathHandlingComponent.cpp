@@ -36,7 +36,6 @@ void DeathHandlingComponent::HandleDeath(float deathTime)
 {
     mDeleteTimer = deathTime;
 
-    // TODO: Allow the animations to be set rather than hard-coding the strings here
     FacingComponent* facing = mEntityRef->GetComponent<FacingComponent>();
     mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(facing->mDirection == FacingDirection::RIGHT ? mDieRightAnim : mDieLeftAnim);
 }
