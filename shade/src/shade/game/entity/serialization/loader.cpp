@@ -30,5 +30,25 @@ bool Shade::EntityLoaderService::LoadEntityFromFile(Shade::Entity& entity, const
         return false;
     }
 
+    Shade::KeyValueHandle handle = file->GetContents();
+    while(handle.IsValid())
+    {
+        if (handle.GetKey() == "name")
+        {
+            if (handle.IsString())
+            {
+                entity.SetName(handle.GetString());
+                logger->LogInfo(std::string("Loading entity: ") + handle.GetString());
+            }
+            else
+            {
+                logger->LogWarning("Expected string for field 'name'");
+            }
+        }
+        // TODO: There really should be some error-proofing here to prevent infinite loops
+        //  - Maybe implement as a utility function w/ lambda callback?
+        handle.ToNext();
+    }
+
     return true;
 }

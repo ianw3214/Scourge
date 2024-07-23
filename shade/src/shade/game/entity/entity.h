@@ -30,9 +30,11 @@ namespace Shade {
 
         void SetPositionX(float newX);
         void SetPositionY(float newY);
+        void SetName(const std::string& name);
         float GetPositionX() const;
         float GetPositionY() const;
         Vec2 GetPosition() const;
+        const std::string& GetName() const;
 
         void AddComponent(std::unique_ptr<Component> newComponent);
         template<class ComponentClass> ComponentClass* GetComponent();
@@ -51,6 +53,7 @@ namespace Shade {
         // Default entity attributes
         float x = 0.f;
         float y = 0.f;
+        std::string mName = "";
 
         // The components list does NOT contain cached components
         std::vector<std::unique_ptr<Component>> mComponents;
