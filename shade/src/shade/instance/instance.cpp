@@ -50,6 +50,10 @@ Shade::GameInstance::GameInstance()
     RegisterService(new EntityLoaderService());
     RegisterService(new FlareService());
 
+    // TODO: Another temp service initialization, maybe this is fine...
+    EntityLoaderService* loader = GetService<EntityLoaderService>();
+    loader->LoadDefaultComponentLoaders();
+
 #ifdef BUILD_SHADE_EDITOR
     RegisterService(new EditorService());
 #endif

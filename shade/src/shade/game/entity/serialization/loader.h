@@ -17,13 +17,19 @@ namespace Shade {
     //  - Handles loading entities from file
     class EntityLoaderService : public Shade::Service {
     public:
+        // The handle passed into the component loader should be the top level list handle
+        typedef std::function<Shade::Component*(Shade::KeyValueHandle)> ComponentLoader;
+    public:
         EntityLoaderService();
         ~EntityLoaderService();
 
         bool LoadEntityFromFile(Shade::Entity& entity, const std::string& filePath);
 
+        void RegisterComponentLoader(const std::string& name, ComponentLoader loader);
+        void LoadDefaultComponentLoaders();
+
     private:
-        std::unordered_map<std::string, std::function<Shade::Component*(Shade::KeyValueHandle)>> mComponentLoaders;
+        std::unordered_map<std::string, ComponentLoader> mComponentLoaders;
 
     };
 
