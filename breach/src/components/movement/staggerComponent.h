@@ -3,11 +3,14 @@
 #include "shade/game/entity/component/component.h"
 
 #include "components/facingComponent.h"
+#include "shade/file/keyValueFile.h"
 
 #include <string>
 
 class StaggerComponent : public Shade::Component
 {
+public:
+    static StaggerComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     StaggerComponent();
     StaggerComponent(const std::string& staggerLeftAnim, const std::string& staggerRightAnim);

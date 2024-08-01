@@ -4,12 +4,15 @@
 
 #include "shade/common/collision.h"
 #include "shade/common/vec.h"
+#include "shade/file/keyValueFile.h"
 
 // Represents the hit box of an entity, used to test against attacks hitting a character
 //  - Currently assumes bottom middle of the box to be the position of the entity
 //      - This may need to be adjusted to be a custom offset system in the future
 class HitboxComponent : public Shade::Component
 {
+public:
+    static HitboxComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     HitboxComponent(float width, float height);
 

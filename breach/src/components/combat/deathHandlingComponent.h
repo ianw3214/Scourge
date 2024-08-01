@@ -2,12 +2,16 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "shade/file/keyValueFile.h"
+
 #include <string>
 
 // Handles the death of an entity
 //  - By default, play a specified animation and mark the entity for remove after a timer
 class DeathHandlingComponent : public Shade::Component
 {
+public:
+    static DeathHandlingComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     DeathHandlingComponent();
     DeathHandlingComponent(const std::string& mDieLeftAnim, const std::string& mDieRightAnim);

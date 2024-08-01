@@ -9,6 +9,49 @@
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 
 // ======================================
+LocomotionComponent* LocomotionComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    if (handle.IsValid())
+    {
+        // TODO: Sync up the default values
+        float speed = 200.f;
+        std::string idleLeftAnim = "idle_left";
+        std::string idleRightAnim = "idle_right";
+        std::string runLeftAnim = "run_left";
+        std::string runRightAnim = "run_right";
+
+        while (handle.IsValid())
+        {
+            if (handle.GetKey() == "speed")
+            {
+                speed = handle.TryGetFloat();
+            }
+            if (handle.GetKey() == "idle_left")
+            {
+                idleLeftAnim = handle.TryGetString();
+            }
+            if (handle.GetKey() == "idle_right")
+            {
+                idleRightAnim = handle.TryGetString();
+            }
+            if (handle.GetKey() == "run_left")
+            {
+                runLeftAnim = handle.TryGetString();
+            }
+            if (handle.GetKey() == "run_right")
+            {
+                runRightAnim = handle.TryGetString();
+            }
+            handle.ToNext();
+        }
+
+        return new LocomotionComponent(speed, idleLeftAnim, idleRightAnim, runLeftAnim, runRightAnim);
+    }   
+
+    return new LocomotionComponent(); 
+}
+
+// ======================================
 void LocomotionComponent::Update(float deltaSeconds)
 {
     HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();

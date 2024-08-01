@@ -2,8 +2,12 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "shade/file/keyValueFile.h"
+
 class HealthComponent : public Shade::Component
 {
+public:
+    static HealthComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     HealthComponent(float maxHealth);
 

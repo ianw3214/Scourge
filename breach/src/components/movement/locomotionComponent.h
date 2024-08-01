@@ -2,6 +2,8 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "shade/file/keyValueFile.h"
+
 #include <string>
 
 // The locomotion component handles various basic movement states of an entity
@@ -9,6 +11,8 @@
 //  - The decision on HOW to move is still done by other controlling components
 class LocomotionComponent : public Shade::Component
 {
+public:
+    static LocomotionComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     bool mEnable = true;
     

@@ -14,6 +14,7 @@
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
+#include "shade/game/entity/serialization/loader.h"
 #include "shade/game/world.h"
 #include "shade/graphics/anim/animationFrameData.h"
 #include "shade/graphics/camera/camera.h"
@@ -284,7 +285,8 @@ private:
         AddEntity(std::move(TestKnight));
 
         // Testing entity loading
-        std::unique_ptr<Shade::Entity>& TestKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/knight.kv");
+        std::unique_ptr<Shade::Entity>& testKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/knight.kv");
+        testKnight2->AddComponent(std::make_unique<BasicDebugComponent>());
     }
     // ======================================
     void InitializeWorldFromMap(const std::string& mapPath)
@@ -343,6 +345,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #else
     MainGameInstance.SetState(std::make_unique<GameState>(MainGameInstance));
 #endif
+
+    // Register game-specific components
+    Shade::EntityLoaderService* entityLoader = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityLoaderService>();
+    entityLoader->RegisterComponentLoader("movement", [](auto handle){ return new BaseMovementComponent(); });
+    entityLoader->RegisterComponentLoader("facing", [](auto handle){ return new FacingComponent(); });
+    entityLoader->RegisterComponentLoader("health", [](auto handle){ return HealthComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader("locomotion", [](auto handle){ return LocomotionComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader("death_handler", [](auto handle){ return DeathHandlingComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader("hitbox", [](auto handle){ return HitboxComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader("stagger", [](auto handle){ return StaggerComponent::LoadFromFileHandle(handle); });
+
     MainGameInstance.Run();
 
     return 0;
