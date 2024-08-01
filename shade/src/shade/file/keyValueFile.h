@@ -76,6 +76,10 @@ namespace Shade {
         float GetFloat() const;
         const std::string& GetString() const;
         KeyValueHandle GetListHead() const;
+        // Getter functions that don't hard assert if types mismatch or OOB
+        int TryGetInt(int defaultValue = 0) const;
+        float TryGetFloat(float defaultValue = 0.f) const;
+        const std::string& TryGetString(const std::string& defaultValue = "") const;
 
     private:
         size_t mIndex = 0;

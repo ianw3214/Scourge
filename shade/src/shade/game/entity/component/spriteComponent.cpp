@@ -8,7 +8,7 @@
 #include "shade/graphics/texture.h"
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(std::string texturePath, int renderLayer, RenderAnchor renderAnchor, bool constantDepth)
+Shade::SpriteComponent::SpriteComponent(const std::string& texturePath, int renderLayer, RenderAnchor renderAnchor, bool constantDepth)
     : mRenderAnchor(renderAnchor)
     , mRenderLayer(renderLayer)
     , mConstantDepth(constantDepth)
@@ -27,7 +27,7 @@ Shade::SpriteComponent::SpriteComponent(std::string texturePath, int renderLayer
 }
 
 // ======================================
-Shade::SpriteComponent::SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor, bool constantDepth)
+Shade::SpriteComponent::SpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, int renderLayer, RenderAnchor renderAnchor, bool constantDepth)
     : mRenderWidth(renderWidth)
     , mRenderHeight(renderHeight)
     , mRenderAnchor(renderAnchor)

@@ -2,6 +2,7 @@
 
 #include "shade/file/fileSystem.h"
 #include "shade/game/entity/component/spriteComponent.h"
+#include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/graphics/common.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
@@ -85,6 +86,7 @@ void Shade::EntityLoaderService::RegisterComponentLoader(const std::string& name
 // ======================================
 void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
 {
+    // Register sprite loading
     RegisterComponentLoader("sprite", [](Shade::KeyValueHandle handle) {
         Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
         std::string texturePath = "";
@@ -95,29 +97,60 @@ void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
         {
             if (handle.GetKey() == "path")
             {
-                if (handle.IsString())
-                {
-                    texturePath = handle.GetString();
-                }
-                else
-                {
-                    logger->LogWarning("Expected string for field 'texturePath'");
-                }
+                texturePath = handle.TryGetString();
             }
             if (handle.GetKey() == "anchor")
             {
-                if (handle.IsString())
-                {
-                    renderAnchor = RenderUtil::StringToRenderAnchor(handle.GetString());
-                }
-                else
-                {
-                    logger->LogWarning("Expected string for field 'anchor'");
-                }
+                renderAnchor = RenderUtil::StringToRenderAnchor(handle.TryGetString());
             }
             handle.ToNext();
         }
 
         return new SpriteComponent(texturePath, renderLayer, renderAnchor);
+    });
+
+    // Register animated sprited loading
+    RegisterComponentLoader("animated_sprite", [](Shade::KeyValueHandle handle) {
+        Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        
+        // TODO: Consider letting animated sprites use the default frame data render width/height
+        float renderWidth = 100.f;
+        float renderHeight = 100.f;
+        std::string texturePath = "";
+        std::string frameDataPath = "";
+        std::string initialState = "";
+        constexpr int renderLayer = 0;  // TODO: Does this need to actually be loadable from file?
+        Shade::RenderAnchor renderAnchor = RenderAnchor::BOTTOM_MIDDLE;
+
+        while (handle.IsValid())
+        {
+            if (handle.GetKey() == "width")
+            {
+                renderWidth = handle.TryGetFloat();
+            }
+            if (handle.GetKey() == "height")
+            {
+                renderHeight = handle.TryGetFloat();
+            }
+            if (handle.GetKey() == "path")
+            {
+                texturePath = handle.TryGetString();
+            }
+            if (handle.GetKey() == "frame_data")
+            {
+                frameDataPath = handle.TryGetString();
+            }
+            if (handle.GetKey() == "initial_state")
+            {
+                initialState = handle.TryGetString();
+            }
+            if (handle.GetKey() == "anchor")
+            {
+                renderAnchor = RenderUtil::StringToRenderAnchor(handle.TryGetString());
+            }
+            handle.ToNext();
+        }
+
+        return new AnimatedSpriteComponent(renderWidth, renderHeight, texturePath, frameDataPath, initialState, renderLayer, renderAnchor);
     });
 }

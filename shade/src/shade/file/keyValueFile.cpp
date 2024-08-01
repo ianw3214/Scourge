@@ -165,6 +165,43 @@ Shade::KeyValueHandle Shade::KeyValueHandle::GetListHead() const
 }
 
 // ======================================
+int Shade::KeyValueHandle::TryGetInt(int defaultValue) const
+{
+    if (!IsInt())
+    {
+        Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logger->LogError("Expected int value");
+        return defaultValue;
+    }
+    return GetInt();
+}
+
+// ======================================
+float Shade::KeyValueHandle::TryGetFloat(float defaultValue) const
+{
+    if (!IsFloat())
+    {
+        Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logger->LogError("Expected float value");
+        return defaultValue;
+    }
+    return GetFloat();
+}
+
+// ======================================
+const std::string& Shade::KeyValueHandle::TryGetString(const std::string& defaultValue) const
+{
+    if (!IsString())
+    {
+        Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+        logger->LogError("Expected string value");
+        return defaultValue;
+    }
+    return GetString();
+}
+
+
+// ======================================
 Shade::KeyValueFile::KeyValueFile(std::vector<KeyValuePair>&& buffer)
     : mBuffer(std::move(buffer))
 {
