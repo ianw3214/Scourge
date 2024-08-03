@@ -29,7 +29,8 @@ namespace {
 // ======================================
 void BaseMovementComponent::MoveLeft(float distance)
 {
-    if (IsPositionInMapBounds(mEntityRef->GetPosition().Left(distance)))
+    // TODO: Centralize check of current entity position
+    if (IsPositionInMapBounds(mEntityRef->GetPosition().Left(distance)) || !IsPositionInMapBounds(mEntityRef->GetPosition()))
     {
         mEntityRef->SetPositionX(mEntityRef->GetPositionX() - distance);
     }
@@ -38,7 +39,7 @@ void BaseMovementComponent::MoveLeft(float distance)
 // ======================================
 void BaseMovementComponent::MoveRight(float distance)
 {
-    if (IsPositionInMapBounds(mEntityRef->GetPosition().Right(distance)))
+    if (IsPositionInMapBounds(mEntityRef->GetPosition().Right(distance)) || !IsPositionInMapBounds(mEntityRef->GetPosition()))
     {
         mEntityRef->SetPositionX(mEntityRef->GetPositionX() + distance);
     }
@@ -47,7 +48,7 @@ void BaseMovementComponent::MoveRight(float distance)
 // ======================================
 void BaseMovementComponent::MoveUp(float distance)
 {
-    if (IsPositionInMapBounds(mEntityRef->GetPosition().Up(distance)))
+    if (IsPositionInMapBounds(mEntityRef->GetPosition().Up(distance)) || !IsPositionInMapBounds(mEntityRef->GetPosition()))
     {
         mEntityRef->SetPositionY(mEntityRef->GetPositionY() + distance);
     }
@@ -56,7 +57,7 @@ void BaseMovementComponent::MoveUp(float distance)
 // ======================================
 void BaseMovementComponent::MoveDown(float distance)
 {
-    if (IsPositionInMapBounds(mEntityRef->GetPosition().Down(distance)))
+    if (IsPositionInMapBounds(mEntityRef->GetPosition().Down(distance)) || !IsPositionInMapBounds(mEntityRef->GetPosition()))
     {
         mEntityRef->SetPositionY(mEntityRef->GetPositionY() - distance);
     }

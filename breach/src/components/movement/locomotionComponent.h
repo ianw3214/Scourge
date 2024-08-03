@@ -2,13 +2,27 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "shade/file/keyValueFile.h"
+
 #include <string>
 
+// ======================================
+namespace LocomotionComponentDefaults {
+    const std::string idleLeftAnim = "idle_left";
+    const std::string idleRightAnim = "idle_right";
+    const std::string moveLeftAnim = "run_left";
+    const std::string moveRightAnim = "run_right";
+    constexpr float speed = 200.f;
+}
+
+// ======================================
 // The locomotion component handles various basic movement states of an entity
 //  - Hooking up animations to various movement states is done in the locomotion component
 //  - The decision on HOW to move is still done by other controlling components
 class LocomotionComponent : public Shade::Component
 {
+public:
+    static LocomotionComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     bool mEnable = true;
     
@@ -18,7 +32,7 @@ public:
     bool mMovingDown = false;
 
     // These are configuration variables to set movement properties
-    float mSpeed = 200.f;
+    float mSpeed = LocomotionComponentDefaults::speed;
 public:
     // ======================================
     LocomotionComponent() = default;
@@ -33,8 +47,8 @@ public:
     void DisableLocomotion();
     void EnableLocomotion();
 private:
-    std::string mIdleLeftAnim = "idle_left";
-    std::string mIdleRightAnim = "idle_right";
-    std::string mMoveLeftAnim = "run_left";
-    std::string mMoveRightAnim = "run_right";
+    std::string mIdleLeftAnim = LocomotionComponentDefaults::idleLeftAnim;
+    std::string mIdleRightAnim = LocomotionComponentDefaults::idleRightAnim;
+    std::string mMoveLeftAnim = LocomotionComponentDefaults::moveLeftAnim;
+    std::string mMoveRightAnim = LocomotionComponentDefaults::moveRightAnim;
 };

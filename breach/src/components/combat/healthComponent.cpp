@@ -6,6 +6,23 @@
 #include "components/combat/deathHandlingComponent.h"
 
 // ======================================
+HealthComponent* HealthComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    float maxHealth = HealthComponentDefaults::maxHealth;
+
+    while (handle.IsValid())
+    {
+        if (handle.GetKey() == "max_health")
+        {
+            maxHealth = handle.TryGetFloat(maxHealth);
+        }
+        handle.ToNext();
+    }
+
+    return new HealthComponent(maxHealth);
+}
+
+// ======================================
 HealthComponent::HealthComponent(float maxHealth)
     : mCurrHealth(maxHealth)
     , mMaxHealth(maxHealth)

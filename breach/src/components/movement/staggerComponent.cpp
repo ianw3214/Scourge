@@ -7,6 +7,32 @@
 #include "components/facingComponent.h"
 
 // ======================================
+StaggerComponent* StaggerComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    if (handle.IsValid())
+    {
+        std::string staggerLeftAnim = StaggerComponentDefaults::staggerLeftAnim;
+        std::string mStaggerRightAnim = StaggerComponentDefaults::staggerRightAnim;
+        while (handle.IsValid())
+        {
+            if (handle.GetKey() == "stagger_left")
+            {
+                staggerLeftAnim = handle.TryGetString();
+            }
+            if (handle.GetKey() == "stagger_right")
+            {
+                mStaggerRightAnim = handle.TryGetString();
+            }
+            handle.ToNext();
+        }
+
+        return new StaggerComponent(staggerLeftAnim, mStaggerRightAnim);
+    }   
+
+    return new StaggerComponent(); 
+}
+
+// ======================================
 StaggerComponent::StaggerComponent()
 {
 

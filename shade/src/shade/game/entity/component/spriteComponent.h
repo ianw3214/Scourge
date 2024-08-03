@@ -14,8 +14,8 @@ namespace Shade {
     class RenderCommand;
     class SpriteComponent : public Component {
     public:
-        SpriteComponent(std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
-        SpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
+        SpriteComponent(const std::string& texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
+        SpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
 
         float GetRenderWidth() const;
         float GetRenderHeight() const;

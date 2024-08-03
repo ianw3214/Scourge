@@ -3,6 +3,28 @@
 #include "shade/game/entity/entity.h"
 
 // ======================================
+HitboxComponent* HitboxComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    float width = HitboxComponentDefaults::width;
+    float height = HitboxComponentDefaults::height;
+
+    while (handle.IsValid())
+    {
+        if (handle.GetKey() == "width")
+        {
+            width = handle.TryGetFloat(width);
+        }
+        if (handle.GetKey() == "height")
+        {
+            height = handle.TryGetFloat(height);
+        }
+        handle.ToNext();
+    }
+
+    return new HitboxComponent(width, height);
+}
+
+// ======================================
 HitboxComponent::HitboxComponent(float width, float height)
     : mWidth(width)
     , mHeight(height)

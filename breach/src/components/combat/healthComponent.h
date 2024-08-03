@@ -2,8 +2,18 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "shade/file/keyValueFile.h"
+
+// ======================================
+namespace HealthComponentDefaults {
+    constexpr float maxHealth = 0.f;
+}
+
+// ======================================
 class HealthComponent : public Shade::Component
 {
+public:
+    static HealthComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     HealthComponent(float maxHealth);
 
@@ -23,5 +33,5 @@ private:
     float mDamageFlashTimer = 0.f;
 
     // Health component properties
-    float mMaxHealth = 0.f;
+    float mMaxHealth = HealthComponentDefaults::maxHealth;
 };

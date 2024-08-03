@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace Shade {
     
     // A set of coordinates and size info that determines the part of a texture that will be drawn
@@ -50,6 +52,25 @@ namespace Shade {
                     return y;
                 } break;
             }
+        }
+
+        inline RenderAnchor StringToRenderAnchor(const std::string& str)
+        {
+            if (str == "bottom_left")
+            {
+                return RenderAnchor::BOTTOM_LEFT;
+            }
+            if (str == "bottom_middle")
+            {
+                return RenderAnchor::BOTTOM_MIDDLE;
+            }
+            if (str == "middle")
+            {
+                return RenderAnchor::MIDDLE;
+            }
+            // TODO: Error handling here to make sure the user didn't accidentally input a wrong thing
+            //  - Perhaps just an invalid render anchor type will do the trick
+            return RenderAnchor::MIDDLE;
         }
 
     }
