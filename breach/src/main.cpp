@@ -279,6 +279,9 @@ private:
 
         // Testing entity loading
         std::unique_ptr<Shade::Entity>& testKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/knight.kv");
+        // TODO: Temp hacky code - find better fix (might just need a separate initialization pass)
+        AttackComponent* enemyAttackComp2 = testKnight2->GetComponent<AttackComponent>();
+        enemyAttackComp2->RegisterAttacksToAnimFrames();
         testKnight2->AddComponent(std::make_unique<BasicDebugComponent>());
     }
     // ======================================
