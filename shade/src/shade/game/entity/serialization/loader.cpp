@@ -121,6 +121,7 @@ void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
         std::string initialState = "";
         constexpr int renderLayer = 0;  // TODO: Does this need to actually be loadable from file?
         Shade::RenderAnchor renderAnchor = RenderAnchor::BOTTOM_MIDDLE;
+        std::vector<std::pair<std::string, std::string>> transitions;
 
         while (handle.IsValid())
         {
@@ -148,9 +149,27 @@ void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
             {
                 renderAnchor = RenderUtil::StringToRenderAnchor(handle.TryGetString());
             }
+            if (handle.GetKey() == "transitions")
+            {
+                // TODO: Error check that this is a list
+                KeyValueHandle transitionHandle = handle.GetListHead();
+                while (transitionHandle.IsValid())
+                {
+                    // The key is directly used as the "from" animation, and the value is used for the "to" animation
+                    const std::string& from = transitionHandle.GetKey();
+                    const std::string& to = transitionHandle.TryGetString("");
+                    transitions.emplace_back(from, to);
+                    transitionHandle.ToNext();
+                }
+            }
             handle.ToNext();
         }
 
-        return new AnimatedSpriteComponent(renderWidth, renderHeight, texturePath, frameDataPath, initialState, renderLayer, renderAnchor);
+        AnimatedSpriteComponent* sprite = new AnimatedSpriteComponent(renderWidth, renderHeight, texturePath, frameDataPath, initialState, renderLayer, renderAnchor);
+        for (const auto& transition : transitions)
+        {
+            sprite->SetAnimationTransition(transition.first, transition.second);
+        }
+        return sprite;
     });
 }
