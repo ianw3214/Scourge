@@ -50,57 +50,97 @@ AttackComponent* AttackComponent::LoadFromFileHandle(Shade::KeyValueHandle handl
             {
                 attackInfo.mDuration = attackHandle.TryGetFloat(attackInfo.mDuration);
             }
-            if (attackHandle.GetKey() == "hit")
+            if (attackHandle.GetKey() == "hits")
             {
                 // TODO: Assert is list
-                Shade::KeyValueHandle hitHandle = attackHandle.GetListHead();
-                // TODO: Factor this out to separate function for clarity? do if not lazy *shrug*
-                AttackHitInfo hitInfo;
-                while (hitHandle.IsValid())
+                Shade::KeyValueHandle hitsHandle = attackHandle.GetListHead();
+                while (hitsHandle.IsValid())
                 {
-                    if (hitHandle.GetKey() == "anim_frame")
+                    Shade::KeyValueHandle hitHandle = hitsHandle.GetListHead();
+                    // TODO: Factor this out to separate function for clarity? do if not lazy *shrug*
+                    AttackHitInfo hitInfo;
+                    while (hitHandle.IsValid())
                     {
-                        hitInfo.mTriggerFrame = hitHandle.TryGetInt(hitInfo.mTriggerFrame);
-                    }
-                    if (hitHandle.GetKey() == "damage")
-                    {
-                        hitInfo.mDamage = hitHandle.TryGetFloat(hitInfo.mDamage);
-                    }
-                    if (hitHandle.GetKey() == "target")
-                    {
-                        // TODO: Sync up this default value
-                        hitInfo.mTarget = static_cast<AttackTarget>(hitHandle.TryGetInt(0));
-                    }
-                    // TODO: Need to support multiple boxes?
-                    if (hitHandle.GetKey() == "box")
-                    {
-                        Shade::KeyValueHandle boxHandle = hitHandle.GetListHead();
-                        AttackHitBox attackHitBox;
-                        while (boxHandle.IsValid())
+                        if (hitHandle.GetKey() == "anim_frame")
                         {
-                            if (boxHandle.GetKey() == "width")
-                            {
-                                attackHitBox.mWidth = boxHandle.TryGetFloat();
-                            }
-                            if (boxHandle.GetKey() == "height")
-                            {
-                                attackHitBox.mHeight = boxHandle.TryGetFloat();
-                            }
-                            if (boxHandle.GetKey() == "offset_x")
-                            {
-                                attackHitBox.mOffsetX = boxHandle.TryGetFloat();
-                            }
-                            if (boxHandle.GetKey() == "offset_y")
-                            {
-                                attackHitBox.mOffsetY = boxHandle.TryGetFloat();
-                            }
-                            boxHandle.ToNext();
+                            hitInfo.mTriggerFrame = hitHandle.TryGetInt(hitInfo.mTriggerFrame);
                         }
-                        hitInfo.mAttackBoxes.emplace_back(attackHitBox);
+                        if (hitHandle.GetKey() == "damage")
+                        {
+                            hitInfo.mDamage = hitHandle.TryGetFloat(hitInfo.mDamage);
+                        }
+                        if (hitHandle.GetKey() == "target")
+                        {
+                            // TODO: Sync up this default value
+                            hitInfo.mTarget = static_cast<AttackTarget>(hitHandle.TryGetInt(0));
+                        }
+                        // TODO: Need to support multiple boxes?
+                        if (hitHandle.GetKey() == "boxes")
+                        {
+                            Shade::KeyValueHandle boxesHandle = hitHandle.GetListHead();
+                            while (boxesHandle.IsValid())
+                            {
+                                Shade::KeyValueHandle boxHandle = boxesHandle.GetListHead();
+                                AttackHitBox attackHitBox;
+                                while (boxHandle.IsValid())
+                                {
+                                    if (boxHandle.GetKey() == "width")
+                                    {
+                                        attackHitBox.mWidth = boxHandle.TryGetFloat();
+                                    }
+                                    if (boxHandle.GetKey() == "height")
+                                    {
+                                        attackHitBox.mHeight = boxHandle.TryGetFloat();
+                                    }
+                                    if (boxHandle.GetKey() == "offset_x")
+                                    {
+                                        attackHitBox.mOffsetX = boxHandle.TryGetFloat();
+                                    }
+                                    if (boxHandle.GetKey() == "offset_y")
+                                    {
+                                        attackHitBox.mOffsetY = boxHandle.TryGetFloat();
+                                    }
+                                    if (boxHandle.GetKey() == "effect")
+                                    {
+                                        Shade::KeyValueHandle effectHandle = boxHandle.GetListHead();
+                                        while (effectHandle.IsValid())
+                                        {
+                                            if (effectHandle.GetKey() == "path")
+                                            {
+                                                // TODO: Consider whether we actually have to load the effect here
+                                                //  - Perhaps just storing/working with the string would be sufficient
+                                                const std::string& effectPath = effectHandle.TryGetString();
+                                                Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+                                                Shade::ResourceHandle fxHandle = resourceManager->LoadResource<Shade::Texture>(effectPath);
+                                                if (!fxHandle.IsValid())
+                                                {
+                                                    // TODO: Error
+                                                    continue;
+                                                }
+                                                attackHitBox.mEffectTexture = fxHandle;
+                                            }
+                                            if (effectHandle.GetKey() == "effect_offset_x")
+                                            {
+                                                attackHitBox.mEffectOffsetX = effectHandle.TryGetFloat(attackHitBox.mEffectOffsetX);
+                                            }
+                                            if (effectHandle.GetKey() == "effect_offset_y")
+                                            {
+                                                attackHitBox.mEffectOffsetY = effectHandle.TryGetFloat(attackHitBox.mEffectOffsetY);
+                                            }
+                                            effectHandle.ToNext();
+                                        }
+                                    }
+                                    boxHandle.ToNext();
+                                }
+                                hitInfo.mAttackBoxes.emplace_back(attackHitBox);
+                                boxesHandle.ToNext();
+                            }
+                        }
+                        hitHandle.ToNext();
                     }
-                    hitHandle.ToNext();
+                    attackInfo.mHitInfo.emplace_back(hitInfo);
+                    hitsHandle.ToNext();
                 }
-                attackInfo.mHitInfo.emplace_back(hitInfo);
             }
             attackHandle.ToNext();
         }
