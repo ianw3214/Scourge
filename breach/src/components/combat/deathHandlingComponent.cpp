@@ -6,6 +6,32 @@
 #include "components/facingComponent.h"
 
 // ======================================
+DeathHandlingComponent* DeathHandlingComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    if (handle.IsValid())
+    {
+        std::string dieLeftAnim = DeathHandlingComponentDefaults::dieLeftAnim;
+        std::string dieRightAnim = DeathHandlingComponentDefaults::dieRightAnim;
+        while (handle.IsValid())
+        {
+            if (handle.GetKey() == "die_left")
+            {
+                dieLeftAnim = handle.TryGetString(dieLeftAnim);
+            }
+            if (handle.GetKey() == "die_right")
+            {
+                dieRightAnim = handle.TryGetString(dieRightAnim);
+            }
+            handle.ToNext();
+        }
+
+        return new DeathHandlingComponent(dieLeftAnim, dieRightAnim);
+    }   
+
+    return new DeathHandlingComponent(); 
+}
+
+// ======================================
 DeathHandlingComponent::DeathHandlingComponent()
 {
 

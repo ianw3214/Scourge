@@ -9,6 +9,48 @@
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 
 // ======================================
+LocomotionComponent* LocomotionComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    if (handle.IsValid())
+    {
+        float speed = LocomotionComponentDefaults::speed;
+        std::string idleLeftAnim = LocomotionComponentDefaults::idleLeftAnim;
+        std::string idleRightAnim = LocomotionComponentDefaults::idleRightAnim;
+        std::string runLeftAnim = LocomotionComponentDefaults::moveLeftAnim;
+        std::string runRightAnim = LocomotionComponentDefaults::moveRightAnim;
+
+        while (handle.IsValid())
+        {
+            if (handle.GetKey() == "speed")
+            {
+                speed = handle.TryGetFloat(speed);
+            }
+            if (handle.GetKey() == "idle_left")
+            {
+                idleLeftAnim = handle.TryGetString(idleLeftAnim);
+            }
+            if (handle.GetKey() == "idle_right")
+            {
+                idleRightAnim = handle.TryGetString(idleRightAnim);
+            }
+            if (handle.GetKey() == "run_left")
+            {
+                runLeftAnim = handle.TryGetString(runLeftAnim);
+            }
+            if (handle.GetKey() == "run_right")
+            {
+                runRightAnim = handle.TryGetString(runRightAnim);
+            }
+            handle.ToNext();
+        }
+
+        return new LocomotionComponent(speed, idleLeftAnim, idleRightAnim, runLeftAnim, runRightAnim);
+    }   
+
+    return new LocomotionComponent(); 
+}
+
+// ======================================
 void LocomotionComponent::Update(float deltaSeconds)
 {
     HealthComponent* health = mEntityRef->GetComponent<HealthComponent>();

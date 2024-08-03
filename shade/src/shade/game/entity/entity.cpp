@@ -58,6 +58,12 @@ void Shade::Entity::SetPositionY(float newY)
 }
 
 // ======================================
+void Shade::Entity::SetName(const std::string& name)
+{
+    mName = name;
+}
+
+// ======================================
 float Shade::Entity::GetPositionX() const
 {
     return x;
@@ -73,6 +79,12 @@ float Shade::Entity::GetPositionY() const
 Shade::Vec2 Shade::Entity::GetPosition() const
 {
     return Shade::Vec2{ x, y };
+}
+
+// ======================================
+const std::string& Shade::Entity::GetName() const
+{
+    return mName;
 }
 
 // ======================================

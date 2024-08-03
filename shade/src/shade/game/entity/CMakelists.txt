@@ -3,3 +3,4 @@ target_sources(Shade PRIVATE container.h container.cpp)
 target_sources(Shade PRIVATE factory.h factory.cpp)
 
 add_subdirectory(component)
+add_subdirectory(serialization)

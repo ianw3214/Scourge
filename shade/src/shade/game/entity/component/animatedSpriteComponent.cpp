@@ -7,16 +7,17 @@
 #include "shade/graphics/command/setColourMultiplier.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
+#include "shade/resource/manager.h"
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, int renderLayer, RenderAnchor renderAnchor)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, int renderLayer, RenderAnchor renderAnchor)
     : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
 {
 
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
     : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
     , mTileSheetInfo(tileInfo)
     , mStates(states)
@@ -29,11 +30,32 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, std::string texturePath, const AnimationFrameData* frameData, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const AnimationFrameData* frameData, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
     : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
     , mCurrentState(initialState)
 {
     assert(frameData != nullptr && "Null frame data passed in to initialize animated sprite component");
+
+    mTileSheetInfo = TilesheetInfo{ frameData->GetFrameWidth(), frameData->GetFrameHeight(), frameData->GetColumns(), frameData->GetRows() };
+    for (const AnimationFrameInfo& frame : frameData->GetAnimationFrames())
+    {
+        mStates[frame.mName] = AnimationStateInfo{ frame.mStart, frame.mEnd };
+    }
+    assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
+
+    mCurrentFrame = mStates[mCurrentState].mStartFrame;
+}
+
+// ======================================
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const std::string& frameDataPath, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+    : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
+    , mCurrentState(initialState)
+{
+    Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+    Shade::ResourceHandle frameDataHandle = resourceManager->LoadResource<Shade::AnimationFrameData>(frameDataPath);
+    assert(frameDataHandle.IsValid() && "Frame data must be valid to instantiate animated sprite");
+    
+    Shade::AnimationFrameData* frameData = resourceManager->GetResource<Shade::AnimationFrameData>(frameDataHandle);
 
     mTileSheetInfo = TilesheetInfo{ frameData->GetFrameWidth(), frameData->GetFrameHeight(), frameData->GetColumns(), frameData->GetRows() };
     for (const AnimationFrameInfo& frame : frameData->GetAnimationFrames())
