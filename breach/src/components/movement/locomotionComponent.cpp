@@ -24,23 +24,23 @@ LocomotionComponent* LocomotionComponent::LoadFromFileHandle(Shade::KeyValueHand
         {
             if (handle.GetKey() == "speed")
             {
-                speed = handle.TryGetFloat();
+                speed = handle.TryGetFloat(speed);
             }
             if (handle.GetKey() == "idle_left")
             {
-                idleLeftAnim = handle.TryGetString();
+                idleLeftAnim = handle.TryGetString(idleLeftAnim);
             }
             if (handle.GetKey() == "idle_right")
             {
-                idleRightAnim = handle.TryGetString();
+                idleRightAnim = handle.TryGetString(idleRightAnim);
             }
             if (handle.GetKey() == "run_left")
             {
-                runLeftAnim = handle.TryGetString();
+                runLeftAnim = handle.TryGetString(runLeftAnim);
             }
             if (handle.GetKey() == "run_right")
             {
-                runRightAnim = handle.TryGetString();
+                runRightAnim = handle.TryGetString(runRightAnim);
             }
             handle.ToNext();
         }

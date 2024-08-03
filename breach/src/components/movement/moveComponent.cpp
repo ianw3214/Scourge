@@ -29,6 +29,7 @@ namespace {
 // ======================================
 void BaseMovementComponent::MoveLeft(float distance)
 {
+    // TODO: Combine these into a single check at the start of a frame
     if (IsPositionInMapBounds(mEntityRef->GetPosition().Left(distance)))
     {
         mEntityRef->SetPositionX(mEntityRef->GetPositionX() - distance);

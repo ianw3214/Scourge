@@ -50,15 +50,8 @@
 // TODO: TEMP DEBUG
 #include "shade/file/fileSystem.h"
 
-// ======================================
-// TODO: This is a pretty hacky system, figure out a better way to track this in the future
-class PlayerRegistry {
-public:
-    static void CachePlayer(Shade::Entity* player) { sCachedPlayer = player; }
-    static Shade::Entity* GetCachedPlayer() { return sCachedPlayer; }
-private:
-    static inline Shade::Entity* sCachedPlayer = nullptr;
-};
+// TODO: Hacky system, need to replace
+#include "playerRegistry.h"
 
 class CustomGameWorld : public Shade::GameWorldModule
 {
@@ -282,7 +275,7 @@ private:
 #ifdef DEBUG_BREACH
         TestKnight->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
-        AddEntity(std::move(TestKnight));
+        // AddEntity(std::move(TestKnight));
 
         // Testing entity loading
         std::unique_ptr<Shade::Entity>& testKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/knight.kv");
@@ -356,6 +349,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     entityLoader->RegisterComponentLoader("hitbox", [](auto handle){ return HitboxComponent::LoadFromFileHandle(handle); });
     entityLoader->RegisterComponentLoader("stagger", [](auto handle){ return StaggerComponent::LoadFromFileHandle(handle); });
     entityLoader->RegisterComponentLoader("attack", [](auto handle){ return AttackComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader("ai", [](auto handle){ return StateMachineAIComponent::LoadFromFileHandle(handle); });
 
     MainGameInstance.Run();
 

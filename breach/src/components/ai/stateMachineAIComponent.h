@@ -2,6 +2,8 @@
 
 #include "shade/game/entity/component/component.h"
 
+#include "shade/file/keyValueFile.h"
+
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -26,6 +28,8 @@ public:
 
 // A state machine based implementation of AI decision making
 class StateMachineAIComponent : public Shade::Component {
+public:
+    static StateMachineAIComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     StateMachineAIComponent(const std::string& initialState, std::unordered_map<std::string, AIState> states);
 
