@@ -355,6 +355,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     entityLoader->RegisterComponentLoader("death_handler", [](auto handle){ return DeathHandlingComponent::LoadFromFileHandle(handle); });
     entityLoader->RegisterComponentLoader("hitbox", [](auto handle){ return HitboxComponent::LoadFromFileHandle(handle); });
     entityLoader->RegisterComponentLoader("stagger", [](auto handle){ return StaggerComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader("attack", [](auto handle){ return AttackComponent::LoadFromFileHandle(handle); });
 
     MainGameInstance.Run();
 

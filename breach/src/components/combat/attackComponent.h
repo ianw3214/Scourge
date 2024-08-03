@@ -1,6 +1,8 @@
 #pragma once
 
 #include "shade/game/entity/component/component.h"
+
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/flare/flareService.h"
 
@@ -70,6 +72,8 @@ struct AttackInfo {
 // ======================================
 // Entity attacks are stored via a map with the name of the attack mapping to the attack data
 class AttackComponent : public Shade::Component {
+public:
+    static AttackComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     AttackComponent();
 

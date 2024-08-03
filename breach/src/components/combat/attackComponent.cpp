@@ -24,6 +24,95 @@
 #include "components/ai/stateMachineAIComponent.h"
 
 // ======================================
+AttackComponent* AttackComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    AttackComponent* attackComponent = new AttackComponent();
+
+    while (handle.IsValid())
+    {
+        const std::string& name = handle.GetKey();
+        // TODO: Assert is list
+        Shade::KeyValueHandle attackHandle = handle.GetListHead();
+
+        AttackInfo attackInfo;
+        while (attackHandle.IsValid())
+        {
+            if (attackHandle.GetKey() == "anim")
+            {
+                attackInfo.mAnimation = attackHandle.TryGetString(attackInfo.mAnimation);
+            }
+            if (attackHandle.GetKey() == "disable_movement")
+            {
+                // TODO: Sync up this default value
+                attackInfo.mDisableMovement = static_cast<bool>(attackHandle.TryGetInt(1));
+            }
+            if (attackHandle.GetKey() == "duration")
+            {
+                attackInfo.mDuration = attackHandle.TryGetFloat(attackInfo.mDuration);
+            }
+            if (attackHandle.GetKey() == "hit")
+            {
+                // TODO: Assert is list
+                Shade::KeyValueHandle hitHandle = attackHandle.GetListHead();
+                // TODO: Factor this out to separate function for clarity? do if not lazy *shrug*
+                AttackHitInfo hitInfo;
+                while (hitHandle.IsValid())
+                {
+                    if (hitHandle.GetKey() == "anim_frame")
+                    {
+                        hitInfo.mTriggerFrame = hitHandle.TryGetInt(hitInfo.mTriggerFrame);
+                    }
+                    if (hitHandle.GetKey() == "damage")
+                    {
+                        hitInfo.mDamage = hitHandle.TryGetFloat(hitInfo.mDamage);
+                    }
+                    if (hitHandle.GetKey() == "target")
+                    {
+                        // TODO: Sync up this default value
+                        hitInfo.mTarget = static_cast<AttackTarget>(hitHandle.TryGetInt(0));
+                    }
+                    // TODO: Need to support multiple boxes?
+                    if (hitHandle.GetKey() == "box")
+                    {
+                        Shade::KeyValueHandle boxHandle = hitHandle.GetListHead();
+                        AttackHitBox attackHitBox;
+                        while (boxHandle.IsValid())
+                        {
+                            if (boxHandle.GetKey() == "width")
+                            {
+                                attackHitBox.mWidth = boxHandle.TryGetFloat();
+                            }
+                            if (boxHandle.GetKey() == "height")
+                            {
+                                attackHitBox.mHeight = boxHandle.TryGetFloat();
+                            }
+                            if (boxHandle.GetKey() == "offset_x")
+                            {
+                                attackHitBox.mOffsetX = boxHandle.TryGetFloat();
+                            }
+                            if (boxHandle.GetKey() == "offset_y")
+                            {
+                                attackHitBox.mOffsetY = boxHandle.TryGetFloat();
+                            }
+                            boxHandle.ToNext();
+                        }
+                        hitInfo.mAttackBoxes.emplace_back(attackHitBox);
+                    }
+                    hitHandle.ToNext();
+                }
+                attackInfo.mHitInfo.emplace_back(hitInfo);
+            }
+            attackHandle.ToNext();
+        }
+        
+        attackComponent->RegisterAttackInfo(name, attackInfo);
+        handle.ToNext();
+    }
+
+    return attackComponent;
+}
+
+// ======================================
 AttackComponent::AttackComponent()
     : mAttackMap()
 {
