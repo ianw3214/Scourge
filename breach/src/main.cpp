@@ -285,9 +285,6 @@ private:
     // ======================================
     void InitializeWorldFromMap(const std::string& mapPath)
     {
-        // TODO: More thought needs to be put into when/where the map service should get initialized
-        //  - In its current state, the map service should also get unregistered when the game state is cleaned up
-        Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
         mapService->LoadMap(mapPath);
     }
@@ -321,6 +318,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     PSTR lpCmdLine, int nCmdShow)
 {
     Shade::GameInstance MainGameInstance;
+
+    // Register project specific services
+    Shade::ServiceProvider::GetCurrentProvider()->RegisterService(new MapService());
+
 #ifdef BUILD_BREACH_EDITOR
     Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
     editorService->RegisterEditor(std::make_unique<MapEditor>());
