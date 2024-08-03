@@ -24,16 +24,105 @@
 #include "components/ai/stateMachineAIComponent.h"
 
 // ======================================
+AttackHitInfo AttackHitInfo::LoadFromFileHandle(Shade::KeyValueHandle handle)
+{
+    AttackHitInfo hitInfo;
+    while (handle.IsValid())
+    {
+        if (handle.GetKey() == "anim_frame")
+        {
+            hitInfo.mTriggerFrame = handle.TryGetInt(hitInfo.mTriggerFrame);
+        }
+        if (handle.GetKey() == "damage")
+        {
+            hitInfo.mDamage = handle.TryGetFloat(hitInfo.mDamage);
+        }
+        if (handle.GetKey() == "target")
+        {
+            hitInfo.mTarget = static_cast<AttackTarget>(handle.TryGetInt(static_cast<int>(hitInfo.mTarget)));
+        }
+        if (handle.GetKey() == "boxes")
+        {
+            Shade::KeyValueHandle boxesHandle = handle.GetListHead();
+            while (boxesHandle.IsValid())
+            {
+                Shade::KeyValueHandle boxHandle = boxesHandle.GetListHead();
+                AttackHitBox attackHitBox;
+                while (boxHandle.IsValid())
+                {
+                    if (boxHandle.GetKey() == "width")
+                    {
+                        attackHitBox.mWidth = boxHandle.TryGetFloat();
+                    }
+                    if (boxHandle.GetKey() == "height")
+                    {
+                        attackHitBox.mHeight = boxHandle.TryGetFloat();
+                    }
+                    if (boxHandle.GetKey() == "offset_x")
+                    {
+                        attackHitBox.mOffsetX = boxHandle.TryGetFloat();
+                    }
+                    if (boxHandle.GetKey() == "offset_y")
+                    {
+                        attackHitBox.mOffsetY = boxHandle.TryGetFloat();
+                    }
+                    if (boxHandle.GetKey() == "effect")
+                    {
+                        Shade::KeyValueHandle effectHandle = boxHandle.GetListHead();
+                        while (effectHandle.IsValid())
+                        {
+                            if (effectHandle.GetKey() == "path")
+                            {
+                                // TODO: Consider whether we actually have to load the effect here
+                                //  - Perhaps just storing/working with the string would be sufficient
+                                const std::string& effectPath = effectHandle.TryGetString();
+                                Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
+                                Shade::ResourceHandle fxHandle = resourceManager->LoadResource<Shade::Texture>(effectPath);
+                                if (!fxHandle.IsValid())
+                                {
+                                    Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+                                    logService->LogWarning(std::string("vfx for attack failed to load: ") + effectPath);
+                                    continue;
+                                }
+                                attackHitBox.mEffectTexture = fxHandle;
+                            }
+                            if (effectHandle.GetKey() == "effect_offset_x")
+                            {
+                                attackHitBox.mEffectOffsetX = effectHandle.TryGetFloat(attackHitBox.mEffectOffsetX);
+                            }
+                            if (effectHandle.GetKey() == "effect_offset_y")
+                            {
+                                attackHitBox.mEffectOffsetY = effectHandle.TryGetFloat(attackHitBox.mEffectOffsetY);
+                            }
+                            effectHandle.ToNext();
+                        }
+                    }
+                    boxHandle.ToNext();
+                }
+                hitInfo.mAttackBoxes.emplace_back(attackHitBox);
+                boxesHandle.ToNext();
+            }
+        }
+        handle.ToNext();
+    }
+    return hitInfo;
+}
+
+// ======================================
 AttackComponent* AttackComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {
+    Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
     AttackComponent* attackComponent = new AttackComponent();
 
     while (handle.IsValid())
     {
         const std::string& name = handle.GetKey();
-        // TODO: Assert is list
-        Shade::KeyValueHandle attackHandle = handle.GetListHead();
+        if (!handle.IsList())
+        {
+            logService->LogError(std::string("Error parsing attack component, expected list format for attack details: ") + name);
+        }
 
+        Shade::KeyValueHandle attackHandle = handle.GetListHead();
         AttackInfo attackInfo;
         while (attackHandle.IsValid())
         {
@@ -43,8 +132,7 @@ AttackComponent* AttackComponent::LoadFromFileHandle(Shade::KeyValueHandle handl
             }
             if (attackHandle.GetKey() == "disable_movement")
             {
-                // TODO: Sync up this default value
-                attackInfo.mDisableMovement = static_cast<bool>(attackHandle.TryGetInt(1));
+                attackInfo.mDisableMovement = static_cast<bool>(attackHandle.TryGetInt(static_cast<int>(attackInfo.mDisableMovement)));
             }
             if (attackHandle.GetKey() == "duration")
             {
@@ -52,93 +140,12 @@ AttackComponent* AttackComponent::LoadFromFileHandle(Shade::KeyValueHandle handl
             }
             if (attackHandle.GetKey() == "hits")
             {
-                // TODO: Assert is list
+                assert(attackHandle.IsList() && "Attack handle should be list format");
                 Shade::KeyValueHandle hitsHandle = attackHandle.GetListHead();
                 while (hitsHandle.IsValid())
                 {
                     Shade::KeyValueHandle hitHandle = hitsHandle.GetListHead();
-                    // TODO: Factor this out to separate function for clarity? do if not lazy *shrug*
-                    AttackHitInfo hitInfo;
-                    while (hitHandle.IsValid())
-                    {
-                        if (hitHandle.GetKey() == "anim_frame")
-                        {
-                            hitInfo.mTriggerFrame = hitHandle.TryGetInt(hitInfo.mTriggerFrame);
-                        }
-                        if (hitHandle.GetKey() == "damage")
-                        {
-                            hitInfo.mDamage = hitHandle.TryGetFloat(hitInfo.mDamage);
-                        }
-                        if (hitHandle.GetKey() == "target")
-                        {
-                            // TODO: Sync up this default value
-                            hitInfo.mTarget = static_cast<AttackTarget>(hitHandle.TryGetInt(0));
-                        }
-                        // TODO: Need to support multiple boxes?
-                        if (hitHandle.GetKey() == "boxes")
-                        {
-                            Shade::KeyValueHandle boxesHandle = hitHandle.GetListHead();
-                            while (boxesHandle.IsValid())
-                            {
-                                Shade::KeyValueHandle boxHandle = boxesHandle.GetListHead();
-                                AttackHitBox attackHitBox;
-                                while (boxHandle.IsValid())
-                                {
-                                    if (boxHandle.GetKey() == "width")
-                                    {
-                                        attackHitBox.mWidth = boxHandle.TryGetFloat();
-                                    }
-                                    if (boxHandle.GetKey() == "height")
-                                    {
-                                        attackHitBox.mHeight = boxHandle.TryGetFloat();
-                                    }
-                                    if (boxHandle.GetKey() == "offset_x")
-                                    {
-                                        attackHitBox.mOffsetX = boxHandle.TryGetFloat();
-                                    }
-                                    if (boxHandle.GetKey() == "offset_y")
-                                    {
-                                        attackHitBox.mOffsetY = boxHandle.TryGetFloat();
-                                    }
-                                    if (boxHandle.GetKey() == "effect")
-                                    {
-                                        Shade::KeyValueHandle effectHandle = boxHandle.GetListHead();
-                                        while (effectHandle.IsValid())
-                                        {
-                                            if (effectHandle.GetKey() == "path")
-                                            {
-                                                // TODO: Consider whether we actually have to load the effect here
-                                                //  - Perhaps just storing/working with the string would be sufficient
-                                                const std::string& effectPath = effectHandle.TryGetString();
-                                                Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
-                                                Shade::ResourceHandle fxHandle = resourceManager->LoadResource<Shade::Texture>(effectPath);
-                                                if (!fxHandle.IsValid())
-                                                {
-                                                    // TODO: Error
-                                                    continue;
-                                                }
-                                                attackHitBox.mEffectTexture = fxHandle;
-                                            }
-                                            if (effectHandle.GetKey() == "effect_offset_x")
-                                            {
-                                                attackHitBox.mEffectOffsetX = effectHandle.TryGetFloat(attackHitBox.mEffectOffsetX);
-                                            }
-                                            if (effectHandle.GetKey() == "effect_offset_y")
-                                            {
-                                                attackHitBox.mEffectOffsetY = effectHandle.TryGetFloat(attackHitBox.mEffectOffsetY);
-                                            }
-                                            effectHandle.ToNext();
-                                        }
-                                    }
-                                    boxHandle.ToNext();
-                                }
-                                hitInfo.mAttackBoxes.emplace_back(attackHitBox);
-                                boxesHandle.ToNext();
-                            }
-                        }
-                        hitHandle.ToNext();
-                    }
-                    attackInfo.mHitInfo.emplace_back(hitInfo);
+                    attackInfo.mHitInfo.emplace_back(AttackHitInfo::LoadFromFileHandle(hitHandle));
                     hitsHandle.ToNext();
                 }
             }

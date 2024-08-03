@@ -7,6 +7,13 @@
 
 #include <string>
 
+// ======================================
+namespace StaggerComponentDefaults {
+    const std::string staggerLeftAnim = "stagger_left";
+    const std::string staggerRightAnim = "stagger_right";
+}
+
+// ======================================
 class StaggerComponent : public Shade::Component
 {
 public:
@@ -29,6 +36,6 @@ private:
 
     bool mCanStagger = true;
 
-    std::string mStaggerLeftAnim = "stagger_left";
-    std::string mStaggerRightAnim = "stagger_right";
+    std::string mStaggerLeftAnim = StaggerComponentDefaults::staggerLeftAnim;
+    std::string mStaggerRightAnim = StaggerComponentDefaults::staggerRightAnim;
 };

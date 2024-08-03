@@ -11,9 +11,8 @@ StaggerComponent* StaggerComponent::LoadFromFileHandle(Shade::KeyValueHandle han
 {
     if (handle.IsValid())
     {
-        // TODO: Sync up the default values
-        std::string staggerLeftAnim = "stagger_left";
-        std::string mStaggerRightAnim = "stagger_right";
+        std::string staggerLeftAnim = StaggerComponentDefaults::staggerLeftAnim;
+        std::string mStaggerRightAnim = StaggerComponentDefaults::staggerRightAnim;
         while (handle.IsValid())
         {
             if (handle.GetKey() == "stagger_left")

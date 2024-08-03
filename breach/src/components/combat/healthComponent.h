@@ -4,6 +4,12 @@
 
 #include "shade/file/keyValueFile.h"
 
+// ======================================
+namespace HealthComponentDefaults {
+    constexpr float maxHealth = 0.f;
+}
+
+// ======================================
 class HealthComponent : public Shade::Component
 {
 public:
@@ -27,5 +33,5 @@ private:
     float mDamageFlashTimer = 0.f;
 
     // Health component properties
-    float mMaxHealth = 0.f;
+    float mMaxHealth = HealthComponentDefaults::maxHealth;
 };

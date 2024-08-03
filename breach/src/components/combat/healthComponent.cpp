@@ -8,13 +8,13 @@
 // ======================================
 HealthComponent* HealthComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {
-    float maxHealth = 0.f;
+    float maxHealth = HealthComponentDefaults::maxHealth;
 
     while (handle.IsValid())
     {
         if (handle.GetKey() == "max_health")
         {
-            maxHealth = handle.TryGetFloat();
+            maxHealth = handle.TryGetFloat(maxHealth);
         }
         handle.ToNext();
     }

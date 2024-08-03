@@ -6,6 +6,13 @@
 #include "shade/common/vec.h"
 #include "shade/file/keyValueFile.h"
 
+// ======================================
+namespace HitboxComponentDefaults {
+    constexpr float width = 10.f;
+    constexpr float height = 10.f;
+}
+
+// ======================================
 // Represents the hit box of an entity, used to test against attacks hitting a character
 //  - Currently assumes bottom middle of the box to be the position of the entity
 //      - This may need to be adjusted to be a custom offset system in the future
@@ -25,6 +32,6 @@ public:
     bool Intersects(const HitboxComponent& other) const;
 
 private:
-    float mWidth = 10.f;
-    float mHeight = 10.f;
+    float mWidth = HitboxComponentDefaults::width;
+    float mHeight = HitboxComponentDefaults::height;
 };

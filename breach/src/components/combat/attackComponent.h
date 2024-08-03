@@ -39,6 +39,9 @@ struct AttackHitBox {
 
 // ======================================
 struct AttackHitInfo {
+public:
+    static AttackHitInfo LoadFromFileHandle(Shade::KeyValueHandle handle);
+public:
     uint32_t mTriggerFrame = std::numeric_limits<uint32_t>::max();
     float mDamage = 1.f;
     AttackTarget mTarget = AttackTarget::ENEMY;

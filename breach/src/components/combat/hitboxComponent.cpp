@@ -5,19 +5,18 @@
 // ======================================
 HitboxComponent* HitboxComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {
-    // TODO: Sync up the default values
-    float width = 10.f;
-    float height = 10.f;
+    float width = HitboxComponentDefaults::width;
+    float height = HitboxComponentDefaults::height;
 
     while (handle.IsValid())
     {
         if (handle.GetKey() == "width")
         {
-            width = handle.TryGetFloat();
+            width = handle.TryGetFloat(width);
         }
         if (handle.GetKey() == "height")
         {
-            height = handle.TryGetFloat();
+            height = handle.TryGetFloat(height);
         }
         handle.ToNext();
     }

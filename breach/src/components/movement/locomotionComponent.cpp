@@ -13,12 +13,11 @@ LocomotionComponent* LocomotionComponent::LoadFromFileHandle(Shade::KeyValueHand
 {
     if (handle.IsValid())
     {
-        // TODO: Sync up the default values
-        float speed = 200.f;
-        std::string idleLeftAnim = "idle_left";
-        std::string idleRightAnim = "idle_right";
-        std::string runLeftAnim = "run_left";
-        std::string runRightAnim = "run_right";
+        float speed = LocomotionComponentDefaults::speed;
+        std::string idleLeftAnim = LocomotionComponentDefaults::idleLeftAnim;
+        std::string idleRightAnim = LocomotionComponentDefaults::idleRightAnim;
+        std::string runLeftAnim = LocomotionComponentDefaults::moveLeftAnim;
+        std::string runRightAnim = LocomotionComponentDefaults::moveRightAnim;
 
         while (handle.IsValid())
         {
