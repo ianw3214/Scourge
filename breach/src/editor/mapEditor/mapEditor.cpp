@@ -223,7 +223,7 @@ public:
                 {
                     if (ImGui::Button("Add Background"))
                     {
-                        backgrounds.emplace_back(BackgroundElement{ "new background", "assets/textures/default.png", 1.f});
+                        backgrounds.emplace_back(BackgroundElement{ "new background", "assets/shade/default.png", 1.f});
                     }
                     // Show backgrounds in reverse order so furthest back backround shows up on the bottom of the screen
                     for (int n = backgrounds.size() - 1; n >= 0; n--)
