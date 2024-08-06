@@ -67,4 +67,5 @@ void Shade::Window::Update()
     SDL_GL_SwapWindow(mWindowImpl->mWindow);
 
     imgui->FlushDeletedWindows();
+    imgui->AddQueuedWindows();
 }

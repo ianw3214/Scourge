@@ -209,7 +209,7 @@ public:
                     mMapEditorRef.SaveFile();
                 }
                 if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")) {
-
+                    // TODO: Implement
                 }
                 ImGui::EndMenu();
             }
@@ -379,9 +379,6 @@ MapEditor::MapEditor()
 // ======================================
 void MapEditor::OnEnter() 
 {
-    // TODO: Do we need to avoid duplicate registration here? hmm...
-    //  - Probably need to de-register the window on editor exit
-    //  - Might need to keep a handle to the window for easy deletion in the end
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<MapEditorWindow>(*this));
 
@@ -394,6 +391,7 @@ void MapEditor::OnEnter()
 // ======================================
 void MapEditor::OnExit() 
 {
+    // TODO: The string used here might want to use a shared const to avoid deleting the wrong window
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
     imguiService->DeleteWindow("Map editor window");
 }

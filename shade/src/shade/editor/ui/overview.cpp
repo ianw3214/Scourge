@@ -43,11 +43,11 @@ void Shade::EditorOverviewWindow::Draw()
         int originalListboxItem = static_cast<int>(editorService->GetCurrentEditorIndex());
         int currListboxItem = originalListboxItem;
         ImGui::ListBox("Editors", &currListboxItem, VectorOfStringGetter, (void*)editors.data(), editors.size());
-        // TODO: If selected item changes, need to handle editor enter/exit
+        // If selected item changes, handle changing the current editor
         if (originalListboxItem != currListboxItem)
         {
-            logger->LogInfo("Editor changed!!");
             editorService->ChangeEditor(static_cast<size_t>(currListboxItem));
+            logger->LogInfo(std::string("Switched to editor: ") + editorService->GetCurrentEditor()->GetName());
         }
     }
 

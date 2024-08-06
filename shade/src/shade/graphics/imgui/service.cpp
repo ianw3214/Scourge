@@ -13,8 +13,7 @@ Shade::ImGuiService::~ImGuiService() = default;
 // ======================================
 void Shade::ImGuiService::RegisterWindow(std::unique_ptr<ImGuiWindow>&& window)
 {
-    // TODO: Check if window already exists
-    mWindows.emplace_back(std::move(window));
+    mWindowsToAdd.emplace_back(std::move(window));
 }
 
 // ======================================
@@ -30,6 +29,17 @@ void Shade::ImGuiService::DrawWindows()
     {
         window->Draw();
     }
+}
+
+// ======================================
+void Shade::ImGuiService::AddQueuedWindows()
+{
+    for (std::unique_ptr<ImGuiWindow>& window : mWindowsToAdd)
+    {
+        // TODO: Check if window already exists
+        mWindows.emplace_back(std::move(window));
+    }
+    mWindowsToAdd.clear();
 }
 
 // ======================================

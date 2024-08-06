@@ -4,6 +4,8 @@
 
 namespace Shade {
 
+    class Entity;
+
     // ======================================
     class EntityEditor : public Shade::EditorBase {
     public:
@@ -16,8 +18,12 @@ namespace Shade {
         virtual void Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue) override;
         virtual bool HandleEvent(const Shade::InputEvent& event) override;
 
-    private:
+        void SetEntityData(std::unique_ptr<Entity> entityData);
+        std::unique_ptr<Entity>& GetEntityData();
 
+    private:
+        // Bypass resource system for storage since we want the editor to own this entity data
+        std::unique_ptr<Entity> mEntityData = nullptr;
     };
 
 }
