@@ -65,4 +65,6 @@ void Shade::Window::Update()
 
     ImGuiWrapper::EndFrame();
     SDL_GL_SwapWindow(mWindowImpl->mWindow);
+
+    imgui->FlushDeletedWindows();
 }

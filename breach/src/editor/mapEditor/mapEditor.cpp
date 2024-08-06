@@ -176,7 +176,7 @@ public:
 // ======================================
 class MapEditorWindow : public Shade::ImGuiWindow {
 public:
-    MapEditorWindow(MapEditor& mapEditorRef) : mMapEditorRef(mapEditorRef) {}
+    MapEditorWindow(MapEditor& mapEditorRef) : ImGuiWindow("Map editor window"), mMapEditorRef(mapEditorRef) {}
     void Draw() override {
         Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
         Shade::FileSystem* fileSystem = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FileSystem>();
@@ -379,6 +379,9 @@ MapEditor::MapEditor()
 // ======================================
 void MapEditor::OnEnter() 
 {
+    // TODO: Do we need to avoid duplicate registration here? hmm...
+    //  - Probably need to de-register the window on editor exit
+    //  - Might need to keep a handle to the window for easy deletion in the end
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<MapEditorWindow>(*this));
 
@@ -391,7 +394,8 @@ void MapEditor::OnEnter()
 // ======================================
 void MapEditor::OnExit() 
 {
-
+    Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
+    imguiService->DeleteWindow("Map editor window");
 }
 
 // ======================================
