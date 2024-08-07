@@ -24,11 +24,13 @@
 #include "components/parallaxComponent.h"
 #include "map/map.h"
 
+// ======================================
 namespace MapEditorConstants {
     // TODO: Specify where to find root "assets" folder and use relative paths to find files
     const std::string TempTargetFilePath = "assets/breach/maps/target.kv";
 }
 
+// ======================================
 namespace MapEditorTextures {
     const std::string KnobTexture = "assets/editor/knob.png";
     const std::string UpArrowTexture = "assets/editor/up_arrow.png";
@@ -504,6 +506,7 @@ bool MapEditor::HandleEvent(const Shade::InputEvent& event)
             return false;
         }
     }
+    // TODO: Generalize keyboard shortcuts to the base editor implementation
     if (event.mType == Shade::InputEventType::KEY)
     {
         if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_LCONTROL)

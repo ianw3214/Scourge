@@ -3,11 +3,21 @@
 #include <imgui/imgui.h>
 
 #include "shade/file/fileSystem.h"
+#include "shade/game/entity/container.h"
 #include "shade/game/entity/entity.h"
+#include "shade/game/entity/factory.h"
+#include "shade/game/event/source.h"
 #include "shade/graphics/imgui/service.h"
 #include "shade/graphics/imgui/window.h"
+#include "shade/input/event.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
+
+// ======================================
+namespace EntityEditorConstants {
+    // TODO: Specify where to find root "assets" folder and use relative paths to find files
+    const std::string TempTargetFilePath = "assets/breach/entities/target.kv";
+}
 
 // ======================================
 class EntityEditorWindow : public Shade::ImGuiWindow {
@@ -30,7 +40,7 @@ public:
                     // TODO: Implement
                 }
                 if (ImGui::MenuItem("Open", "Ctrl+O")) {
-                    // TODO: Implement
+                    mEntityEditorRef.OpenFile();
                 }
                 if (ImGui::MenuItem("Save", "Ctrl+S")) {
                     // TODO: Implement
@@ -67,6 +77,12 @@ void Shade::EntityEditor::OnEnter()
 {
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<EntityEditorWindow>(*this));
+
+    // Entities need a "world" to exist in
+    static GameplayEventSource emptyEventSource;
+    static EntityContainer emptyEntityContainer;
+    EntityFactory* entityFactory = ServiceProvider::GetCurrentProvider()->GetService<EntityFactory>();
+    entityFactory->RegisterEntityWorldInfo({ emptyEventSource, emptyEntityContainer });
 }
 
 // ======================================
@@ -75,6 +91,9 @@ void Shade::EntityEditor::OnExit()
     // TODO: The string used here might want to use a shared const to avoid deleting the wrong window
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
     imguiService->DeleteWindow("Entity editor window");
+
+    EntityFactory* entityFactory = ServiceProvider::GetCurrentProvider()->GetService<EntityFactory>();
+    entityFactory->UnRegisterEntityWorldInfo();
 }
 
 // ======================================
@@ -86,12 +105,34 @@ void Shade::EntityEditor::Update(float deltaSeconds)
 // ======================================
 void Shade::EntityEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
-
+    // Render the sprite/animated sprite of the current loaded entity
 }
 
 // ======================================
 bool Shade::EntityEditor::HandleEvent(const Shade::InputEvent& event)
 {
+    // TODO: Generalize keyboard shortcuts to the base editor implementation
+    if (event.mType == Shade::InputEventType::KEY)
+    {
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_LCONTROL)
+        {
+            mControlPressed = event.mKeyEvent == Shade::KeyEventType::PRESS;
+        }
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_O && mControlPressed)
+        {
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS)
+            {
+                OpenFile();
+            }
+        }
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_S && mControlPressed)
+        {
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS)
+            {
+                SaveFile();
+            }
+        }
+    }
     return false;
 }
 
@@ -105,4 +146,42 @@ void Shade::EntityEditor::SetEntityData(std::unique_ptr<Entity> entityData)
 std::unique_ptr<Shade::Entity>& Shade::EntityEditor::GetEntityData()
 {
     return mEntityData;
+}
+
+// ======================================
+void Shade::EntityEditor::OpenFile()
+{
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    std::unique_ptr<Shade::Entity> entityData = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateNewEntity(EntityEditorConstants::TempTargetFilePath);
+    if (entityData == nullptr)
+    {
+        logger->LogError(std::string("Failed to open '") + EntityEditorConstants::TempTargetFilePath + '\'');
+    }
+    else
+    {
+        logger->LogInfo(std::string("Opened '") + entityData->GetName() + '\'');   
+        SetEntityData(std::move(entityData));
+    }
+}
+
+// ======================================
+void Shade::EntityEditor::SaveFile()
+{
+    /*
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    if (mMapData == nullptr)
+    {
+        logger->LogError("Tried saving map when no map is open...");
+        return;
+    }
+    bool saveResult = mMapData->Save(MapEditorConstants::TempTargetFilePath);
+    if (saveResult)
+    {
+        logger->LogInfo(std::string("Saved map to file '") + mMapData->GetName() + '\'');   
+    }
+    else
+    {
+        logger->LogError(std::string("Failed to open '") + MapEditorConstants::TempTargetFilePath + '\'');
+    }
+    */
 }

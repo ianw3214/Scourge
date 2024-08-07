@@ -20,10 +20,15 @@ namespace Shade {
 
         void SetEntityData(std::unique_ptr<Entity> entityData);
         std::unique_ptr<Entity>& GetEntityData();
+        void OpenFile();
+        void SaveFile();
 
     private:
         // Bypass resource system for storage since we want the editor to own this entity data
         std::unique_ptr<Entity> mEntityData = nullptr;
+
+        // Input states
+        bool mControlPressed = false;
     };
 
 }
