@@ -3,10 +3,12 @@
 #include <imgui/imgui.h>
 
 #include "shade/file/fileSystem.h"
+#include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/container.h"
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/factory.h"
 #include "shade/game/event/source.h"
+#include "shade/graphics/camera/camera.h"
 #include "shade/graphics/imgui/service.h"
 #include "shade/graphics/imgui/window.h"
 #include "shade/input/event.h"
@@ -99,13 +101,30 @@ void Shade::EntityEditor::OnExit()
 // ======================================
 void Shade::EntityEditor::Update(float deltaSeconds)
 {
-
+    if (mEntityData)
+    {
+        if (AnimatedSpriteComponent* sprite = mEntityData->GetCachedAnimatedSprite())
+        {
+            sprite->Update(deltaSeconds);
+        }
+    }
 }
 
 // ======================================
 void Shade::EntityEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
     // Render the sprite/animated sprite of the current loaded entity
+    if (mEntityData)
+    {
+        if (AnimatedSpriteComponent* sprite = mEntityData->GetCachedAnimatedSprite())
+        {
+            sprite->AddRenderCommands(commandQueue);
+        }
+        else if (SpriteComponent* sprite = mEntityData->GetCachedSpriteComponent())
+        {
+            sprite->AddRenderCommands(commandQueue);
+        }
+    }
 }
 
 // ======================================
@@ -161,6 +180,12 @@ void Shade::EntityEditor::OpenFile()
     {
         logger->LogInfo(std::string("Opened '") + entityData->GetName() + '\'');   
         SetEntityData(std::move(entityData));
+
+        // When an entity is loaded, place the camera so the sprite is rendered at the center
+        //  TODO: Need to handle all the other different sprite anchor cases
+        SpriteComponent* sprite = mEntityData->GetCachedSpriteComponent();
+        Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();
+        camera->SetCameraPosition(0.f, sprite->GetRenderHeight() / 2.f);
     }
 }
 
