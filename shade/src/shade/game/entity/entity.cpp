@@ -9,6 +9,21 @@
 #include "shade/logging/logService.h"
 #include "shade/logging/logger.h"
 
+#ifdef BUILD_SHADE_EDITOR
+// ======================================
+void Shade::Entity::ShowImguiDetails()
+{
+    if (mCachedSprite.has_value())
+    {
+        mCachedSprite->get()->ShowImguiDetails();
+    }
+    for (std::unique_ptr<Component>& component : mComponents)
+    {
+        component->ShowImguiDetails();
+    }
+}
+#endif
+
 // ======================================
 Shade::Entity::Entity(GameplayEventSource& gameWorldRef, EntityContainer& entityContainer) 
     : mGameEventSource(gameWorldRef)
@@ -23,9 +38,9 @@ Shade::Entity::~Entity() = default;
 // ======================================
 void Shade::Entity::Update(float deltaSeconds)
 {
-    for (std::unique_ptr<Component>& CurrentComponent : mComponents)
+    for (std::unique_ptr<Component>& component : mComponents)
     {
-        CurrentComponent->Update(deltaSeconds);
+        component->Update(deltaSeconds);
     }
     if (mCachedSprite.has_value())
     {

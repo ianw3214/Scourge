@@ -4,6 +4,10 @@ namespace Shade {
 
     class Entity;
     class Component {
+#ifdef BUILD_SHADE_EDITOR
+    public:
+        virtual void ShowImguiDetails() {}
+#endif
     public:
         Component();
         virtual ~Component();

@@ -7,6 +7,40 @@
 #include "shade/resource/manager.h"
 #include "shade/graphics/texture.h"
 
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+#ifdef BUILD_SHADE_EDITOR
+// ======================================
+void Shade::SpriteComponent::ShowImguiDetails() 
+{
+    const bool widthChanged = ImGui::DragFloat("width", &mRenderWidth, 1.0f, 0.f, 500.f, "%.1f");
+    const bool heightChanged = ImGui::DragFloat("height", &mRenderHeight, 1.0f, 0.f, 500.f, "%.1f");
+    // TODO: Implement render anchor selection
+    ImGui::DragInt("render layer", &mRenderLayer, 1.0f, -10, 10);
+    ImGui::Checkbox("constant depth", &mConstantDepth);
+    const bool texturePathChanged = ImGui::InputText("texture path", &mTexturePath);
+
+    if (widthChanged || heightChanged)
+    {
+        // TODO: Adjust camera to center sprite
+    }
+    if (texturePathChanged)
+    {
+        ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
+        Shade::ResourceHandle newTextureHandle = resourceManager->LoadResource<Texture>(mTexturePath);
+        if (newTextureHandle.IsValid())
+        {
+            mTextureHandle = newTextureHandle;
+        }
+        else
+        {
+            mTextureHandle = Shade::ResourceHandle::Invalid;
+        }
+    }
+}
+#endif
+
 // ======================================
 Shade::SpriteComponent::SpriteComponent(const std::string& texturePath, int renderLayer, RenderAnchor renderAnchor, bool constantDepth)
     : mRenderAnchor(renderAnchor)
@@ -24,6 +58,9 @@ Shade::SpriteComponent::SpriteComponent(const std::string& texturePath, int rend
         mRenderWidth = loadedTexture->GetWidth();
         mRenderHeight = loadedTexture->GetHeight();
     }
+#ifdef BUILD_SHADE_EDITOR
+    mTexturePath = texturePath;
+#endif
 }
 
 // ======================================
@@ -37,6 +74,10 @@ Shade::SpriteComponent::SpriteComponent(float renderWidth, float renderHeight, c
 {
     ResourceManager* resourceManager = ServiceProvider::GetCurrentProvider()->GetService<ResourceManager>();
     mTextureHandle = resourceManager->LoadResource<Texture>(texturePath);
+
+#ifdef BUILD_SHADE_EDITOR
+    mTexturePath = texturePath;
+#endif
 }
 
 // ======================================

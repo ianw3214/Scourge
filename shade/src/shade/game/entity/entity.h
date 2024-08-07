@@ -18,7 +18,12 @@ namespace Shade {
     class GameplayEventSource;
     class SpriteComponent;
 
+    // ======================================
     class Entity {
+#ifdef BUILD_SHADE_EDITOR
+    public:
+        void ShowImguiDetails();
+#endif
     public:
         Entity(GameplayEventSource&, EntityContainer&);
         ~Entity();

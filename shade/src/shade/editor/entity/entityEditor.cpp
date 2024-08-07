@@ -57,7 +57,7 @@ public:
             std::unique_ptr<Shade::Entity>& entityData = mEntityEditorRef.GetEntityData();
             if (entityData != nullptr)
             {
-                
+                entityData->ShowImguiDetails();
             }
         }
 
