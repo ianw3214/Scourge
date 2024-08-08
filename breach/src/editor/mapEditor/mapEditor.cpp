@@ -196,7 +196,7 @@ public:
                     MapData* newMapData = new EditorMapData();
                     if (newMapData == nullptr)
                     {
-                        logger->LogError(std::string("Failed to open '") + MapEditorConstants::TempTargetFilePath + '\'');
+                        logger->LogError(std::string("Failed to create new map"));
                     }
                     else
                     {

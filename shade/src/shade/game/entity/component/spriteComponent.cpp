@@ -119,6 +119,11 @@ void Shade::SpriteComponent::ResetColourMultiplier()
 // ======================================
 void Shade::SpriteComponent::AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
+    if (!mTextureHandle.IsValid())
+    {
+        return;
+    }
+    
     bool useMultiplier = false;
     if (mColourMultiplier.r != 1.f || mColourMultiplier.g != 1.f || mColourMultiplier.b != 1.f)
     {

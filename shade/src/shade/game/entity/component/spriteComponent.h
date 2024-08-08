@@ -15,6 +15,7 @@ namespace Shade {
     class SpriteComponent : public Component {
 #ifdef BUILD_SHADE_EDITOR
     public:
+        SpriteComponent() {}
         virtual void ShowImguiDetails() override;
     protected:
         std::string mTexturePath = "";

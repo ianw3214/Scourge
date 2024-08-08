@@ -20,6 +20,7 @@ namespace Shade {
 
         void SetEntityData(std::unique_ptr<Entity> entityData);
         std::unique_ptr<Entity>& GetEntityData();
+        void CreateEmptyEntity();
         void OpenFile();
         void SaveFile();
 

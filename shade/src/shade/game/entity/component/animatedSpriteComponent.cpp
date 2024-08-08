@@ -147,15 +147,15 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
 }
 
 // ======================================
-void Shade::AnimatedSpriteComponent::SetAnimationTransition(const std::string& animation, const std::string& transition)
-{
-    mStates[animation].mTransition = transition;
-}
-
-// ======================================
 void Shade::AnimatedSpriteComponent::Update(float deltaSeconds) 
 {
+    if (mStates.empty())
+    {
+        return;
+    }
+
     mElapsedTime += deltaSeconds;
+    // TODO: Variable animation frame rates?
     constexpr float frameTime = 1.f / 12.f;
     if (mElapsedTime > frameTime)
     {
@@ -187,6 +187,11 @@ void Shade::AnimatedSpriteComponent::Update(float deltaSeconds)
 // ======================================
 void Shade::AnimatedSpriteComponent::AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
+    if (!mTextureHandle.IsValid())
+    {
+        return;
+    }
+
     bool useMultiplier = false;
     if (mColourMultiplier.r != 1.f || mColourMultiplier.g != 1.f || mColourMultiplier.b != 1.f)
     {

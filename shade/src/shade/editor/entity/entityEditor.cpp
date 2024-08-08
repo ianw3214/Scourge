@@ -39,7 +39,7 @@ public:
             if (ImGui::BeginMenu("File"))
             {
                 if (ImGui::MenuItem("New", "Ctrl+N")) {
-                    // TODO: Implement
+                    mEntityEditorRef.CreateEmptyEntity();
                 }
                 if (ImGui::MenuItem("Open", "Ctrl+O")) {
                     mEntityEditorRef.OpenFile();
@@ -137,6 +137,13 @@ bool Shade::EntityEditor::HandleEvent(const Shade::InputEvent& event)
         {
             mControlPressed = event.mKeyEvent == Shade::KeyEventType::PRESS;
         }
+        if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_N && mControlPressed)
+        {
+            if (event.mKeyEvent == Shade::KeyEventType::PRESS)
+            {
+                CreateEmptyEntity();
+            }
+        }
         if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_O && mControlPressed)
         {
             if (event.mKeyEvent == Shade::KeyEventType::PRESS)
@@ -165,6 +172,22 @@ void Shade::EntityEditor::SetEntityData(std::unique_ptr<Entity> entityData)
 std::unique_ptr<Shade::Entity>& Shade::EntityEditor::GetEntityData()
 {
     return mEntityData;
+}
+
+// ======================================
+void Shade::EntityEditor::CreateEmptyEntity()
+{
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    std::unique_ptr<Shade::Entity> newEntity = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateNewEntity();
+    if (newEntity == nullptr)
+    {
+        logger->LogError(std::string("Failed to create new entity"));
+    }
+    else
+    {
+        logger->LogInfo("Created new entity"); 
+        SetEntityData(std::move(newEntity));  
+    }
 }
 
 // ======================================

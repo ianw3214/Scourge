@@ -9,6 +9,9 @@
 #include "shade/logging/logService.h"
 #include "shade/logging/logger.h"
 
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
 #ifdef BUILD_SHADE_EDITOR
 // ======================================
 void Shade::Entity::ShowImguiDetails()
@@ -16,6 +19,18 @@ void Shade::Entity::ShowImguiDetails()
     if (mCachedSprite.has_value())
     {
         mCachedSprite->get()->ShowImguiDetails();
+    }
+    else
+    {
+        ImGui::Text("No sprite component set...");
+        if (ImGui::Button("Add sprite component"))
+        {
+            AddComponent(std::make_unique<SpriteComponent>());
+        }
+        if (ImGui::Button("Add animated sprite component"))
+        {
+            AddComponent(std::make_unique<AnimatedSpriteComponent>());
+        }
     }
     for (std::unique_ptr<Component>& component : mComponents)
     {
