@@ -9,6 +9,66 @@
 #include "shade/logging/logService.h"
 #include "shade/resource/manager.h"
 
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+#ifdef BUILD_SHADE_EDITOR
+// ======================================
+// TODO: Consider using `ImGuiInputTextFlags_EnterReturnsTrue` to lighten load
+void Shade::AnimatedSpriteComponent::ShowImguiDetails()
+{
+    SpriteComponent::ShowImguiDetails();
+
+    const bool initialStateChanged = ImGui::InputText("initial state", &mInitialState);
+    const bool frameDataChanged = ImGui::InputText("frame data path", &mFrameDataPath);
+    if (initialStateChanged)
+    {
+        if (mStates.find(mInitialState) != mStates.end())
+        {
+            ChangeAnimationState(mInitialState);
+        }
+    }
+    if (frameDataChanged)
+    {
+        // TODO: Refresh all associated frame data
+    }
+
+    if (ImGui::TreeNode("Transitions"))
+    {
+        // TODO: Maybe want to implement deleting transitions, maybe not important?
+        bool transitionTableDirty = false;
+        if (ImGui::Button("Add Transition"))
+        {
+            mTransitionTable.emplace_back();
+            transitionTableDirty = true;
+        }
+        for (int n = 0; n < mTransitionTable.size(); n++)
+        {
+            if (ImGui::TreeNode(std::to_string(n).c_str()))
+            {
+                transitionTableDirty |= ImGui::InputText("from", &mTransitionTable[n].first);
+                transitionTableDirty |= ImGui::InputText("to", &mTransitionTable[n].second);
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+
+        if (transitionTableDirty)
+        {
+            // Clear all previous transitions before reloading all new ones again
+            for (auto& pair : mStates)
+            {
+                pair.second.mTransition.clear();
+            }
+            for (const auto& transition : mTransitionTable)
+            {
+                mStates[transition.first].mTransition = transition.second;
+            }
+        }
+    }
+}
+#endif
+
 // ======================================
 Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, int renderLayer, RenderAnchor renderAnchor)
     : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
@@ -27,6 +87,10 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
 
     // Update current frame based on the initial state
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
+
+#ifdef BUILD_SHADE_EDITOR
+    mInitialState = initialState;
+#endif
 }
 
 // ======================================
@@ -44,10 +108,14 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
     assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
 
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
+
+#ifdef BUILD_SHADE_EDITOR
+    mInitialState = initialState;
+#endif
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const std::string& frameDataPath, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const std::string& frameDataPath, TransitionTable transitionTable, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
     : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
     , mCurrentState(initialState)
 {
@@ -64,7 +132,18 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
     }
     assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
 
+    for (const auto& transition : transitionTable)
+    {
+        mStates[transition.first].mTransition = transition.second;
+    }
+
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
+
+#ifdef BUILD_SHADE_EDITOR
+    mInitialState = initialState;
+    mFrameDataPath = frameDataPath;
+    mTransitionTable = transitionTable;
+#endif
 }
 
 // ======================================

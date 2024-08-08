@@ -24,14 +24,25 @@ namespace Shade {
         std::string mTransition = "";   // Empty default transition means the animation state will loop
     };
 
+    // ======================================
     class AnimatedSpriteComponent : public SpriteComponent {
+    public:
+        typedef std::vector<std::pair<std::string, std::string>> TransitionTable;
+#ifdef BUILD_SHADE_EDITOR
+    public:
+        virtual void ShowImguiDetails() override;
+    private:
+        std::string mInitialState = "";
+        std::string mFrameDataPath = "";
+        TransitionTable mTransitionTable;
+#endif
     public:
         AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
         // TODO: This is a super long constructor
         //  - try to trim it down by separating out the initialization
         AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, TilesheetInfo tileInfo, std::unordered_map<std::string, AnimationStateInfo> states, const std::string& initialState, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
         AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const AnimationFrameData* frameData, const std::string& initialState, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
-        AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const std::string& frameDataPath, const std::string& initialState, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
+        AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const std::string& frameDataPath, TransitionTable transitionTable, const std::string& initialState, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE);
 
         // TODO: Temp debug adding function - remove when proper loading is implemented
         void SetAnimationTransition(const std::string& animation, const std::string& transition);

@@ -43,11 +43,7 @@ std::unique_ptr<Shade::Entity> Shade::EntityFactory::CreateNewEntity(const std::
     {
         EntityLoaderService* loader = ServiceProvider::GetCurrentProvider()->GetService<EntityLoaderService>();
         bool loadResult = loader->LoadEntityFromFile(*entity.get(), filePath);
-        if (loadResult == true)
-        {
-            logService->LogError("Entity successfully loaded");
-        }
-        else
+        if (loadResult == false)
         {
             logService->LogError("Failed to load entity, aborting entity creation");
             return nullptr;

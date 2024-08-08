@@ -16,7 +16,7 @@ namespace Shade {
 #ifdef BUILD_SHADE_EDITOR
     public:
         virtual void ShowImguiDetails() override;
-    private:
+    protected:
         std::string mTexturePath = "";
 #endif
     public:

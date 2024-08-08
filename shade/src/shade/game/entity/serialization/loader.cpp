@@ -165,11 +165,6 @@ void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
             handle.ToNext();
         }
 
-        AnimatedSpriteComponent* sprite = new AnimatedSpriteComponent(renderWidth, renderHeight, texturePath, frameDataPath, initialState, renderLayer, renderAnchor);
-        for (const auto& transition : transitions)
-        {
-            sprite->SetAnimationTransition(transition.first, transition.second);
-        }
-        return sprite;
+        return new AnimatedSpriteComponent(renderWidth, renderHeight, texturePath, frameDataPath, transitions, initialState, renderLayer, renderAnchor);;
     });
 }
