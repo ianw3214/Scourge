@@ -16,25 +16,33 @@
 // ======================================
 void Shade::Entity::ShowImguiDetails()
 {
-    if (mCachedSprite.has_value())
+    if (ImGui::TreeNode("Sprite details"))
     {
-        mCachedSprite->get()->ShowImguiDetails();
-    }
-    else
-    {
-        ImGui::Text("No sprite component set...");
-        if (ImGui::Button("Add sprite component"))
+        if (mCachedSprite.has_value())
         {
-            AddComponent(std::make_unique<SpriteComponent>());
+            mCachedSprite->get()->ShowImguiDetails();
         }
-        if (ImGui::Button("Add animated sprite component"))
+        else
         {
-            AddComponent(std::make_unique<AnimatedSpriteComponent>());
+            ImGui::Text("No sprite component set...");
+            if (ImGui::Button("Add sprite component"))
+            {
+                AddComponent(std::make_unique<SpriteComponent>());
+            }
+            if (ImGui::Button("Add animated sprite component"))
+            {
+                AddComponent(std::make_unique<AnimatedSpriteComponent>());
+            }
         }
+        ImGui::TreePop();
     }
     for (std::unique_ptr<Component>& component : mComponents)
     {
-        component->ShowImguiDetails();
+        if (ImGui::TreeNode(component->GetDisplayName()))
+        {
+            component->ShowImguiDetails();
+            ImGui::TreePop();
+        }
     }
 }
 #endif

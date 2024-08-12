@@ -5,6 +5,15 @@
 
 #include "components/combat/deathHandlingComponent.h"
 
+#ifdef BUILD_BREACH_EDITOR
+#include <imgui/imgui.h>
+// ======================================
+void HealthComponent::ShowImguiDetails() 
+{
+    ImGui::DragFloat("Max health", &mMaxHealth);
+}
+#endif
+
 // ======================================
 HealthComponent* HealthComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {

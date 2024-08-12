@@ -17,6 +17,10 @@ namespace DeathHandlingComponentDefaults {
 //  - By default, play a specified animation and mark the entity for remove after a timer
 class DeathHandlingComponent : public Shade::Component
 {
+#ifdef BUILD_BREACH_EDITOR
+public:
+    const char* GetDisplayName() override { return "Death Handling Component"; }
+#endif
 public:
     static DeathHandlingComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:

@@ -43,6 +43,11 @@ if( DEBUG_BREACH )
 add_compile_definitions(Breach DEBUG_BREACH)
 endif()
 
+# Need to add this define as well so engine headers are properly parsed when using preprocessor definitions
+if( BUILD_SHADE_EDITOR )
+add_compile_definitions(Breach BUILD_SHADE_EDITOR)
+endif()
+
 if( BUILD_BREACH_EDITOR )
 add_compile_definitions(Breach BUILD_BREACH_EDITOR)
 endif()

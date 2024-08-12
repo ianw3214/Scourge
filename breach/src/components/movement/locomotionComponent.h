@@ -21,6 +21,10 @@ namespace LocomotionComponentDefaults {
 //  - The decision on HOW to move is still done by other controlling components
 class LocomotionComponent : public Shade::Component
 {
+#ifdef BUILD_BREACH_EDITOR
+public:
+    const char* GetDisplayName() override { return "Locomotion Component"; }
+#endif
 public:
     static LocomotionComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:

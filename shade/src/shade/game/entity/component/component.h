@@ -1,11 +1,14 @@
 #pragma once
 
+#include <string>
+
 namespace Shade {
 
     class Entity;
     class Component {
 #ifdef BUILD_SHADE_EDITOR
     public:
+        virtual const char* GetDisplayName() { return ""; }
         virtual void ShowImguiDetails() {}
 #endif
     public:

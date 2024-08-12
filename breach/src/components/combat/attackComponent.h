@@ -75,6 +75,10 @@ struct AttackInfo {
 // ======================================
 // Entity attacks are stored via a map with the name of the attack mapping to the attack data
 class AttackComponent : public Shade::Component {
+#ifdef BUILD_BREACH_EDITOR
+public:
+    const char* GetDisplayName() override { return "Attack Component"; }
+#endif
 public:
     static AttackComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:

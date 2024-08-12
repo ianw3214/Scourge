@@ -18,6 +18,10 @@ namespace HitboxComponentDefaults {
 //      - This may need to be adjusted to be a custom offset system in the future
 class HitboxComponent : public Shade::Component
 {
+#ifdef BUILD_BREACH_EDITOR
+public:
+    const char* GetDisplayName() override { return "Hitbox Component"; }
+#endif
 public:
     static HitboxComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:

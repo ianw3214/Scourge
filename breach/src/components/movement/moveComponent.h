@@ -7,6 +7,10 @@
 //    - If the current entity is already in a blocked position, then all movement can be freely done
 class BaseMovementComponent : public Shade::Component
 {
+#ifdef BUILD_BREACH_EDITOR
+public:
+    const char* GetDisplayName() override { return "Move Component"; }
+#endif
 public:
     // ======================================
     BaseMovementComponent() = default;

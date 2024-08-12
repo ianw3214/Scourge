@@ -12,6 +12,11 @@ namespace HealthComponentDefaults {
 // ======================================
 class HealthComponent : public Shade::Component
 {
+#ifdef BUILD_BREACH_EDITOR
+public:
+    const char* GetDisplayName() override { return "Health Component"; }
+    void ShowImguiDetails() override;
+#endif
 public:
     static HealthComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
