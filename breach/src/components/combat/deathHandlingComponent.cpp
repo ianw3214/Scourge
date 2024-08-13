@@ -5,6 +5,18 @@
 
 #include "components/facingComponent.h"
 
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void DeathHandlingComponent::ShowImguiDetails()
+{
+    ImGui::InputText("die left anim", &mDieLeftAnim);
+    ImGui::InputText("die right anim", &mDieRightAnim);
+}
+#endif
+
 // ======================================
 DeathHandlingComponent* DeathHandlingComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {

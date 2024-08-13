@@ -24,6 +24,7 @@ class LocomotionComponent : public Shade::Component
 #ifdef BUILD_BREACH_EDITOR
 public:
     const char* GetDisplayName() override { return "Locomotion Component"; }
+    void ShowImguiDetails() override;
 #endif
 public:
     static LocomotionComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);

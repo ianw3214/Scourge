@@ -23,6 +23,79 @@
 // TODO: Remove - Temporary for determining player or AI
 #include "components/ai/stateMachineAIComponent.h"
 
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void AttackHitInfo::ShowImguiDetails()
+{
+    ImGui::InputScalar("Trigger anim frame", ImGuiDataType_U32, &mTriggerFrame);
+    ImGui::DragFloat("Damage", &mDamage, 1.f, 0.f, 200.f);
+    // TODO: Need to actually implement this properly
+    // ImGui::InputInt("Target type", (int*)mTarget);
+
+    // TODO: Ability to add/remove boxes
+    ImGui::Text("Hit boxes");
+    for (int n = 0; n < mAttackBoxes.size(); n++)
+    {
+        if (ImGui::TreeNode(std::to_string(n).c_str()))
+        {
+            AttackHitBox& hitbox = mAttackBoxes[n];
+            ImGui::DragFloat("Offset X", &hitbox.mOffsetX);
+            ImGui::DragFloat("Offset Y", &hitbox.mOffsetY);
+            ImGui::DragFloat("Width", &hitbox.mWidth, 1.f, 0.f, 500.f);
+            ImGui::DragFloat("Height", &hitbox.mHeight, 1.f, 0.f, 500.f);
+            const bool effectChanged = ImGui::InputText("Effect", &hitbox.mEffectPath);
+
+            if (effectChanged)
+            {
+                // TODO: Ability to play the attack in editor
+            }
+            ImGui::TreePop();
+        }
+    }
+    
+}
+
+// ======================================
+void AttackInfo::ShowImguiDetails()
+{
+    ImGui::InputText("Animation", &mAnimation);
+    ImGui::Checkbox("Disable movement", &mDisableMovement);
+    ImGui::Checkbox("Invulnerable", &mInvulnerable);
+    ImGui::DragFloat("Duration", &mDuration, 1.f, 0.f, 20.f);
+    ImGui::DragFloat("Move speed", &mMoveSpeed, 1.f, 0.f, 1500.f);
+
+    ImGui::Text("Hit definitions");
+    for (int n = 0; n < mHitInfo.size(); n++)
+    {
+        if (ImGui::TreeNode(std::to_string(n).c_str()))
+        {
+            mHitInfo[n].ShowImguiDetails();
+            ImGui::TreePop();
+        }
+    }
+}
+
+// ======================================
+void AttackComponent::ShowImguiDetails() 
+{
+    // TODO: Ability to play an attack in editor for testing
+    // TODO: Ability to add new attack
+    // TODO: Ability to change attack name
+    for (auto& it : mAttackMap)
+    {
+        const std::string& name = it.first;
+        if (ImGui::TreeNode(name.empty() ? "unnamed" : name.c_str()))
+        {
+            it.second.ShowImguiDetails();
+            ImGui::TreePop();
+        }
+    }
+}
+#endif
+
 // ======================================
 AttackHitInfo AttackHitInfo::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {
@@ -76,6 +149,9 @@ AttackHitInfo AttackHitInfo::LoadFromFileHandle(Shade::KeyValueHandle handle)
                                 // TODO: Consider whether we actually have to load the effect here
                                 //  - Perhaps just storing/working with the string would be sufficient
                                 const std::string& effectPath = effectHandle.TryGetString();
+                                #ifdef BUILD_BREACH_EDITOR
+                                attackHitBox.mEffectPath = effectPath;
+                                #endif
                                 Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
                                 Shade::ResourceHandle fxHandle = resourceManager->LoadResource<Shade::Texture>(effectPath);
                                 if (!fxHandle.IsValid())

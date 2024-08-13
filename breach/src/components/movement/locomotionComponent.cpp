@@ -8,6 +8,20 @@
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void LocomotionComponent::ShowImguiDetails()
+{
+    ImGui::InputText("idle left anim", &mIdleLeftAnim);
+    ImGui::InputText("idle right anim", &mIdleRightAnim);
+    ImGui::InputText("move left anim", &mMoveLeftAnim);
+    ImGui::InputText("move right anim", &mMoveRightAnim);
+}
+#endif
+
 // ======================================
 LocomotionComponent* LocomotionComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {

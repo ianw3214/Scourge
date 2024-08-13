@@ -2,6 +2,17 @@
 
 #include "shade/game/entity/entity.h"
 
+#include <imgui/imgui.h>
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void HitboxComponent::ShowImguiDetails() 
+{
+    ImGui::DragFloat("width", &mWidth, 1.f, 0.f, 1000.f);
+    ImGui::DragFloat("height", &mHeight, 1.f, 0.f, 1000.f);
+}
+#endif
+
 // ======================================
 HitboxComponent* HitboxComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {

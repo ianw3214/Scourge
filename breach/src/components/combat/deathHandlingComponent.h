@@ -20,6 +20,7 @@ class DeathHandlingComponent : public Shade::Component
 #ifdef BUILD_BREACH_EDITOR
 public:
     const char* GetDisplayName() override { return "Death Handling Component"; }
+    void ShowImguiDetails() override;
 #endif
 public:
     static DeathHandlingComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);

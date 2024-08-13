@@ -23,6 +23,9 @@ enum class AttackTarget {
 
 // ======================================
 struct AttackHitBox {
+#ifdef BUILD_BREACH_EDITOR
+    std::string mEffectPath;
+#endif
     float mOffsetX = 0.f;
     float mOffsetY = 0.f;
     float mWidth = 10.f;
@@ -39,9 +42,12 @@ struct AttackHitBox {
 
 // ======================================
 struct AttackHitInfo {
+#ifdef BUILD_BREACH_EDITOR
+    void ShowImguiDetails();
+#endif
 public:
     static AttackHitInfo LoadFromFileHandle(Shade::KeyValueHandle handle);
-public:
+
     uint32_t mTriggerFrame = std::numeric_limits<uint32_t>::max();
     float mDamage = 1.f;
     AttackTarget mTarget = AttackTarget::ENEMY;
@@ -55,6 +61,9 @@ public:
 
 // ======================================
 struct AttackInfo {
+#ifdef BUILD_BREACH_EDITOR
+    void ShowImguiDetails();
+#endif
     std::string mAnimation;
     bool mDisableMovement = true;
     bool mInvulnerable = false;
@@ -78,6 +87,7 @@ class AttackComponent : public Shade::Component {
 #ifdef BUILD_BREACH_EDITOR
 public:
     const char* GetDisplayName() override { return "Attack Component"; }
+    void ShowImguiDetails() override;
 #endif
 public:
     static AttackComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
@@ -101,6 +111,7 @@ private:
 private:
     std::unordered_map<std::string, AttackInfo> mAttackMap;
 
+    // In-engine attack state
     std::string mCurrentAttack;
     std::vector<Shade::Entity*> mCurrentHitEnemies; // Entity pointers are used directly for checks, no lifetime safety needed
     float mCurrentAttackTimer = 0.f;

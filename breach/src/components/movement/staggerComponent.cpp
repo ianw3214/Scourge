@@ -6,6 +6,18 @@
 #include "components/combat/healthComponent.h"
 #include "components/facingComponent.h"
 
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void StaggerComponent::ShowImguiDetails() 
+{
+    ImGui::InputText("stagger left anim", &mStaggerLeftAnim);
+    ImGui::InputText("stagger right anim", &mStaggerRightAnim);
+}
+#endif
+
 // ======================================
 StaggerComponent* StaggerComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {
