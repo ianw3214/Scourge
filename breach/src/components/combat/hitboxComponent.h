@@ -20,7 +20,7 @@ class HitboxComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() override { return "Hitbox Component"; }
+    const char* GetDisplayName() const override { return "Hitbox Component"; }
     void ShowImguiDetails() override;
 #endif
 public:

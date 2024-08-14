@@ -1,5 +1,6 @@
 #include "entity.h"
 
+#include "shade/file/fileSystem.h"
 #include "shade/game/entity/component/component.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/component/spriteComponent.h"
@@ -44,6 +45,43 @@ void Shade::Entity::ShowImguiDetails()
             ImGui::TreePop();
         }
     }
+}
+
+// ======================================
+bool Shade::Entity::Save(const std::string& filePath)
+{
+    Shade::FileSystem* fileSystem = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FileSystem>();
+    
+    Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
+    Shade::KeyValueFile file = Shade::KeyValueFile::CreateFileForWrite();
+
+    file.AddStringEntry("name", mName);
+
+    if (mCachedSprite.has_value())
+    {
+        const std::string componentID = mCachedSprite->get()->GetComponentID();
+        if (componentID.empty())
+        {
+            // TODO: Error
+        }
+        file.PushList(componentID);
+        file.PopList();
+    }
+
+    for (const std::unique_ptr<Component>& component : mComponents)
+    {
+        const std::string componentID = component->GetComponentID();
+        if (componentID.empty())
+        {
+            // TODO: Error
+            continue;
+        }
+        file.PushList(componentID);
+        file.PopList();
+    }
+    // TODO: save components
+
+    return fileSystem->SaveKeyValueFile(filePath, file);
 }
 #endif
 

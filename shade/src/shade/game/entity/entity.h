@@ -23,6 +23,7 @@ namespace Shade {
 #ifdef BUILD_SHADE_EDITOR
     public:
         void ShowImguiDetails();
+        bool Save(const std::string& filePath);
 #endif
     public:
         Entity(GameplayEventSource&, EntityContainer&);

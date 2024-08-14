@@ -45,7 +45,7 @@ public:
                     mEntityEditorRef.OpenFile();
                 }
                 if (ImGui::MenuItem("Save", "Ctrl+S")) {
-                    // TODO: Implement
+                    mEntityEditorRef.SaveFile();
                 }
                 if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")) {
                     // TODO: Implement
@@ -215,21 +215,19 @@ void Shade::EntityEditor::OpenFile()
 // ======================================
 void Shade::EntityEditor::SaveFile()
 {
-    /*
     Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-    if (mMapData == nullptr)
+    if (mEntityData == nullptr)
     {
-        logger->LogError("Tried saving map when no map is open...");
+        logger->LogError("Tried saving entity when no entity is open...");
         return;
     }
-    bool saveResult = mMapData->Save(MapEditorConstants::TempTargetFilePath);
+    bool saveResult = mEntityData->Save(EntityEditorConstants::TempTargetFilePath);
     if (saveResult)
     {
-        logger->LogInfo(std::string("Saved map to file '") + mMapData->GetName() + '\'');   
+        logger->LogInfo(std::string("Saved entity to file: '") + mEntityData->GetName() + '\'');   
     }
     else
     {
-        logger->LogError(std::string("Failed to open '") + MapEditorConstants::TempTargetFilePath + '\'');
+        logger->LogError(std::string("Failed to save to file: '") + EntityEditorConstants::TempTargetFilePath + '\'');
     }
-    */
 }

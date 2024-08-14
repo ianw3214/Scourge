@@ -8,7 +8,8 @@ namespace Shade {
     class Component {
 #ifdef BUILD_SHADE_EDITOR
     public:
-        virtual const char* GetDisplayName() { return ""; }
+        virtual const char* GetDisplayName() const { return ""; }
+        virtual const char* GetComponentID() const { return ""; }
         virtual void ShowImguiDetails() {}
 #endif
     public:

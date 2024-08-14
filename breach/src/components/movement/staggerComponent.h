@@ -18,7 +18,7 @@ class StaggerComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() override { return "Stagger Component"; }
+    const char* GetDisplayName() const override { return "Stagger Component"; }
     void ShowImguiDetails() override;
 #endif
 public:

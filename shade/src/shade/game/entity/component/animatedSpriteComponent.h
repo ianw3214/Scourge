@@ -31,6 +31,7 @@ namespace Shade {
 #ifdef BUILD_SHADE_EDITOR
     public:
         AnimatedSpriteComponent() {}
+        virtual const char* GetComponentID() const { return "animated_sprite"; }
         virtual void ShowImguiDetails() override;
     private:
         std::string mInitialState = "";

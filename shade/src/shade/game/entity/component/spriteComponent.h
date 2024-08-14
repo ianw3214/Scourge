@@ -16,6 +16,7 @@ namespace Shade {
 #ifdef BUILD_SHADE_EDITOR
     public:
         SpriteComponent() {}
+        virtual const char* GetComponentID() const { return "sprite"; }
         virtual void ShowImguiDetails() override;
     protected:
         std::string mTexturePath = "";

@@ -14,7 +14,7 @@ class HealthComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() override { return "Health Component"; }
+    const char* GetDisplayName() const override { return "Health Component"; }
     void ShowImguiDetails() override;
 #endif
 public:

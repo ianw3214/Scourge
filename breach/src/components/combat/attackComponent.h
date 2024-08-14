@@ -86,7 +86,7 @@ struct AttackInfo {
 class AttackComponent : public Shade::Component {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() override { return "Attack Component"; }
+    const char* GetDisplayName() const override { return "Attack Component"; }
     void ShowImguiDetails() override;
 #endif
 public:

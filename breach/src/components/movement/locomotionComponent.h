@@ -23,7 +23,7 @@ class LocomotionComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() override { return "Locomotion Component"; }
+    const char* GetDisplayName() const override { return "Locomotion Component"; }
     void ShowImguiDetails() override;
 #endif
 public:

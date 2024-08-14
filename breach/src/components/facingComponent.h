@@ -14,7 +14,7 @@ class FacingComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() override { return "Facing Component"; }
+    const char* GetDisplayName() const override { return "Facing Component"; }
 #endif
 public:
     FacingDirection mDirection = FacingDirection::RIGHT;

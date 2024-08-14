@@ -30,7 +30,7 @@ public:
 class StateMachineAIComponent : public Shade::Component {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() override { return "State Machine AI Component"; }
+    const char* GetDisplayName() const override { return "State Machine AI Component"; }
 #endif
 public:
     static StateMachineAIComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
