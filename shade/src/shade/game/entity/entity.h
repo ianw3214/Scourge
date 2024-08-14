@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include <optional>
 #include <string>
 
 #include "shade/common/vec.h"
@@ -64,7 +63,7 @@ namespace Shade {
         // The components list does NOT contain cached components
         std::vector<std::unique_ptr<Component>> mComponents;
         // Cached components are updated last
-        std::optional<std::unique_ptr<SpriteComponent>> mCachedSprite;
+        std::unique_ptr<SpriteComponent> mCachedSprite = nullptr;
 
         // Store a reference to the game world
         GameplayEventSource& mGameEventSource;

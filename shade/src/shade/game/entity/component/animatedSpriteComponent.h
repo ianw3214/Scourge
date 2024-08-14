@@ -33,6 +33,7 @@ namespace Shade {
         AnimatedSpriteComponent() {}
         virtual const char* GetComponentID() const { return "animated_sprite"; }
         virtual void ShowImguiDetails() override;
+        virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
     private:
         std::string mInitialState = "";
         std::string mFrameDataPath = "";

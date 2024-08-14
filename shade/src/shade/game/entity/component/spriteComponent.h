@@ -18,6 +18,7 @@ namespace Shade {
         SpriteComponent() {}
         virtual const char* GetComponentID() const { return "sprite"; }
         virtual void ShowImguiDetails() override;
+        virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
     protected:
         std::string mTexturePath = "";
 #endif

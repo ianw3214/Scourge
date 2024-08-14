@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/command/drawTexture.h"
 #include "shade/graphics/command/setColourMultiplier.h"
@@ -65,6 +66,26 @@ void Shade::AnimatedSpriteComponent::ShowImguiDetails()
                 mStates[transition.first].mTransition = transition.second;
             }
         }
+    }
+}
+
+// ======================================
+void Shade::AnimatedSpriteComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const 
+{
+    SpriteComponent::SaveToKeyValueFile(file);
+
+    file.AddFloatEntry("width", mRenderWidth);
+    file.AddFloatEntry("height", mRenderHeight);
+    file.AddStringEntry("frame_data", mFrameDataPath);
+    file.AddStringEntry("initial_state", mInitialState);
+    if (!mTransitionTable.empty())
+    {
+        file.PushList("transitions");
+        for (const auto& pair : mTransitionTable)
+        {
+            file.AddStringEntry(pair.first, pair.second);
+        }
+        file.PopList();
     }
 }
 #endif

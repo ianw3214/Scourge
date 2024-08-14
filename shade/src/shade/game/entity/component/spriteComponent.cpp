@@ -1,8 +1,10 @@
 #include "spriteComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/command/drawTexture.h"
 #include "shade/graphics/command/setColourMultiplier.h"
+#include "shade/graphics/common.h"
 #include "shade/instance/service/provider.h"
 #include "shade/resource/manager.h"
 #include "shade/graphics/texture.h"
@@ -38,6 +40,13 @@ void Shade::SpriteComponent::ShowImguiDetails()
             mTextureHandle = Shade::ResourceHandle::Invalid;
         }
     }
+}
+
+// ======================================
+void Shade::SpriteComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const 
+{
+    file.AddStringEntry("path", mTexturePath);
+    file.AddStringEntry("anchor", RenderUtil::RenderAnchorToString(mRenderAnchor));
 }
 #endif
 

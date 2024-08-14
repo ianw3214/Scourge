@@ -87,6 +87,7 @@ void Shade::EntityLoaderService::RegisterComponentLoader(const std::string& name
 void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
 {
     // Register sprite loading
+    // TODO: Move these to sprite/animated sprite files to centralize save/load logic
     RegisterComponentLoader("sprite", [](Shade::KeyValueHandle handle) {
         Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
         std::string texturePath = "";

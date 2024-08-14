@@ -19,9 +19,9 @@ void Shade::Entity::ShowImguiDetails()
 {
     if (ImGui::TreeNode("Sprite details"))
     {
-        if (mCachedSprite.has_value())
+        if (mCachedSprite != nullptr)
         {
-            mCachedSprite->get()->ShowImguiDetails();
+            mCachedSprite->ShowImguiDetails();
         }
         else
         {
@@ -57,14 +57,15 @@ bool Shade::Entity::Save(const std::string& filePath)
 
     file.AddStringEntry("name", mName);
 
-    if (mCachedSprite.has_value())
+    if (mCachedSprite != nullptr)
     {
-        const std::string componentID = mCachedSprite->get()->GetComponentID();
+        const std::string componentID = mCachedSprite->GetComponentID();
         if (componentID.empty())
         {
             // TODO: Error
         }
         file.PushList(componentID);
+        mCachedSprite->SaveToKeyValueFile(file);
         file.PopList();
     }
 
@@ -77,9 +78,9 @@ bool Shade::Entity::Save(const std::string& filePath)
             continue;
         }
         file.PushList(componentID);
+        // TODO: Save component
         file.PopList();
     }
-    // TODO: save components
 
     return fileSystem->SaveKeyValueFile(filePath, file);
 }
@@ -103,9 +104,9 @@ void Shade::Entity::Update(float deltaSeconds)
     {
         component->Update(deltaSeconds);
     }
-    if (mCachedSprite.has_value())
+    if (mCachedSprite != nullptr)
     {
-        mCachedSprite->get()->Update(deltaSeconds);
+        mCachedSprite->Update(deltaSeconds);
     }
 }
 
@@ -170,7 +171,7 @@ void Shade::Entity::AddComponent(std::unique_ptr<Component> newComponent)
     newComponent->SetEntityRef(this);
     if (SpriteComponent* sprite = dynamic_cast<SpriteComponent*>(newComponent.get()))
     {
-        if (mCachedSprite)
+        if (mCachedSprite != nullptr)
         {
             LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
             logService->LogError("Sprite component already exists on entity: {0}");
@@ -188,13 +189,13 @@ void Shade::Entity::AddComponent(std::unique_ptr<Component> newComponent)
 // ======================================
 Shade::SpriteComponent* Shade::Entity::GetCachedSpriteComponent() const
 {
-    return mCachedSprite.has_value() ? mCachedSprite->get() : nullptr;
+    return mCachedSprite.get();
 }
 
 // ======================================
 Shade::AnimatedSpriteComponent* Shade::Entity::GetCachedAnimatedSprite() const
 {
-    return mCachedSprite.has_value() ? dynamic_cast<AnimatedSpriteComponent*>(mCachedSprite->get()) : nullptr;
+    return dynamic_cast<AnimatedSpriteComponent*>(mCachedSprite.get());
 }
 
 // ======================================
