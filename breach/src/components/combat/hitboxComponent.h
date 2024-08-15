@@ -20,8 +20,10 @@ class HitboxComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() const override { return "Hitbox Component"; }
-    void ShowImguiDetails() override;
+    virtual const char* GetComponentID() const { return "hitbox"; }
+    virtual const char* GetDisplayName() const override { return "Hitbox Component"; }
+    virtual void ShowImguiDetails() override;
+    virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
 #endif
 public:
     static HitboxComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);

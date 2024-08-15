@@ -198,6 +198,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
 
     // Register game-specific components
+    // TODO: Centralize the string IDs so there's no disrepancy between saving and loading
     Shade::EntityLoaderService* entityLoader = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityLoaderService>();
     entityLoader->RegisterComponentLoader("movement", [](auto handle){ return new BaseMovementComponent(); });
     entityLoader->RegisterComponentLoader("facing", [](auto handle){ return new FacingComponent(); });

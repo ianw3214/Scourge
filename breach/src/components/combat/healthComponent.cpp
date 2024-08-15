@@ -1,5 +1,6 @@
 #include "healthComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/entity.h"
 
@@ -11,6 +12,12 @@
 void HealthComponent::ShowImguiDetails() 
 {
     ImGui::DragFloat("Max health", &mMaxHealth);
+}
+
+// ======================================
+void HealthComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddFloatEntry("max_health", mMaxHealth);
 }
 #endif
 

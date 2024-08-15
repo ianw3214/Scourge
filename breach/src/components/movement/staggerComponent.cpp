@@ -1,5 +1,6 @@
 #include "staggerComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
 
@@ -15,6 +16,13 @@ void StaggerComponent::ShowImguiDetails()
 {
     ImGui::InputText("stagger left anim", &mStaggerLeftAnim);
     ImGui::InputText("stagger right anim", &mStaggerRightAnim);
+}
+
+// ======================================
+void StaggerComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddStringEntry("stagger_left", mStaggerLeftAnim);
+    file.AddStringEntry("stagger_right", mStaggerRightAnim);
 }
 #endif
 

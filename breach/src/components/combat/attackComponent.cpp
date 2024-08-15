@@ -2,6 +2,7 @@
 
 #include "definitions.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/graphics/flare/flareService.h"
@@ -59,6 +60,35 @@ void AttackHitInfo::ShowImguiDetails()
 }
 
 // ======================================
+void AttackHitInfo::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddIntEntry("anim_frame", mTriggerFrame);
+    file.AddFloatEntry("damage", mDamage);
+    file.AddIntEntry("target", static_cast<int>(mTarget));
+    if (!mAttackBoxes.empty())
+    {
+        file.PushList("boxes");
+        for (int n = 0; n < mAttackBoxes.size(); ++n)
+        {
+            const AttackHitBox& hitbox = mAttackBoxes[n];
+            file.PushList(std::to_string(n));
+            file.AddFloatEntry("width", hitbox.mWidth);
+            file.AddFloatEntry("height", hitbox.mHeight);
+            file.AddFloatEntry("offset_x", hitbox.mOffsetX);
+            file.AddFloatEntry("offset_y", hitbox.mOffsetY);
+            if (!hitbox.mEffectPath.empty())
+            {
+                file.PushList("effect");
+                file.AddStringEntry("path", hitbox.mEffectPath);
+                file.PopList();
+            }
+            file.PopList();
+        }
+        file.PopList();
+    }
+}
+
+// ======================================
 void AttackInfo::ShowImguiDetails()
 {
     ImGui::InputText("Animation", &mAnimation);
@@ -79,6 +109,27 @@ void AttackInfo::ShowImguiDetails()
 }
 
 // ======================================
+void AttackInfo::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddStringEntry("anim", mAnimation);
+    file.AddIntEntry("disable_movement", static_cast<int>(mDisableMovement));
+    // file.addIntEntry("invulnerable") - TODO: Loading not yet implemneted
+    file.AddFloatEntry("duration", mDuration);
+    // file.AddFloatEntry("speed") - TODO: Loading not yet implemented
+    if (!mHitInfo.empty())
+    {
+        file.PushList("hits");
+        for (int n = 0; n < mHitInfo.size(); n++)
+        {
+            file.PushList(std::to_string(n));
+            mHitInfo[n].SaveToKeyValueFile(file);
+            file.PopList();
+        }
+        file.PopList();
+    }
+}
+
+// ======================================
 void AttackComponent::ShowImguiDetails() 
 {
     // TODO: Ability to play an attack in editor for testing
@@ -92,6 +143,17 @@ void AttackComponent::ShowImguiDetails()
             it.second.ShowImguiDetails();
             ImGui::TreePop();
         }
+    }
+}
+
+// ======================================
+void AttackComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    for (auto& it : mAttackMap)
+    {
+        file.PushList(it.first);
+        it.second.SaveToKeyValueFile(file);
+        file.PopList();
     }
 }
 #endif

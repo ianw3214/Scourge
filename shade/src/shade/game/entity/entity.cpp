@@ -78,7 +78,7 @@ bool Shade::Entity::Save(const std::string& filePath)
             continue;
         }
         file.PushList(componentID);
-        // TODO: Save component
+        component->SaveToKeyValueFile(file);
         file.PopList();
     }
 

@@ -18,8 +18,10 @@ class StaggerComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() const override { return "Stagger Component"; }
-    void ShowImguiDetails() override;
+    virtual const char* GetComponentID() const { return "stagger"; }
+    virtual const char* GetDisplayName() const override { return "Stagger Component"; }
+    virtual void ShowImguiDetails() override;
+    virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
 #endif
 public:
     static StaggerComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);

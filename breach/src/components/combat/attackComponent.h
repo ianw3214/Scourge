@@ -44,6 +44,7 @@ struct AttackHitBox {
 struct AttackHitInfo {
 #ifdef BUILD_BREACH_EDITOR
     void ShowImguiDetails();
+    void SaveToKeyValueFile(Shade::KeyValueFile& file) const;
 #endif
 public:
     static AttackHitInfo LoadFromFileHandle(Shade::KeyValueHandle handle);
@@ -63,6 +64,7 @@ public:
 struct AttackInfo {
 #ifdef BUILD_BREACH_EDITOR
     void ShowImguiDetails();
+    void SaveToKeyValueFile(Shade::KeyValueFile& file) const;
 #endif
     std::string mAnimation;
     bool mDisableMovement = true;
@@ -86,8 +88,10 @@ struct AttackInfo {
 class AttackComponent : public Shade::Component {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() const override { return "Attack Component"; }
-    void ShowImguiDetails() override;
+    virtual const char* GetComponentID() const { return "attack"; }
+    virtual const char* GetDisplayName() const override { return "Attack Component"; }
+    virtual void ShowImguiDetails() override;
+    virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
 #endif
 public:
     static AttackComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
@@ -98,7 +102,7 @@ public:
     // This must be called after the animated sprite component has been set up
     void RegisterAttacksToAnimFrames();
 
-    void Update(float deltaSeconds) override;
+    virtual void Update(float deltaSeconds) override;
 
     bool IsDoingAttack() const;
     

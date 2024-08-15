@@ -1,5 +1,6 @@
 #include "deathHandlingComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
 
@@ -14,6 +15,13 @@ void DeathHandlingComponent::ShowImguiDetails()
 {
     ImGui::InputText("die left anim", &mDieLeftAnim);
     ImGui::InputText("die right anim", &mDieRightAnim);
+}
+
+// ======================================
+void DeathHandlingComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddStringEntry("die_left", mDieLeftAnim);
+    file.AddStringEntry("die_right", mDieRightAnim);
 }
 #endif
 

@@ -9,7 +9,8 @@ class BaseMovementComponent : public Shade::Component
 {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() const override { return "Move Component"; }
+    virtual const char* GetComponentID() const { return "movement"; }
+    virtual const char* GetDisplayName() const override { return "Move Component"; }
 #endif
 public:
     // ======================================

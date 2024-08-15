@@ -30,14 +30,15 @@ public:
 class StateMachineAIComponent : public Shade::Component {
 #ifdef BUILD_BREACH_EDITOR
 public:
-    const char* GetDisplayName() const override { return "State Machine AI Component"; }
+    virtual const char* GetComponentID() const { return "ai"; }
+    virtual const char* GetDisplayName() const override { return "State Machine AI Component"; }
 #endif
 public:
     static StateMachineAIComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     StateMachineAIComponent(const std::string& initialState, std::unordered_map<std::string, AIState> states);
 
-    void Update(float deltaSeconds) override;
+    virtual void Update(float deltaSeconds) override;
 
     void SetEnabled(bool enabled = true);
 
