@@ -7,6 +7,7 @@
 #include "shade/game/entity/container.h"
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/factory.h"
+#include "shade/game/entity/serialization/loader.h"
 #include "shade/game/event/source.h"
 #include "shade/graphics/camera/camera.h"
 #include "shade/graphics/imgui/service.h"
@@ -57,6 +58,30 @@ public:
             std::unique_ptr<Shade::Entity>& entityData = mEntityEditorRef.GetEntityData();
             if (entityData != nullptr)
             {
+                if (ImGui::Button("Add Component"))
+                {
+                    ImGui::OpenPopup("select_component");
+                }
+
+                if (ImGui::BeginPopup("select_component"))
+                {
+                    Shade::EntityLoaderService* loader = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityLoaderService>();
+                    std::unique_ptr<Shade::Component> newComponent = loader->ShowNewComponentPopup();
+                    if (newComponent != nullptr)
+                    {
+                        if (!entityData->HasComoponent(newComponent->GetComponentID()))
+                        {
+                            entityData->AddComponent(std::move(newComponent));
+                        }
+                        else
+                        {
+                            logger->LogWarning(std::string("Component already exists on entity: ") + newComponent->GetComponentID());
+                        }
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndPopup();
+                }
+
                 entityData->ShowImguiDetails();
             }
         }

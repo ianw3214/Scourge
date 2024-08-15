@@ -41,6 +41,7 @@ namespace Shade {
         Vec2 GetPosition() const;
         const std::string& GetName() const;
 
+        bool HasComoponent(const std::string& componentID) const;
         void AddComponent(std::unique_ptr<Component> newComponent);
         template<class ComponentClass> ComponentClass* GetComponent();
         SpriteComponent* GetCachedSpriteComponent() const;

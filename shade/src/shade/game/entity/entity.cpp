@@ -26,14 +26,6 @@ void Shade::Entity::ShowImguiDetails()
         else
         {
             ImGui::Text("No sprite component set...");
-            if (ImGui::Button("Add sprite component"))
-            {
-                AddComponent(std::make_unique<SpriteComponent>());
-            }
-            if (ImGui::Button("Add animated sprite component"))
-            {
-                AddComponent(std::make_unique<AnimatedSpriteComponent>());
-            }
         }
         ImGui::TreePop();
     }
@@ -162,6 +154,19 @@ Shade::Vec2 Shade::Entity::GetPosition() const
 const std::string& Shade::Entity::GetName() const
 {
     return mName;
+}
+
+// ======================================
+bool Shade::Entity::HasComoponent(const std::string& componentID) const
+{
+    for (const std::unique_ptr<Component>& component : mComponents)
+    {
+        if (component->GetComponentID() == componentID)
+        {
+            return true;
+        }
+    }
+    return mCachedSprite == nullptr ? false : mCachedSprite->GetComponentID() == componentID;
 }
 
 // ======================================

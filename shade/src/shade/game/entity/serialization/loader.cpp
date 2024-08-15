@@ -7,6 +7,27 @@
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
 
+#ifdef BUILD_SHADE_EDITOR
+#include <imgui/imgui.h>
+
+// ======================================
+std::unique_ptr<Shade::Component> Shade::EntityLoaderService::ShowNewComponentPopup()
+{
+    std::unique_ptr<Shade::Component> result = nullptr;
+    for (auto& it : mComponentLoaders)
+    {
+        if (ImGui::Button(it.first.c_str()))
+        {
+            // TODO: Kind of hacky solution, need better way to load empty components...
+            std::vector<Shade::KeyValuePair> emptyBuffer;
+            Shade::KeyValueHandle emptyHandle(emptyBuffer);
+            result = std::unique_ptr<Shade::Component>(it.second(emptyHandle));
+        }
+    }
+    return result;
+}
+#endif
+
 // ======================================
 Shade::EntityLoaderService::EntityLoaderService()
     : Shade::Service("EntityLoaderService")
@@ -112,6 +133,11 @@ void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
 
     // Register animated sprited loading
     RegisterComponentLoader("animated_sprite", [](Shade::KeyValueHandle handle) {
+        if (!handle.IsValid())
+        {
+            return new AnimatedSpriteComponent();
+        }
+        
         Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
         
         // TODO: Consider letting animated sprites use the default frame data render width/height

@@ -17,6 +17,10 @@ namespace Shade {
     // The entity loader service 
     //  - Handles loading entities from file
     class EntityLoaderService : public Shade::Service {
+#ifdef BUILD_SHADE_EDITOR
+    public:
+        std::unique_ptr<Shade::Component> ShowNewComponentPopup();
+#endif
     public:
         // The handle passed into the component loader should be the top level list handle
         typedef std::function<Shade::Component*(Shade::KeyValueHandle)> ComponentLoader;
