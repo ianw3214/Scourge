@@ -28,9 +28,11 @@ public:
 
 // A state machine based implementation of AI decision making
 class StateMachineAIComponent : public Shade::Component {
+public:
+    static const std::string ComponentID;
 #ifdef BUILD_BREACH_EDITOR
 public:
-    virtual const char* GetComponentID() const { return "ai"; }
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
     virtual const char* GetDisplayName() const override { return "State Machine AI Component"; }
 #endif
 public:

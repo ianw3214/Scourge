@@ -27,11 +27,13 @@ namespace Shade {
     // ======================================
     class AnimatedSpriteComponent : public SpriteComponent {
     public:
+        static const std::string ComponentID;
+    public:
         typedef std::vector<std::pair<std::string, std::string>> TransitionTable;
 #ifdef BUILD_SHADE_EDITOR
     public:
         AnimatedSpriteComponent() {}
-        virtual const char* GetComponentID() const { return "animated_sprite"; }
+        virtual const char* GetComponentID() const { return ComponentID.c_str(); }
         virtual void ShowImguiDetails() override;
         virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
     private:

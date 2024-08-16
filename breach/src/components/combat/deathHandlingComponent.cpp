@@ -9,6 +9,8 @@
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
 
+const std::string DeathHandlingComponent::ComponentID = "death_handler";
+
 #ifdef BUILD_BREACH_EDITOR
 // ======================================
 void DeathHandlingComponent::ShowImguiDetails()

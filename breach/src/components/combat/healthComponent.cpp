@@ -6,6 +6,8 @@
 
 #include "components/combat/deathHandlingComponent.h"
 
+const std::string HealthComponent::ComponentID = "health";
+
 #ifdef BUILD_BREACH_EDITOR
 #include <imgui/imgui.h>
 // ======================================

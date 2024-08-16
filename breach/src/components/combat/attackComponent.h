@@ -86,9 +86,11 @@ struct AttackInfo {
 // ======================================
 // Entity attacks are stored via a map with the name of the attack mapping to the attack data
 class AttackComponent : public Shade::Component {
+public:
+    static const std::string ComponentID;
 #ifdef BUILD_BREACH_EDITOR
 public:
-    virtual const char* GetComponentID() const { return "attack"; }
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
     virtual const char* GetDisplayName() const override { return "Attack Component"; }
     virtual void ShowImguiDetails() override;
     virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;

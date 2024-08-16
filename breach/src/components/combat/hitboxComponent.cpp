@@ -5,6 +5,8 @@
 
 #include <imgui/imgui.h>
 
+const std::string HitboxComponent::ComponentID = "hitbox";
+
 #ifdef BUILD_BREACH_EDITOR
 // ======================================
 void HitboxComponent::ShowImguiDetails() 

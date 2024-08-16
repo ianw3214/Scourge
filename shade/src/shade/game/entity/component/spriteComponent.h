@@ -13,10 +13,12 @@ namespace Shade {
 
     class RenderCommand;
     class SpriteComponent : public Component {
+    public:
+        static const std::string ComponentID;
 #ifdef BUILD_SHADE_EDITOR
     public:
         SpriteComponent() {}
-        virtual const char* GetComponentID() const { return "sprite"; }
+        virtual const char* GetComponentID() const { return ComponentID.c_str(); }
         virtual void ShowImguiDetails() override;
         virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
     protected:

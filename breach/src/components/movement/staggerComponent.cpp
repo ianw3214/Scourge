@@ -10,6 +10,8 @@
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
 
+const std::string StaggerComponent::ComponentID = "stagger";
+
 #ifdef BUILD_BREACH_EDITOR
 // ======================================
 void StaggerComponent::ShowImguiDetails() 

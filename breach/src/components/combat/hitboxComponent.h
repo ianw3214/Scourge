@@ -18,9 +18,11 @@ namespace HitboxComponentDefaults {
 //      - This may need to be adjusted to be a custom offset system in the future
 class HitboxComponent : public Shade::Component
 {
+public:
+    static const std::string ComponentID;
 #ifdef BUILD_BREACH_EDITOR
 public:
-    virtual const char* GetComponentID() const { return "hitbox"; }
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
     virtual const char* GetDisplayName() const override { return "Hitbox Component"; }
     virtual void ShowImguiDetails() override;
     virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;

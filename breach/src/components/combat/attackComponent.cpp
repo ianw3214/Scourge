@@ -27,6 +27,8 @@
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
 
+const std::string AttackComponent::ComponentID = "attack";
+
 #ifdef BUILD_BREACH_EDITOR
 // ======================================
 void AttackHitInfo::ShowImguiDetails()

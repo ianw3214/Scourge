@@ -198,17 +198,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
 
     // Register game-specific components
-    // TODO: Centralize the string IDs so there's no disrepancy between saving and loading
     Shade::EntityLoaderService* entityLoader = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityLoaderService>();
-    entityLoader->RegisterComponentLoader("movement", [](auto handle){ return new BaseMovementComponent(); });
-    entityLoader->RegisterComponentLoader("facing", [](auto handle){ return new FacingComponent(); });
-    entityLoader->RegisterComponentLoader("health", [](auto handle){ return HealthComponent::LoadFromFileHandle(handle); });
-    entityLoader->RegisterComponentLoader("locomotion", [](auto handle){ return LocomotionComponent::LoadFromFileHandle(handle); });
-    entityLoader->RegisterComponentLoader("death_handler", [](auto handle){ return DeathHandlingComponent::LoadFromFileHandle(handle); });
-    entityLoader->RegisterComponentLoader("hitbox", [](auto handle){ return HitboxComponent::LoadFromFileHandle(handle); });
-    entityLoader->RegisterComponentLoader("stagger", [](auto handle){ return StaggerComponent::LoadFromFileHandle(handle); });
-    entityLoader->RegisterComponentLoader("attack", [](auto handle){ return AttackComponent::LoadFromFileHandle(handle); });
-    entityLoader->RegisterComponentLoader("ai", [](auto handle){ return StateMachineAIComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader(BaseMovementComponent::ComponentID, [](auto handle){ return new BaseMovementComponent(); });
+    entityLoader->RegisterComponentLoader(FacingComponent::ComponentID, [](auto handle){ return new FacingComponent(); });
+    entityLoader->RegisterComponentLoader(HealthComponent::ComponentID, [](auto handle){ return HealthComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader(LocomotionComponent::ComponentID, [](auto handle){ return LocomotionComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader(DeathHandlingComponent::ComponentID, [](auto handle){ return DeathHandlingComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader(HitboxComponent::ComponentID, [](auto handle){ return HitboxComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader(StaggerComponent::ComponentID, [](auto handle){ return StaggerComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader(AttackComponent::ComponentID, [](auto handle){ return AttackComponent::LoadFromFileHandle(handle); });
+    entityLoader->RegisterComponentLoader(StateMachineAIComponent::ComponentID, [](auto handle){ return StateMachineAIComponent::LoadFromFileHandle(handle); });
 
     MainGameInstance.Run();
 

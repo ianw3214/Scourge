@@ -12,9 +12,11 @@ enum class FacingDirection {
 //  - Perhaps a custom entity class can be used based on the base shade entity
 class FacingComponent : public Shade::Component
 {
+public:
+    static const std::string ComponentID;
 #ifdef BUILD_BREACH_EDITOR
 public:
-    virtual const char* GetComponentID() const { return "facing"; }
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
     virtual const char* GetDisplayName() const override { return "Facing Component"; }
 #endif
 public:

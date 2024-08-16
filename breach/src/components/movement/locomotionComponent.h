@@ -21,9 +21,11 @@ namespace LocomotionComponentDefaults {
 //  - The decision on HOW to move is still done by other controlling components
 class LocomotionComponent : public Shade::Component
 {
+public:
+    static const std::string ComponentID;
 #ifdef BUILD_BREACH_EDITOR
 public:
-    virtual const char* GetComponentID() const { return "locomotion"; }
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
     virtual const char* GetDisplayName() const override { return "Locomotion Component"; }
     virtual void ShowImguiDetails() override;
     virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;

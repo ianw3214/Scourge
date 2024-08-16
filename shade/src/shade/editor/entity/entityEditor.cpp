@@ -62,6 +62,11 @@ public:
                 {
                     ImGui::OpenPopup("select_component");
                 }
+                ImGui::SameLine();
+                if (ImGui::Button("Delete component"))
+                {
+                    // TODO: Eventually implement, not really important now...   
+                }
 
                 if (ImGui::BeginPopup("select_component"))
                 {

@@ -12,6 +12,8 @@
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
 
+const std::string Shade::SpriteComponent::ComponentID = "sprite";
+
 #ifdef BUILD_SHADE_EDITOR
 // ======================================
 void Shade::SpriteComponent::ShowImguiDetails() 
