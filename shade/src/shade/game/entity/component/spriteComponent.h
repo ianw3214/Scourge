@@ -14,6 +14,17 @@ namespace Shade {
     class RenderCommand;
     class SpriteComponent : public Component {
     public:
+        static const std::string ComponentID;
+#ifdef BUILD_SHADE_EDITOR
+    public:
+        SpriteComponent() {}
+        virtual const char* GetComponentID() const { return ComponentID.c_str(); }
+        virtual void ShowImguiDetails() override;
+        virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
+    protected:
+        std::string mTexturePath = "";
+#endif
+    public:
         SpriteComponent(const std::string& texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
         SpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, int renderLayer = 0, RenderAnchor renderAnchor = RenderAnchor::MIDDLE, bool constantDepth = false);
 
@@ -35,6 +46,7 @@ namespace Shade {
         int mRenderLayer = 0;
         bool mConstantDepth = false;
         ResourceHandle mTextureHandle = ResourceHandle::Invalid;
+
         Colour mColourMultiplier = { 1.f, 1.f, 1.f };
     };
 

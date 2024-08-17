@@ -10,6 +10,8 @@ namespace Shade {
 
     class LogWindow : public ImGuiWindow {
     public:
+        LogWindow();
+        
         void Draw() override;
     };
 

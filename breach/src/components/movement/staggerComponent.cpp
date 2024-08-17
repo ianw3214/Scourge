@@ -1,10 +1,32 @@
 #include "staggerComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
 
 #include "components/combat/healthComponent.h"
 #include "components/facingComponent.h"
+
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+const std::string StaggerComponent::ComponentID = "stagger";
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void StaggerComponent::ShowImguiDetails() 
+{
+    ImGui::InputText("stagger left anim", &mStaggerLeftAnim);
+    ImGui::InputText("stagger right anim", &mStaggerRightAnim);
+}
+
+// ======================================
+void StaggerComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddStringEntry("stagger_left", mStaggerLeftAnim);
+    file.AddStringEntry("stagger_right", mStaggerRightAnim);
+}
+#endif
 
 // ======================================
 StaggerComponent* StaggerComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)

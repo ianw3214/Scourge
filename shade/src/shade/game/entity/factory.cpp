@@ -30,30 +30,35 @@ void Shade::EntityFactory::UnRegisterEntityWorldInfo()
 }
 
 // ======================================
-std::unique_ptr<Shade::Entity> Shade::EntityFactory::CreateNewEntity()
+std::unique_ptr<Shade::Entity> Shade::EntityFactory::CreateNewEntity(const std::string& filePath)
 {
+    LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
     if (mEntityWorldInfo == nullptr)
     {
-        LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();
         logService->LogError("Tried to create new entity while no world info is registered");
         return nullptr;
     }
-    return std::make_unique<Shade::Entity>(mEntityWorldInfo->mEventSource, mEntityWorldInfo->mEntityContainer);
+    std::unique_ptr<Shade::Entity> entity =  std::make_unique<Shade::Entity>(mEntityWorldInfo->mEventSource, mEntityWorldInfo->mEntityContainer);
+    if (!filePath.empty())
+    {
+        EntityLoaderService* loader = ServiceProvider::GetCurrentProvider()->GetService<EntityLoaderService>();
+        bool loadResult = loader->LoadEntityFromFile(*entity.get(), filePath);
+        if (loadResult == false)
+        {
+            logService->LogError("Failed to load entity, aborting entity creation");
+            return nullptr;
+        }
+    }
+    return entity;
 }
 
 // ======================================
 std::unique_ptr<Shade::Entity>& Shade::EntityFactory::CreateAndRegisterNewEntity(const std::string& filePath)
 {
-    std::unique_ptr<Shade::Entity> newEntity = CreateNewEntity();
+    std::unique_ptr<Shade::Entity> newEntity = CreateNewEntity(filePath);
     if (newEntity) 
     {
         std::unique_ptr<Shade::Entity>& worldEntity = mEntityWorldInfo->mEntityContainer.AddEntity(std::move(newEntity));
-        if (!filePath.empty())
-        {
-            EntityLoaderService* loader = ServiceProvider::GetCurrentProvider()->GetService<EntityLoaderService>();
-            bool loadResult = loader->LoadEntityFromFile(*worldEntity.get(), filePath);
-            // TODO: Do something with load result
-        }
         return worldEntity;
     }
     LogService* logService = ServiceProvider::GetCurrentProvider()->GetService<LogService>();

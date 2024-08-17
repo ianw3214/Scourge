@@ -1,9 +1,31 @@
 #include "deathHandlingComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/game/entity/entity.h"
 
 #include "components/facingComponent.h"
+
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+const std::string DeathHandlingComponent::ComponentID = "death_handler";
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void DeathHandlingComponent::ShowImguiDetails()
+{
+    ImGui::InputText("die left anim", &mDieLeftAnim);
+    ImGui::InputText("die right anim", &mDieRightAnim);
+}
+
+// ======================================
+void DeathHandlingComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddStringEntry("die_left", mDieLeftAnim);
+    file.AddStringEntry("die_right", mDieRightAnim);
+}
+#endif
 
 // ======================================
 DeathHandlingComponent* DeathHandlingComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)

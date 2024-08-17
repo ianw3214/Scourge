@@ -18,12 +18,21 @@ namespace DeathHandlingComponentDefaults {
 class DeathHandlingComponent : public Shade::Component
 {
 public:
+    static const std::string ComponentID;
+#ifdef BUILD_BREACH_EDITOR
+public:
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
+    virtual const char* GetDisplayName() const override { return "Death Handling Component"; }
+    virtual void ShowImguiDetails() override;
+    virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
+#endif
+public:
     static DeathHandlingComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     DeathHandlingComponent();
     DeathHandlingComponent(const std::string& mDieLeftAnim, const std::string& mDieRightAnim);
 
-    void Update(float deltaSeconds) override;
+    virtual void Update(float deltaSeconds) override;
 
     void HandleDeath(float deathTime);
 

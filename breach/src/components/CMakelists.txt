@@ -4,3 +4,4 @@ add_subdirectory(combat)
 add_subdirectory(player)
 
 target_sources(Breach PRIVATE facingComponent.h parallaxComponent.h)
+target_sources(Breach PRIVATE facingComponent.cpp)

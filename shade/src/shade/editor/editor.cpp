@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include "shade/editor/editorBase.h"
+#include "shade/editor/entity/entityEditor.h"
 #include "shade/editor/ui/overview.h"
 #include "shade/input/event.h"
 #include "shade/instance/service/provider.h"
@@ -16,6 +17,12 @@ Shade::EditorService::EditorService()
 {
     ImGuiService* imguiService = ServiceProvider::GetCurrentProvider()->GetService<ImGuiService>();
     imguiService->RegisterWindow(std::make_unique<EditorOverviewWindow>());
+}
+
+// ======================================
+void Shade::EditorService::RegisterDefaultEditors()
+{
+    RegisterEditor(std::make_unique<EntityEditor>());
 }
 
 // ======================================
@@ -55,6 +62,23 @@ size_t Shade::EditorService::GetCurrentEditorIndex() const
 {
     assert(mCurrentEditor < mEditors.size() && "Current editor index out of bounds");
     return mCurrentEditor;
+}
+
+// ======================================
+void Shade::EditorService::ChangeEditor(size_t newEditorIndex)
+{
+    // There should always be a valid current editor, so no need to check validty of current editor
+    if (mCurrentEditor == newEditorIndex)
+    {
+        // TODO: Throw a warning
+    }
+    if (newEditorIndex >= mEditors.size())
+    {
+        // TODO: Throw a warning
+    }
+    GetCurrentEditor()->OnExit();
+    mCurrentEditor = newEditorIndex;
+    GetCurrentEditor()->OnEnter();
 }
 
 // ======================================

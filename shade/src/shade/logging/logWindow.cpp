@@ -6,6 +6,13 @@
 #include "shade/logging/logService.h"
 
 // ======================================
+Shade::LogWindow::LogWindow()
+    : ImGuiWindow("Log Window")
+{
+
+}
+
+// ======================================
 void Shade::LogWindow::Draw()
 {
     LogService* logs = ServiceProvider::GetCurrentProvider()->GetService<LogService>();

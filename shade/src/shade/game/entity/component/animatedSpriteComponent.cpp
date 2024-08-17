@@ -2,12 +2,95 @@
 
 #include <cassert>
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/entity.h"
 #include "shade/graphics/command/drawTexture.h"
 #include "shade/graphics/command/setColourMultiplier.h"
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
 #include "shade/resource/manager.h"
+
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+const std::string Shade::AnimatedSpriteComponent::ComponentID = "animated_sprite";
+
+#ifdef BUILD_SHADE_EDITOR
+// ======================================
+// TODO: Consider using `ImGuiInputTextFlags_EnterReturnsTrue` to lighten load
+void Shade::AnimatedSpriteComponent::ShowImguiDetails()
+{
+    SpriteComponent::ShowImguiDetails();
+
+    const bool initialStateChanged = ImGui::InputText("initial state", &mInitialState);
+    const bool frameDataChanged = ImGui::InputText("frame data path", &mFrameDataPath);
+    if (initialStateChanged)
+    {
+        if (mStates.find(mInitialState) != mStates.end())
+        {
+            ChangeAnimationState(mInitialState);
+        }
+    }
+    if (frameDataChanged)
+    {
+        // TODO: Refresh all associated frame data
+    }
+
+    if (ImGui::TreeNode("Transitions"))
+    {
+        // TODO: Maybe want to implement deleting transitions, maybe not important?
+        bool transitionTableDirty = false;
+        if (ImGui::Button("Add Transition"))
+        {
+            mTransitionTable.emplace_back();
+            transitionTableDirty = true;
+        }
+        for (int n = 0; n < mTransitionTable.size(); n++)
+        {
+            if (ImGui::TreeNode(std::to_string(n).c_str()))
+            {
+                transitionTableDirty |= ImGui::InputText("from", &mTransitionTable[n].first);
+                transitionTableDirty |= ImGui::InputText("to", &mTransitionTable[n].second);
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+
+        if (transitionTableDirty)
+        {
+            // Clear all previous transitions before reloading all new ones again
+            for (auto& pair : mStates)
+            {
+                pair.second.mTransition.clear();
+            }
+            for (const auto& transition : mTransitionTable)
+            {
+                mStates[transition.first].mTransition = transition.second;
+            }
+        }
+    }
+}
+
+// ======================================
+void Shade::AnimatedSpriteComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const 
+{
+    SpriteComponent::SaveToKeyValueFile(file);
+
+    file.AddFloatEntry("width", mRenderWidth);
+    file.AddFloatEntry("height", mRenderHeight);
+    file.AddStringEntry("frame_data", mFrameDataPath);
+    file.AddStringEntry("initial_state", mInitialState);
+    if (!mTransitionTable.empty())
+    {
+        file.PushList("transitions");
+        for (const auto& pair : mTransitionTable)
+        {
+            file.AddStringEntry(pair.first, pair.second);
+        }
+        file.PopList();
+    }
+}
+#endif
 
 // ======================================
 Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, int renderLayer, RenderAnchor renderAnchor)
@@ -27,6 +110,10 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
 
     // Update current frame based on the initial state
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
+
+#ifdef BUILD_SHADE_EDITOR
+    mInitialState = initialState;
+#endif
 }
 
 // ======================================
@@ -44,10 +131,14 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
     assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
 
     mCurrentFrame = mStates[mCurrentState].mStartFrame;
+
+#ifdef BUILD_SHADE_EDITOR
+    mInitialState = initialState;
+#endif
 }
 
 // ======================================
-Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const std::string& frameDataPath, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
+Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float renderHeight, const std::string& texturePath, const std::string& frameDataPath, TransitionTable transitionTable, const std::string& initialState, int renderLayer, RenderAnchor renderAnchor)
     : SpriteComponent(renderWidth, renderHeight, texturePath, renderLayer, renderAnchor)
     , mCurrentState(initialState)
 {
@@ -64,19 +155,30 @@ Shade::AnimatedSpriteComponent::AnimatedSpriteComponent(float renderWidth, float
     }
     assert(mStates.find(mCurrentState) != mStates.end() && "Current state needs to be a valid state");
 
-    mCurrentFrame = mStates[mCurrentState].mStartFrame;
-}
+    for (const auto& transition : transitionTable)
+    {
+        mStates[transition.first].mTransition = transition.second;
+    }
 
-// ======================================
-void Shade::AnimatedSpriteComponent::SetAnimationTransition(const std::string& animation, const std::string& transition)
-{
-    mStates[animation].mTransition = transition;
+    mCurrentFrame = mStates[mCurrentState].mStartFrame;
+
+#ifdef BUILD_SHADE_EDITOR
+    mInitialState = initialState;
+    mFrameDataPath = frameDataPath;
+    mTransitionTable = transitionTable;
+#endif
 }
 
 // ======================================
 void Shade::AnimatedSpriteComponent::Update(float deltaSeconds) 
 {
+    if (mStates.empty())
+    {
+        return;
+    }
+
     mElapsedTime += deltaSeconds;
+    // TODO: Variable animation frame rates?
     constexpr float frameTime = 1.f / 12.f;
     if (mElapsedTime > frameTime)
     {
@@ -108,6 +210,11 @@ void Shade::AnimatedSpriteComponent::Update(float deltaSeconds)
 // ======================================
 void Shade::AnimatedSpriteComponent::AddRenderCommands(std::vector<std::unique_ptr<Shade::RenderCommand>>& commandQueue)
 {
+    if (!mTextureHandle.IsValid())
+    {
+        return;
+    }
+
     bool useMultiplier = false;
     if (mColourMultiplier.r != 1.f || mColourMultiplier.g != 1.f || mColourMultiplier.b != 1.f)
     {

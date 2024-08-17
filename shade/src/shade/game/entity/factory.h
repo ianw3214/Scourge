@@ -26,7 +26,7 @@ namespace Shade {
         void RegisterEntityWorldInfo(EntityWorldInfo&& worldInfo);
         void UnRegisterEntityWorldInfo();
 
-        std::unique_ptr<Entity> CreateNewEntity();
+        std::unique_ptr<Entity> CreateNewEntity(const std::string& filePath = "");
         std::unique_ptr<Entity>& CreateAndRegisterNewEntity(const std::string& filePath = "");
     private:
         std::unique_ptr<EntityWorldInfo> mEntityWorldInfo;

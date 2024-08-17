@@ -14,10 +14,17 @@ namespace Shade {
         ~ImGuiService();
 
         void RegisterWindow(std::unique_ptr<ImGuiWindow>&& window);
+        void DeleteWindow(const std::string& windowName);
 
         void DrawWindows();
+        void AddQueuedWindows();
+        void FlushDeletedWindows();
     private:
         std::vector<std::unique_ptr<ImGuiWindow>> mWindows;
+
+        // Vectors to queue addition/deletion of windows to avoid resource access errors
+        std::vector<std::unique_ptr<ImGuiWindow>> mWindowsToAdd;
+        std::vector<std::string> mWindowsToDelete;
     };
 
 }

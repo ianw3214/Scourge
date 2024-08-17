@@ -1,9 +1,27 @@
 #include "healthComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/component/spriteComponent.h"
 #include "shade/game/entity/entity.h"
 
 #include "components/combat/deathHandlingComponent.h"
+
+const std::string HealthComponent::ComponentID = "health";
+
+#ifdef BUILD_BREACH_EDITOR
+#include <imgui/imgui.h>
+// ======================================
+void HealthComponent::ShowImguiDetails() 
+{
+    ImGui::DragFloat("Max health", &mMaxHealth);
+}
+
+// ======================================
+void HealthComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddFloatEntry("max_health", mMaxHealth);
+}
+#endif
 
 // ======================================
 HealthComponent* HealthComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)

@@ -24,11 +24,13 @@
 #include "components/parallaxComponent.h"
 #include "map/map.h"
 
+// ======================================
 namespace MapEditorConstants {
     // TODO: Specify where to find root "assets" folder and use relative paths to find files
     const std::string TempTargetFilePath = "assets/breach/maps/target.kv";
 }
 
+// ======================================
 namespace MapEditorTextures {
     const std::string KnobTexture = "assets/editor/knob.png";
     const std::string UpArrowTexture = "assets/editor/up_arrow.png";
@@ -176,7 +178,7 @@ public:
 // ======================================
 class MapEditorWindow : public Shade::ImGuiWindow {
 public:
-    MapEditorWindow(MapEditor& mapEditorRef) : mMapEditorRef(mapEditorRef) {}
+    MapEditorWindow(MapEditor& mapEditorRef) : ImGuiWindow("Map editor window"), mMapEditorRef(mapEditorRef) {}
     void Draw() override {
         Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
         Shade::FileSystem* fileSystem = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::FileSystem>();
@@ -194,7 +196,7 @@ public:
                     MapData* newMapData = new EditorMapData();
                     if (newMapData == nullptr)
                     {
-                        logger->LogError(std::string("Failed to open '") + MapEditorConstants::TempTargetFilePath + '\'');
+                        logger->LogError(std::string("Failed to create new map"));
                     }
                     else
                     {
@@ -209,7 +211,7 @@ public:
                     mMapEditorRef.SaveFile();
                 }
                 if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")) {
-
+                    // TODO: Implement
                 }
                 ImGui::EndMenu();
             }
@@ -391,7 +393,9 @@ void MapEditor::OnEnter()
 // ======================================
 void MapEditor::OnExit() 
 {
-
+    // TODO: The string used here might want to use a shared const to avoid deleting the wrong window
+    Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
+    imguiService->DeleteWindow("Map editor window");
 }
 
 // ======================================
@@ -502,6 +506,7 @@ bool MapEditor::HandleEvent(const Shade::InputEvent& event)
             return false;
         }
     }
+    // TODO: Generalize keyboard shortcuts to the base editor implementation
     if (event.mType == Shade::InputEventType::KEY)
     {
         if (event.mKeyCode == Shade::KeyCode::SHADE_KEY_LCONTROL)

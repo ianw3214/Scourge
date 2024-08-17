@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include <optional>
 #include <string>
 
 #include "shade/common/vec.h"
@@ -18,7 +17,13 @@ namespace Shade {
     class GameplayEventSource;
     class SpriteComponent;
 
+    // ======================================
     class Entity {
+#ifdef BUILD_SHADE_EDITOR
+    public:
+        void ShowImguiDetails();
+        bool Save(const std::string& filePath);
+#endif
     public:
         Entity(GameplayEventSource&, EntityContainer&);
         ~Entity();
@@ -36,6 +41,7 @@ namespace Shade {
         Vec2 GetPosition() const;
         const std::string& GetName() const;
 
+        bool HasComoponent(const std::string& componentID) const;
         void AddComponent(std::unique_ptr<Component> newComponent);
         template<class ComponentClass> ComponentClass* GetComponent();
         SpriteComponent* GetCachedSpriteComponent() const;
@@ -58,7 +64,7 @@ namespace Shade {
         // The components list does NOT contain cached components
         std::vector<std::unique_ptr<Component>> mComponents;
         // Cached components are updated last
-        std::optional<std::unique_ptr<SpriteComponent>> mCachedSprite;
+        std::unique_ptr<SpriteComponent> mCachedSprite = nullptr;
 
         // Store a reference to the game world
         GameplayEventSource& mGameEventSource;
