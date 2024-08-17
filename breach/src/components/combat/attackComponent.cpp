@@ -38,8 +38,12 @@ void AttackHitInfo::ShowImguiDetails()
     // TODO: Need to actually implement this properly
     // ImGui::InputInt("Target type", (int*)mTarget);
 
-    // TODO: Ability to add/remove boxes
+    // TODO: Ability to remove boxes
     ImGui::Text("Hit boxes");
+    if (ImGui::Button("Add hitbox"))
+    {
+        mAttackBoxes.emplace_back();
+    }
     for (int n = 0; n < mAttackBoxes.size(); n++)
     {
         if (ImGui::TreeNode(std::to_string(n).c_str()))
@@ -100,6 +104,10 @@ void AttackInfo::ShowImguiDetails()
     ImGui::DragFloat("Move speed", &mMoveSpeed, 1.f, 0.f, 1500.f);
 
     ImGui::Text("Hit definitions");
+    if (ImGui::Button("Add hit definition"))
+    {
+        mHitInfo.emplace_back();
+    }
     for (int n = 0; n < mHitInfo.size(); n++)
     {
         if (ImGui::TreeNode(std::to_string(n).c_str()))
