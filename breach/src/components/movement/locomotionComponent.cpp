@@ -1,5 +1,6 @@
 #include "locomotionComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "components/facingComponent.h"
 #include "components/combat/healthComponent.h"
 #include "components/movement/moveComponent.h"
@@ -7,6 +8,31 @@
 
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
+
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+const std::string LocomotionComponent::ComponentID = "locomotion";
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void LocomotionComponent::ShowImguiDetails()
+{
+    ImGui::InputText("idle left anim", &mIdleLeftAnim);
+    ImGui::InputText("idle right anim", &mIdleRightAnim);
+    ImGui::InputText("move left anim", &mMoveLeftAnim);
+    ImGui::InputText("move right anim", &mMoveRightAnim);
+}
+
+// ======================================
+void LocomotionComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddStringEntry("idle_left", mIdleLeftAnim);
+    file.AddStringEntry("idle_right", mIdleRightAnim);
+    file.AddStringEntry("run_left", mMoveLeftAnim);
+    file.AddStringEntry("run_right", mMoveRightAnim);
+}
+#endif
 
 // ======================================
 LocomotionComponent* LocomotionComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)

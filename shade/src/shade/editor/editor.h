@@ -17,12 +17,15 @@ namespace Shade {
     class EditorService : public Shade::Service {
     public:
         EditorService();
+        void RegisterDefaultEditors();
 
         void RegisterEditor(std::unique_ptr<EditorBase> editor);
         const std::vector<std::unique_ptr<EditorBase>>& GetEditors() const;
         const std::unique_ptr<EditorBase>& GetCurrentEditor() const;
         std::unique_ptr<EditorBase>& GetCurrentEditorMutable();
         size_t GetCurrentEditorIndex() const;
+
+        void ChangeEditor(size_t newEditorIndex);
 
         void SetRunGameCallback(std::function<void()> runGameCallback);
         void SetStopGameCallback(std::function<void()> stopGameCallback);

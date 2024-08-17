@@ -10,6 +10,8 @@
 #include "components/movement/staggerComponent.h"
 #include "playerRegistry.h"
 
+const std::string StateMachineAIComponent::ComponentID = "ai";
+
 // ======================================
 StateMachineAIComponent* StateMachineAIComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)
 {

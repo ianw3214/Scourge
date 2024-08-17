@@ -2,6 +2,7 @@
 
 #include "definitions.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/entity.h"
 #include "shade/game/entity/component/animatedSpriteComponent.h"
 #include "shade/graphics/flare/flareService.h"
@@ -22,6 +23,150 @@
 
 // TODO: Remove - Temporary for determining player or AI
 #include "components/ai/stateMachineAIComponent.h"
+
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+const std::string AttackComponent::ComponentID = "attack";
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void AttackHitInfo::ShowImguiDetails()
+{
+    ImGui::InputScalar("Trigger anim frame", ImGuiDataType_U32, &mTriggerFrame);
+    ImGui::DragFloat("Damage", &mDamage, 1.f, 0.f, 200.f);
+    // TODO: Need to actually implement this properly
+    // ImGui::InputInt("Target type", (int*)mTarget);
+
+    // TODO: Ability to remove boxes
+    ImGui::Text("Hit boxes");
+    if (ImGui::Button("Add hitbox"))
+    {
+        mAttackBoxes.emplace_back();
+    }
+    for (int n = 0; n < mAttackBoxes.size(); n++)
+    {
+        if (ImGui::TreeNode(std::to_string(n).c_str()))
+        {
+            AttackHitBox& hitbox = mAttackBoxes[n];
+            ImGui::DragFloat("Offset X", &hitbox.mOffsetX);
+            ImGui::DragFloat("Offset Y", &hitbox.mOffsetY);
+            ImGui::DragFloat("Width", &hitbox.mWidth, 1.f, 0.f, 500.f);
+            ImGui::DragFloat("Height", &hitbox.mHeight, 1.f, 0.f, 500.f);
+            const bool effectChanged = ImGui::InputText("Effect", &hitbox.mEffectPath);
+
+            if (effectChanged)
+            {
+                // TODO: Ability to play the attack in editor
+            }
+            ImGui::TreePop();
+        }
+    }
+    
+}
+
+// ======================================
+void AttackHitInfo::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddIntEntry("anim_frame", mTriggerFrame);
+    file.AddFloatEntry("damage", mDamage);
+    file.AddIntEntry("target", static_cast<int>(mTarget));
+    if (!mAttackBoxes.empty())
+    {
+        file.PushList("boxes");
+        for (int n = 0; n < mAttackBoxes.size(); ++n)
+        {
+            const AttackHitBox& hitbox = mAttackBoxes[n];
+            file.PushList(std::to_string(n));
+            file.AddFloatEntry("width", hitbox.mWidth);
+            file.AddFloatEntry("height", hitbox.mHeight);
+            file.AddFloatEntry("offset_x", hitbox.mOffsetX);
+            file.AddFloatEntry("offset_y", hitbox.mOffsetY);
+            if (!hitbox.mEffectPath.empty())
+            {
+                file.PushList("effect");
+                file.AddStringEntry("path", hitbox.mEffectPath);
+                file.PopList();
+            }
+            file.PopList();
+        }
+        file.PopList();
+    }
+}
+
+// ======================================
+void AttackInfo::ShowImguiDetails()
+{
+    ImGui::InputText("Animation", &mAnimation);
+    ImGui::Checkbox("Disable movement", &mDisableMovement);
+    ImGui::Checkbox("Invulnerable", &mInvulnerable);
+    ImGui::DragFloat("Duration", &mDuration, 1.f, 0.f, 20.f);
+    ImGui::DragFloat("Move speed", &mMoveSpeed, 1.f, 0.f, 1500.f);
+
+    ImGui::Text("Hit definitions");
+    if (ImGui::Button("Add hit definition"))
+    {
+        mHitInfo.emplace_back();
+    }
+    for (int n = 0; n < mHitInfo.size(); n++)
+    {
+        if (ImGui::TreeNode(std::to_string(n).c_str()))
+        {
+            mHitInfo[n].ShowImguiDetails();
+            ImGui::TreePop();
+        }
+    }
+}
+
+// ======================================
+void AttackInfo::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddStringEntry("anim", mAnimation);
+    file.AddIntEntry("disable_movement", static_cast<int>(mDisableMovement));
+    // file.addIntEntry("invulnerable") - TODO: Loading not yet implemneted
+    file.AddFloatEntry("duration", mDuration);
+    // file.AddFloatEntry("speed") - TODO: Loading not yet implemented
+    if (!mHitInfo.empty())
+    {
+        file.PushList("hits");
+        for (int n = 0; n < mHitInfo.size(); n++)
+        {
+            file.PushList(std::to_string(n));
+            mHitInfo[n].SaveToKeyValueFile(file);
+            file.PopList();
+        }
+        file.PopList();
+    }
+}
+
+// ======================================
+void AttackComponent::ShowImguiDetails() 
+{
+    // TODO: Ability to play an attack in editor for testing
+    // TODO: Ability to add new attack
+    // TODO: Ability to change attack name
+    for (auto& it : mAttackMap)
+    {
+        const std::string& name = it.first;
+        if (ImGui::TreeNode(name.empty() ? "unnamed" : name.c_str()))
+        {
+            it.second.ShowImguiDetails();
+            ImGui::TreePop();
+        }
+    }
+}
+
+// ======================================
+void AttackComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    for (auto& it : mAttackMap)
+    {
+        file.PushList(it.first);
+        it.second.SaveToKeyValueFile(file);
+        file.PopList();
+    }
+}
+#endif
 
 // ======================================
 AttackHitInfo AttackHitInfo::LoadFromFileHandle(Shade::KeyValueHandle handle)
@@ -76,6 +221,9 @@ AttackHitInfo AttackHitInfo::LoadFromFileHandle(Shade::KeyValueHandle handle)
                                 // TODO: Consider whether we actually have to load the effect here
                                 //  - Perhaps just storing/working with the string would be sufficient
                                 const std::string& effectPath = effectHandle.TryGetString();
+                                #ifdef BUILD_BREACH_EDITOR
+                                attackHitBox.mEffectPath = effectPath;
+                                #endif
                                 Shade::ResourceManager* resourceManager = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ResourceManager>();
                                 Shade::ResourceHandle fxHandle = resourceManager->LoadResource<Shade::Texture>(effectPath);
                                 if (!fxHandle.IsValid())

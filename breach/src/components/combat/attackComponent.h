@@ -23,6 +23,9 @@ enum class AttackTarget {
 
 // ======================================
 struct AttackHitBox {
+#ifdef BUILD_BREACH_EDITOR
+    std::string mEffectPath;
+#endif
     float mOffsetX = 0.f;
     float mOffsetY = 0.f;
     float mWidth = 10.f;
@@ -39,9 +42,13 @@ struct AttackHitBox {
 
 // ======================================
 struct AttackHitInfo {
+#ifdef BUILD_BREACH_EDITOR
+    void ShowImguiDetails();
+    void SaveToKeyValueFile(Shade::KeyValueFile& file) const;
+#endif
 public:
     static AttackHitInfo LoadFromFileHandle(Shade::KeyValueHandle handle);
-public:
+
     uint32_t mTriggerFrame = std::numeric_limits<uint32_t>::max();
     float mDamage = 1.f;
     AttackTarget mTarget = AttackTarget::ENEMY;
@@ -55,6 +62,10 @@ public:
 
 // ======================================
 struct AttackInfo {
+#ifdef BUILD_BREACH_EDITOR
+    void ShowImguiDetails();
+    void SaveToKeyValueFile(Shade::KeyValueFile& file) const;
+#endif
     std::string mAnimation;
     bool mDisableMovement = true;
     bool mInvulnerable = false;
@@ -76,6 +87,15 @@ struct AttackInfo {
 // Entity attacks are stored via a map with the name of the attack mapping to the attack data
 class AttackComponent : public Shade::Component {
 public:
+    static const std::string ComponentID;
+#ifdef BUILD_BREACH_EDITOR
+public:
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
+    virtual const char* GetDisplayName() const override { return "Attack Component"; }
+    virtual void ShowImguiDetails() override;
+    virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
+#endif
+public:
     static AttackComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     AttackComponent();
@@ -84,7 +104,7 @@ public:
     // This must be called after the animated sprite component has been set up
     void RegisterAttacksToAnimFrames();
 
-    void Update(float deltaSeconds) override;
+    virtual void Update(float deltaSeconds) override;
 
     bool IsDoingAttack() const;
     
@@ -97,6 +117,7 @@ private:
 private:
     std::unordered_map<std::string, AttackInfo> mAttackMap;
 
+    // In-engine attack state
     std::string mCurrentAttack;
     std::vector<Shade::Entity*> mCurrentHitEnemies; // Entity pointers are used directly for checks, no lifetime safety needed
     float mCurrentAttackTimer = 0.f;

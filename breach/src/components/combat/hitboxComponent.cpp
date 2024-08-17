@@ -1,6 +1,27 @@
 #include "hitboxComponent.h"
 
+#include "shade/file/keyValueFile.h"
 #include "shade/game/entity/entity.h"
+
+#include <imgui/imgui.h>
+
+const std::string HitboxComponent::ComponentID = "hitbox";
+
+#ifdef BUILD_BREACH_EDITOR
+// ======================================
+void HitboxComponent::ShowImguiDetails() 
+{
+    ImGui::DragFloat("width", &mWidth, 1.f, 0.f, 1000.f);
+    ImGui::DragFloat("height", &mHeight, 1.f, 0.f, 1000.f);
+}
+
+// ======================================
+void HitboxComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
+{
+    file.AddFloatEntry("width", mWidth);
+    file.AddFloatEntry("height", mHeight);
+}
+#endif
 
 // ======================================
 HitboxComponent* HitboxComponent::LoadFromFileHandle(Shade::KeyValueHandle handle)

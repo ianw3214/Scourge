@@ -13,6 +13,15 @@ namespace HealthComponentDefaults {
 class HealthComponent : public Shade::Component
 {
 public:
+    static const std::string ComponentID;
+#ifdef BUILD_BREACH_EDITOR
+public:
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
+    virtual const char* GetDisplayName() const override { return "Health Component"; }
+    virtual void ShowImguiDetails() override;
+    virtual void SaveToKeyValueFile(Shade::KeyValueFile& file) const override;
+#endif
+public:
     static HealthComponent* LoadFromFileHandle(Shade::KeyValueHandle handle);
 public:
     HealthComponent(float maxHealth);

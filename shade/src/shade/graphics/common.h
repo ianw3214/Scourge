@@ -73,6 +73,24 @@ namespace Shade {
             return RenderAnchor::MIDDLE;
         }
 
+        inline std::string RenderAnchorToString(RenderAnchor anchor)
+        {
+            if (anchor == RenderAnchor::BOTTOM_LEFT)
+            {
+                return "bottom_left";
+            }
+            if (anchor == RenderAnchor::BOTTOM_MIDDLE)
+            {
+                return "bottom_middle";
+            }
+            if (anchor == RenderAnchor::MIDDLE)
+            {
+                return "middle";
+            }
+            // TODO: Error handling here, might want to ASSERT since invalid enum is bad state
+            return "";
+        }
+
     }
 
 }

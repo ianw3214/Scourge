@@ -56,6 +56,9 @@ Shade::GameInstance::GameInstance()
 
 #ifdef BUILD_SHADE_EDITOR
     RegisterService(new EditorService());
+    // TODO: yet another temp service initialization... REFACTOR THIS ALREADY
+    EditorService* editor = GetService<EditorService>();
+    editor->RegisterDefaultEditors();
 #endif
 
     LogService* logService = GetService<LogService>();

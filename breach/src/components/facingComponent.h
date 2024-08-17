@@ -13,5 +13,12 @@ enum class FacingDirection {
 class FacingComponent : public Shade::Component
 {
 public:
+    static const std::string ComponentID;
+#ifdef BUILD_BREACH_EDITOR
+public:
+    virtual const char* GetComponentID() const { return ComponentID.c_str(); }
+    virtual const char* GetDisplayName() const override { return "Facing Component"; }
+#endif
+public:
     FacingDirection mDirection = FacingDirection::RIGHT;
 };

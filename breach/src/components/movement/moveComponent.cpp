@@ -5,6 +5,8 @@
 
 #include "map/mapService.h"
 
+const std::string BaseMovementComponent::ComponentID = "movement";
+
 namespace {
 
     // ======================================

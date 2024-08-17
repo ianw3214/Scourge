@@ -7,6 +7,27 @@
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
 
+#ifdef BUILD_SHADE_EDITOR
+#include <imgui/imgui.h>
+
+// ======================================
+std::unique_ptr<Shade::Component> Shade::EntityLoaderService::ShowNewComponentPopup()
+{
+    std::unique_ptr<Shade::Component> result = nullptr;
+    for (auto& it : mComponentLoaders)
+    {
+        if (ImGui::Button(it.first.c_str()))
+        {
+            // TODO: Kind of hacky solution, need better way to load empty components...
+            std::vector<Shade::KeyValuePair> emptyBuffer;
+            Shade::KeyValueHandle emptyHandle(emptyBuffer);
+            result = std::unique_ptr<Shade::Component>(it.second(emptyHandle));
+        }
+    }
+    return result;
+}
+#endif
+
 // ======================================
 Shade::EntityLoaderService::EntityLoaderService()
     : Shade::Service("EntityLoaderService")
@@ -87,7 +108,8 @@ void Shade::EntityLoaderService::RegisterComponentLoader(const std::string& name
 void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
 {
     // Register sprite loading
-    RegisterComponentLoader("sprite", [](Shade::KeyValueHandle handle) {
+    // TODO: Move these to sprite/animated sprite files to centralize save/load logic
+    RegisterComponentLoader(SpriteComponent::ComponentID, [](Shade::KeyValueHandle handle) {
         Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
         std::string texturePath = "";
         constexpr int renderLayer = 0;  // TODO: Does this need to actually be loadable from file?
@@ -110,7 +132,12 @@ void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
     });
 
     // Register animated sprited loading
-    RegisterComponentLoader("animated_sprite", [](Shade::KeyValueHandle handle) {
+    RegisterComponentLoader(AnimatedSpriteComponent::ComponentID, [](Shade::KeyValueHandle handle) {
+        if (!handle.IsValid())
+        {
+            return new AnimatedSpriteComponent();
+        }
+        
         Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
         
         // TODO: Consider letting animated sprites use the default frame data render width/height
@@ -165,11 +192,6 @@ void Shade::EntityLoaderService::LoadDefaultComponentLoaders()
             handle.ToNext();
         }
 
-        AnimatedSpriteComponent* sprite = new AnimatedSpriteComponent(renderWidth, renderHeight, texturePath, frameDataPath, initialState, renderLayer, renderAnchor);
-        for (const auto& transition : transitions)
-        {
-            sprite->SetAnimationTransition(transition.first, transition.second);
-        }
-        return sprite;
+        return new AnimatedSpriteComponent(renderWidth, renderHeight, texturePath, frameDataPath, transitions, initialState, renderLayer, renderAnchor);;
     });
 }
