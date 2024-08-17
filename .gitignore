@@ -3,3 +3,6 @@ build/
 .vscode/
 
 imgui.ini
+
+# These files are used by the editor to save/load from
+*target.kv
