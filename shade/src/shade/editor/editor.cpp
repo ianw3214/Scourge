@@ -118,6 +118,13 @@ Shade::EditorModule::EditorModule()
 Shade::EditorModule::~EditorModule() = default;
 
 // ======================================
+void Shade::EditorModule::Initialize()
+{
+    Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();
+    return editorService->GetCurrentEditorMutable()->OnEnter();
+}
+
+// ======================================
 void Shade::EditorModule::Update(float deltaSeconds) 
 {
     Shade::EditorService* editorService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EditorService>();

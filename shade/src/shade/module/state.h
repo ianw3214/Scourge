@@ -17,6 +17,10 @@ namespace Shade {
         State();
         ~State();
 
+        // Properly initalize modules when the state is ready to be used
+        // TODO: Needs to be properly called at the beginning as well, currently used only for transitions
+        void InitializeModules();
+
         void UpdateModules(float deltaSeconds);
         void RenderModules(std::vector<std::unique_ptr<RenderCommand>>& commandQueue);
         void HandleEvent(const InputEvent& event);

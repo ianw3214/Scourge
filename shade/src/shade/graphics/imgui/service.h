@@ -14,6 +14,7 @@ namespace Shade {
         ~ImGuiService();
 
         void RegisterWindow(std::unique_ptr<ImGuiWindow>&& window);
+        void TryRegisterWindow(std::unique_ptr<ImGuiWindow>&& window);
         void DeleteWindow(const std::string& windowName);
 
         void DrawWindows();

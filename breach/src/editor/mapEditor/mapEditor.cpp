@@ -382,7 +382,7 @@ MapEditor::MapEditor()
 void MapEditor::OnEnter() 
 {
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
-    imguiService->RegisterWindow(std::make_unique<MapEditorWindow>(*this));
+    imguiService->TryRegisterWindow(std::make_unique<MapEditorWindow>(*this));
 
     // TODO: Initialize camera position to some different (better) value
     Shade::CameraService* camera = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::CameraService>();

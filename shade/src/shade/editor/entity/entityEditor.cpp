@@ -108,13 +108,16 @@ Shade::EntityEditor::EntityEditor()
 void Shade::EntityEditor::OnEnter()
 {
     Shade::ImGuiService* imguiService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::ImGuiService>();
-    imguiService->RegisterWindow(std::make_unique<EntityEditorWindow>(*this));
+    imguiService->TryRegisterWindow(std::make_unique<EntityEditorWindow>(*this));
 
+    // TODO: This should probably check for double registration? caused minor issue before
     // Entities need a "world" to exist in
     static GameplayEventSource emptyEventSource;
     static EntityContainer emptyEntityContainer;
     EntityFactory* entityFactory = ServiceProvider::GetCurrentProvider()->GetService<EntityFactory>();
     entityFactory->RegisterEntityWorldInfo({ emptyEventSource, emptyEntityContainer });
+
+    // TODO: Fix camera position
 }
 
 // ======================================

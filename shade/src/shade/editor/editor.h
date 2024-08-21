@@ -45,6 +45,8 @@ namespace Shade {
         EditorModule();
         ~EditorModule();
 
+        virtual void Initialize() override;
+        
         virtual void Update(float deltaSeconds) override;
         virtual void Render(std::vector<std::unique_ptr<RenderCommand>>& commandQueue) override;
         virtual bool HandleEvent(const InputEvent& event) override;

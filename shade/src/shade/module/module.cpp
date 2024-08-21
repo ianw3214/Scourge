@@ -9,6 +9,12 @@ Shade::Module::Module() = default;
 Shade::Module::~Module() = default;
 
 // ======================================
+void Shade::Module::Initialize()
+{
+    
+}
+
+// ======================================
 void Shade::Module::Update(float deltaSeconds)
 {
 

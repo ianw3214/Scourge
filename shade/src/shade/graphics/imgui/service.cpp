@@ -17,6 +17,28 @@ void Shade::ImGuiService::RegisterWindow(std::unique_ptr<ImGuiWindow>&& window)
 }
 
 // ======================================
+void Shade::ImGuiService::TryRegisterWindow(std::unique_ptr<ImGuiWindow>&& newWindow)
+{
+    for (const std::unique_ptr<ImGuiWindow>& window : mWindows)
+    {
+        if (window->GetName() == newWindow->GetName())
+        {
+            // TODO: Log
+            return;
+        }
+    }
+    for (const std::unique_ptr<ImGuiWindow>& window : mWindowsToAdd)
+    {
+        if (window->GetName() == newWindow->GetName())
+        {
+            // TODO: Log
+            return;
+        }
+    }
+    RegisterWindow(std::move(newWindow));
+}
+
+// ======================================
 void Shade::ImGuiService::DeleteWindow(const std::string& windowName)
 {
     mWindowsToDelete.emplace_back(windowName);

@@ -13,6 +13,15 @@ Shade::State::State()
 Shade::State::~State() = default;
 
 // ======================================
+void Shade::State::InitializeModules()
+{
+    for (const auto& Module : mModules)
+    {
+        Module->Initialize();
+    }
+}
+
+// ======================================
 void Shade::State::UpdateModules(float deltaSeconds)
 {
     for (const auto& Module : mModules)

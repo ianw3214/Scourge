@@ -118,6 +118,7 @@ void Shade::GameInstance::Run()
         if (nextState != nullptr)
         {
             mCurrentState = std::move(nextState);
+            mCurrentState->InitializeModules();
         }
     }
 }
