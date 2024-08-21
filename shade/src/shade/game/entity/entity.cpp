@@ -90,6 +90,15 @@ Shade::Entity::Entity(GameplayEventSource& gameWorldRef, EntityContainer& entity
 Shade::Entity::~Entity() = default;
 
 // ======================================
+void Shade::Entity::InitializeComponents()
+{
+    for (std::unique_ptr<Component>& component : mComponents)
+    {
+        component->Initialize();
+    }
+}
+
+// ======================================
 void Shade::Entity::Update(float deltaSeconds)
 {
     for (std::unique_ptr<Component>& component : mComponents)
@@ -171,9 +180,13 @@ bool Shade::Entity::HasComoponent(const std::string& componentID) const
 
 // ======================================
 // This takes ownership of newComponent
-void Shade::Entity::AddComponent(std::unique_ptr<Component> newComponent)
+void Shade::Entity::AddComponent(std::unique_ptr<Component> newComponent, bool initiaizeComponent)
 {
     newComponent->SetEntityRef(this);
+    if (initiaizeComponent)
+    {
+        newComponent->Initialize();
+    }
     if (SpriteComponent* sprite = dynamic_cast<SpriteComponent*>(newComponent.get()))
     {
         if (mCachedSprite != nullptr)

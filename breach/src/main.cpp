@@ -47,9 +47,6 @@
 
 #include <vector>
 
-// TODO: TEMP DEBUG
-#include "shade/file/fileSystem.h"
-
 // TODO: Hacky system, need to replace
 #include "playerRegistry.h"
 
@@ -110,11 +107,6 @@ private:
         playerAttack->RegisterAttackInfo("dash_left", AttackInfo("roll_left", true, true, 0.4f, 800.f));
         playerAttack->RegisterAttackInfo("dash_right", AttackInfo("roll_right", true, true, 0.4f, 800.f));
         PlayerEntity->AddComponent(std::move(playerAttack));
-        // TODO: Temp hacky code - find better fix
-        //  - quick fix will be to just return the new component when a component is added
-        //  - A 2 round initialization would be better: differentiate construction and initialization
-        AttackComponent* playerAttackComp = PlayerEntity->GetComponent<AttackComponent>();
-        playerAttackComp->RegisterAttacksToAnimFrames();
         PlayerEntity->SetPositionX(start.x);
         PlayerEntity->SetPositionY(start.y);
         PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>());
@@ -133,9 +125,6 @@ private:
 
         // Testing entity loading
         std::unique_ptr<Shade::Entity>& testKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/knight.kv");
-        // TODO: Temp hacky code - find better fix (might just need a separate initialization pass)
-        AttackComponent* enemyAttackComp2 = testKnight2->GetComponent<AttackComponent>();
-        enemyAttackComp2->RegisterAttacksToAnimFrames();
         testKnight2->AddComponent(std::make_unique<BasicDebugComponent>());
     }
     // ======================================

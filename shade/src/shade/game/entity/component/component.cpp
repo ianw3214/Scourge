@@ -3,6 +3,8 @@
 #include "shade/instance/service/provider.h"
 #include "shade/logging/logService.h"
 
+#include <cassert>
+
 // ======================================
 Shade::Component::Component()
 {
@@ -23,6 +25,13 @@ void Shade::Component::SetEntityRef(Entity* entityRef)
 
 // ======================================
 Shade::Component::~Component() = default;
+
+// ======================================
+void Shade::Component::Initialize()
+{
+    assert(!mInitialized && "Components should only be initialized once");
+    mInitialized = true;
+}
 
 // ======================================
 void Shade::Component::Update(float deltaSeconds)

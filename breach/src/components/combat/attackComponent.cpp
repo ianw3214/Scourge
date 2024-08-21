@@ -30,13 +30,33 @@
 const std::string AttackComponent::ComponentID = "attack";
 
 #ifdef BUILD_BREACH_EDITOR
+namespace {
+    const char* AttackTargetStrings[] = { "player", "enemy" };
+}
+
 // ======================================
 void AttackHitInfo::ShowImguiDetails()
 {
     ImGui::InputScalar("Trigger anim frame", ImGuiDataType_U32, &mTriggerFrame);
     ImGui::DragFloat("Damage", &mDamage, 1.f, 0.f, 200.f);
-    // TODO: Need to actually implement this properly
-    // ImGui::InputInt("Target type", (int*)mTarget);
+
+    int currIndex = static_cast<int>(mTarget);
+    if (ImGui::BeginCombo("target type", AttackTargetStrings[currIndex]))
+    {
+        for (int n = 0; n < static_cast<int>(AttackTarget::COUNT); n++)
+        {
+            const bool isSelected = (currIndex == n);
+            if (ImGui::Selectable(AttackTargetStrings[n], isSelected))
+            {
+                mTarget = static_cast<AttackTarget>(n);
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+        }
+        ImGui::EndCombo();
+    }
 
     // TODO: Ability to remove boxes
     ImGui::Text("Hit boxes");
@@ -123,9 +143,9 @@ void AttackInfo::SaveToKeyValueFile(Shade::KeyValueFile& file) const
 {
     file.AddStringEntry("anim", mAnimation);
     file.AddIntEntry("disable_movement", static_cast<int>(mDisableMovement));
-    // file.addIntEntry("invulnerable") - TODO: Loading not yet implemneted
+    file.AddIntEntry("invulnerable", static_cast<int>(mInvulnerable));
     file.AddFloatEntry("duration", mDuration);
-    // file.AddFloatEntry("speed") - TODO: Loading not yet implemented
+    file.AddFloatEntry("speed", mMoveSpeed);
     if (!mHitInfo.empty())
     {
         file.PushList("hits");
@@ -143,8 +163,10 @@ void AttackInfo::SaveToKeyValueFile(Shade::KeyValueFile& file) const
 void AttackComponent::ShowImguiDetails() 
 {
     // TODO: Ability to play an attack in editor for testing
-    // TODO: Ability to add new attack
     // TODO: Ability to change attack name
+    if (ImGui::Button("Add attack")) {
+        mAttackMap.insert({"NEW ATTACK (change name in file)", AttackInfo{}});
+    }
     for (auto& it : mAttackMap)
     {
         const std::string& name = it.first;
@@ -282,9 +304,17 @@ AttackComponent* AttackComponent::LoadFromFileHandle(Shade::KeyValueHandle handl
             {
                 attackInfo.mDisableMovement = static_cast<bool>(attackHandle.TryGetInt(static_cast<int>(attackInfo.mDisableMovement)));
             }
+            if (attackHandle.GetKey() == "invulnerable")
+            {
+                attackInfo.mInvulnerable = static_cast<bool>(attackHandle.TryGetInt(static_cast<int>(attackInfo.mInvulnerable)));
+            }
             if (attackHandle.GetKey() == "duration")
             {
                 attackInfo.mDuration = attackHandle.TryGetFloat(attackInfo.mDuration);
+            }
+            if (attackHandle.GetKey() == "speed")
+            {
+                attackInfo.mMoveSpeed = attackHandle.TryGetFloat(attackInfo.mMoveSpeed);
             }
             if (attackHandle.GetKey() == "hits")
             {
@@ -350,6 +380,12 @@ void AttackComponent::RegisterAttacksToAnimFrames()
 }
 
 // ======================================
+void AttackComponent::Initialize()
+{
+    RegisterAttacksToAnimFrames();
+}
+
+// ======================================
 void AttackComponent::Update(float deltaSeconds)
 {
     if (!mCurrentAttack.empty())
@@ -409,7 +445,6 @@ bool AttackComponent::TryDoAttack(const std::string& name)
 }
 
 // ======================================
-//  - TODO: Why does this return a bool? Either define it well or just turn this into void
 void AttackComponent::TriggerAttackHitEvent(const AttackHitInfo& attackInfo)
 {
     for (const AttackHitBox& attackHitBox : attackInfo.mAttackBoxes)

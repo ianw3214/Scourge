@@ -20,10 +20,15 @@ namespace Shade {
 
         void SetEntityRef(Entity* entityRef);
 
+        // Initialize is called after ALL of an entities defined components have been created and added
+        //  - "Second pass" initialization, used to manage component dependencies on creation
+        virtual void Initialize();
         virtual void Update(float deltaSeconds);
     protected:
         // This should be guaranteed to not be null in most use cases
         Entity* mEntityRef = nullptr;
+
+        bool mInitialized = false;
     };
 
 }

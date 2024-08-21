@@ -79,7 +79,7 @@ bool Shade::EntityLoaderService::LoadEntityFromFile(Shade::Entity& entity, const
             }   
             else
             {
-                entity.AddComponent(std::unique_ptr<Shade::Component>(mComponentLoaders[key](handle.GetListHead())));
+                entity.AddComponent(std::unique_ptr<Shade::Component>(mComponentLoaders[key](handle.GetListHead())), false);
             }
         }
         // TODO: There really should be some error-proofing here to prevent infinite loops
@@ -87,6 +87,7 @@ bool Shade::EntityLoaderService::LoadEntityFromFile(Shade::Entity& entity, const
         handle.ToNext();
     }
 
+    entity.InitializeComponents();
     logger->LogInfo(std::string("Successfully loaded entity: ") + filePath);
     return true;
 }

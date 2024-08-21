@@ -28,6 +28,8 @@ namespace Shade {
         Entity(GameplayEventSource&, EntityContainer&);
         ~Entity();
 
+        // Calls "Initialize" on all registered components as a second pass initialization
+        void InitializeComponents();
         void Update(float deltaSeconds);
 
         void MarkForDelete();
@@ -42,7 +44,7 @@ namespace Shade {
         const std::string& GetName() const;
 
         bool HasComoponent(const std::string& componentID) const;
-        void AddComponent(std::unique_ptr<Component> newComponent);
+        void AddComponent(std::unique_ptr<Component> newComponent, bool initiaizeComponent = true);
         template<class ComponentClass> ComponentClass* GetComponent();
         SpriteComponent* GetCachedSpriteComponent() const;
         AnimatedSpriteComponent* GetCachedAnimatedSprite() const;

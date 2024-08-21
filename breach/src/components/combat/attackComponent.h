@@ -16,9 +16,10 @@
 // ======================================
 // This could be generalized more instead of hard-coded in the future if necessary
 //  - perhaps some sort of "team" system could suffice
-enum class AttackTarget {
-    PLAYER,
-    ENEMY
+enum class AttackTarget : int {
+    PLAYER = 0,
+    ENEMY,
+    COUNT
 };
 
 // ======================================
@@ -104,6 +105,7 @@ public:
     // This must be called after the animated sprite component has been set up
     void RegisterAttacksToAnimFrames();
 
+    virtual void Initialize() override;
     virtual void Update(float deltaSeconds) override;
 
     bool IsDoingAttack() const;
