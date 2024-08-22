@@ -99,7 +99,7 @@ private:
         animStateInfo["roll_right"] = { 26, 30, "idle_right" };
         animStateInfo["roll_left"] = { 31, 35, "idle_left" };
         std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this, *this);
-        std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/breach/textures/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
+        std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/breach/textures/entities/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
         PlayerEntity->AddComponent(std::move(playerSprite));
         std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
         playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 40.f, AttackTarget::ENEMY, { AttackHitBox(0.f, 30.f, 98.f, 90.f)} )));
@@ -124,7 +124,7 @@ private:
         PlayerRegistry::CachePlayer(NewPlayerRef.get());
 
         // Testing entity loading
-        std::unique_ptr<Shade::Entity>& testKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/knight.kv");
+        std::unique_ptr<Shade::Entity>& testKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/entities/knight.kv");
         testKnight2->AddComponent(std::make_unique<BasicDebugComponent>());
     }
     // ======================================
