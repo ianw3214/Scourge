@@ -8,10 +8,10 @@
 
 // ======================================
 namespace LocomotionComponentDefaults {
-    const std::string idleLeftAnim = "idle_left";
-    const std::string idleRightAnim = "idle_right";
-    const std::string moveLeftAnim = "run_left";
-    const std::string moveRightAnim = "run_right";
+    const std::string idleLeftAnim = "IDLE_LEFT";
+    const std::string idleRightAnim = "IDLE_RIGHT";
+    const std::string moveLeftAnim = "RUN_LEFT";
+    const std::string moveRightAnim = "RUN_RIGHT";
     constexpr float speed = 200.f;
 }
 

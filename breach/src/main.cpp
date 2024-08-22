@@ -86,46 +86,25 @@ private:
         MapService* mapService = Shade::ServiceProvider::GetCurrentProvider()->GetService<MapService>();
         Shade::Vec2 start = mapService->GetLayout().GetPlayerStart();
 
-        // TODO: All of the following loading should be done by loading from a file
         // Initialize a player entity
-        Shade::TilesheetInfo tileSheetInfo { 196, 128, 6, 6 };
-        std::unordered_map<std::string, Shade::AnimationStateInfo> animStateInfo;
-        animStateInfo["idle_right"] = { 0, 3 };
-        animStateInfo["idle_left"] = { 4, 7 };
-        animStateInfo["run_right"] = { 8, 13 };
-        animStateInfo["run_left"] = { 14, 19 };
-        animStateInfo["attack_right"] = { 20, 22, "idle_right" };
-        animStateInfo["attack_left"] = { 23, 25, "idle_left" };
-        animStateInfo["roll_right"] = { 26, 30, "idle_right" };
-        animStateInfo["roll_left"] = { 31, 35, "idle_left" };
-        std::unique_ptr<Shade::Entity> PlayerEntity = std::make_unique<Shade::Entity>(*this, *this);
-        std::unique_ptr<Shade::AnimatedSpriteComponent> playerSprite = std::make_unique<Shade::AnimatedSpriteComponent>(196.f, 128.f, "assets/breach/textures/entities/player.png", tileSheetInfo, animStateInfo, "idle_right", static_cast<int>(RenderLayer::DEFAULT), Shade::RenderAnchor::BOTTOM_MIDDLE);
-        PlayerEntity->AddComponent(std::move(playerSprite));
-        std::unique_ptr<AttackComponent> playerAttack = std::make_unique<AttackComponent>();
-        playerAttack->RegisterAttackInfo("attack_right", AttackInfo("attack_right", true, 0.25f, AttackHitInfo(21, 40.f, AttackTarget::ENEMY, { AttackHitBox(0.f, 30.f, 98.f, 90.f)} )));
-        playerAttack->RegisterAttackInfo("attack_left", AttackInfo("attack_left", true, 0.25f, AttackHitInfo(24, 40.f, AttackTarget::ENEMY, { AttackHitBox(-98.f, 30.f, 98.f, 90.f)} )));
-        playerAttack->RegisterAttackInfo("dash_left", AttackInfo("roll_left", true, true, 0.4f, 800.f));
-        playerAttack->RegisterAttackInfo("dash_right", AttackInfo("roll_right", true, true, 0.4f, 800.f));
-        PlayerEntity->AddComponent(std::move(playerAttack));
-        PlayerEntity->SetPositionX(start.x);
-        PlayerEntity->SetPositionY(start.y);
-        PlayerEntity->AddComponent(std::make_unique<BaseMovementComponent>());
-        PlayerEntity->AddComponent(std::make_unique<LocomotionComponent>(350.f));
-        PlayerEntity->AddComponent(std::make_unique<FacingComponent>());
+        std::unique_ptr<Shade::Entity>& PlayerEntity = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/entities/player.kv");
+        // TODO: Serializae the rest of these components
+        //  - Or maybe not necessary? if always only attaches to the player...
         PlayerEntity->AddComponent(std::make_unique<PlayerInputComponent>());
         PlayerEntity->AddComponent(std::make_unique<CameraFollowComponent>());
-        PlayerEntity->AddComponent(std::make_unique<HealthComponent>(200.f));
-        PlayerEntity->AddComponent(std::make_unique<HitboxComponent>(72.f, 128.f));
         PlayerEntity->AddComponent(std::make_unique<MapTransitionComponent>());
 #ifdef DEBUG_BREACH
         PlayerEntity->AddComponent(std::make_unique<BasicDebugComponent>());
 #endif
-        std::unique_ptr<Shade::Entity>& NewPlayerRef = AddEntity(std::move(PlayerEntity));
-        PlayerRegistry::CachePlayer(NewPlayerRef.get());
+        PlayerRegistry::CachePlayer(PlayerEntity.get());
+        PlayerEntity->SetPositionX(start.x);
+        PlayerEntity->SetPositionY(start.y);
 
         // Testing entity loading
         std::unique_ptr<Shade::Entity>& testKnight2 = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::EntityFactory>()->CreateAndRegisterNewEntity("assets/breach/entities/knight.kv");
+#ifdef DEBUG_BREACH
         testKnight2->AddComponent(std::make_unique<BasicDebugComponent>());
+#endif
     }
     // ======================================
     void InitializeWorldFromMap(const std::string& mapPath)

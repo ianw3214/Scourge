@@ -43,7 +43,7 @@ void PlayerInputComponent::Update(float deltaSeconds) {
     if (mEntityRef->GetBooleanEvent("roll").mHeld)
     {
         // TODO: Have these account for input direction before accounting for attack direction
-        attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "dash_right" : "dash_left");
+        attackComponent->TryDoAttack(facing->mDirection == FacingDirection::RIGHT ? "roll_right" : "roll_left");
         return;
     }
 }

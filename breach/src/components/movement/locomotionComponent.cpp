@@ -18,6 +18,7 @@ const std::string LocomotionComponent::ComponentID = "locomotion";
 // ======================================
 void LocomotionComponent::ShowImguiDetails()
 {
+    ImGui::InputFloat("speed", &mSpeed);
     ImGui::InputText("idle left anim", &mIdleLeftAnim);
     ImGui::InputText("idle right anim", &mIdleRightAnim);
     ImGui::InputText("move left anim", &mMoveLeftAnim);
@@ -27,6 +28,7 @@ void LocomotionComponent::ShowImguiDetails()
 // ======================================
 void LocomotionComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
 {
+    file.AddFloatEntry("speed", mSpeed);
     file.AddStringEntry("idle_left", mIdleLeftAnim);
     file.AddStringEntry("idle_right", mIdleRightAnim);
     file.AddStringEntry("run_left", mMoveLeftAnim);
