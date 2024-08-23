@@ -24,6 +24,7 @@ namespace Shade {
         const std::unique_ptr<EditorBase>& GetCurrentEditor() const;
         std::unique_ptr<EditorBase>& GetCurrentEditorMutable();
         size_t GetCurrentEditorIndex() const;
+        bool IsRunningGame() const;
 
         void ChangeEditor(size_t newEditorIndex);
 
@@ -34,6 +35,7 @@ namespace Shade {
     private:
         std::vector<std::unique_ptr<EditorBase>> mEditors;
         size_t mCurrentEditor = 0;
+        bool mRunningGame = false;
         
         std::function<void()> mRunGameCallback;
         std::function<void()> mStopGameCallback;

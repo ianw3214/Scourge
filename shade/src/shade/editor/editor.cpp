@@ -65,6 +65,12 @@ size_t Shade::EditorService::GetCurrentEditorIndex() const
 }
 
 // ======================================
+bool Shade::EditorService::IsRunningGame() const
+{
+    return mRunningGame;
+}
+
+// ======================================
 void Shade::EditorService::ChangeEditor(size_t newEditorIndex)
 {
     // There should always be a valid current editor, so no need to check validty of current editor
@@ -96,7 +102,10 @@ void Shade::EditorService::SetStopGameCallback(std::function<void()> stopGameCal
 // ======================================
 void Shade::EditorService::RunGame()
 {
+    GetCurrentEditor()->OnExit();
+
     mRunGameCallback();
+    mRunningGame = true;
 }
 
 // ======================================
@@ -106,6 +115,9 @@ void Shade::EditorService::RunGame()
 void Shade::EditorService::StopGame()
 {
     mStopGameCallback();
+    mRunningGame = false;
+
+    GetCurrentEditor()->OnEnter();
 }
 
 // ======================================

@@ -33,27 +33,39 @@ void Shade::EditorOverviewWindow::Draw()
     Shade::LogService* logger = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
     
     ImGui::Begin("Editor");
-    const std::vector<std::unique_ptr<EditorBase>>& editors = editorService->GetEditors();
-    if (editors.size() == 0)
+
+    if (editorService->IsRunningGame())
     {
-        ImGui::Text("No editors found...");
+        
+        if (ImGui::Button("Stop Game"))
+        {
+            editorService->StopGame();
+        }
     }
     else
     {
-        int originalListboxItem = static_cast<int>(editorService->GetCurrentEditorIndex());
-        int currListboxItem = originalListboxItem;
-        ImGui::ListBox("Editors", &currListboxItem, VectorOfStringGetter, (void*)editors.data(), editors.size());
-        // If selected item changes, handle changing the current editor
-        if (originalListboxItem != currListboxItem)
+        const std::vector<std::unique_ptr<EditorBase>>& editors = editorService->GetEditors();
+        if (editors.size() == 0)
         {
-            editorService->ChangeEditor(static_cast<size_t>(currListboxItem));
-            logger->LogInfo(std::string("Switched to editor: ") + editorService->GetCurrentEditor()->GetName());
+            ImGui::Text("No editors found...");
         }
-    }
+        else
+        {
+            int originalListboxItem = static_cast<int>(editorService->GetCurrentEditorIndex());
+            int currListboxItem = originalListboxItem;
+            ImGui::ListBox("Editors", &currListboxItem, VectorOfStringGetter, (void*)editors.data(), editors.size());
+            // If selected item changes, handle changing the current editor
+            if (originalListboxItem != currListboxItem)
+            {
+                editorService->ChangeEditor(static_cast<size_t>(currListboxItem));
+                logger->LogInfo(std::string("Switched to editor: ") + editorService->GetCurrentEditor()->GetName());
+            }
+        }
 
-    if (ImGui::Button("Run Game"))
-    {
-        editorService->RunGame();
+        if (ImGui::Button("Run Game"))
+        {
+            editorService->RunGame();
+        }
     }
 
     ImGui::End();
