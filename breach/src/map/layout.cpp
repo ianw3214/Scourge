@@ -9,6 +9,9 @@ MapLayout MapLayout::LoadFromKeyValueHandle(Shade::KeyValueHandle handle)
     std::vector<Shade::Box> playZones;
     std::vector<MapTransitionZone> mapTransitions;
     Shade::Vec2 startPosition;
+    float min_x = -800.f;
+    float max_x = 800.f;
+
     while(handle.IsValid())
     {
         if (handle.GetKey() == "zones")
@@ -93,9 +96,25 @@ MapLayout MapLayout::LoadFromKeyValueHandle(Shade::KeyValueHandle handle)
                 startHandle.ToNext();
             }
         }
+        if (handle.GetKey() == "camera")
+        {
+            Shade::KeyValueHandle cameraHandle = handle.GetListHead();
+            while(cameraHandle.IsValid())
+            {
+                if (cameraHandle.GetKey() == "min_x")
+                {
+                    min_x = cameraHandle.GetFloat();
+                }
+                if (cameraHandle.GetKey() == "max_x")
+                {
+                    max_x = cameraHandle.GetFloat();
+                }
+                cameraHandle.ToNext();
+            }
+        }
         handle.ToNext();
     }
-    return MapLayout(std::move(playZones), std::move(mapTransitions), startPosition);
+    return MapLayout(std::move(playZones), std::move(mapTransitions), startPosition, min_x, max_x);
 }
 
 // ======================================
@@ -136,13 +155,20 @@ void MapLayout::SaveToKeyValueFile(Shade::KeyValueFile& file) const
     file.AddFloatEntry("x", mPlayerStart.x);
     file.AddFloatEntry("y", mPlayerStart.y);
     file.PopList();
+
+    file.PushList("camera");
+    file.AddFloatEntry("min_x", mCameraMinX);
+    file.AddFloatEntry("max_x", mCameraMaxX);
+    file.PopList();
 }
 
 // ======================================
-MapLayout::MapLayout(std::vector<Shade::Box>&& playZones, std::vector<MapTransitionZone>&& transitions, Shade::Vec2 start)
+MapLayout::MapLayout(std::vector<Shade::Box>&& playZones, std::vector<MapTransitionZone>&& transitions, Shade::Vec2 start, float min_x, float max_x)
     : mPlayZones(playZones)
     , mMapTransitions(transitions)
     , mPlayerStart(start)
+    , mCameraMinX(min_x)
+    , mCameraMaxX(max_x)
 {
 
 }
@@ -163,4 +189,16 @@ const std::vector<MapTransitionZone>& MapLayout::GetMapTransitions() const
 const Shade::Vec2 MapLayout::GetPlayerStart() const
 {
     return mPlayerStart;
+}
+
+// ======================================
+float MapLayout::GetCameraMinX() const
+{
+    return mCameraMinX;
+}
+
+// ======================================
+float MapLayout::GetCameraMaxX() const
+{
+    return mCameraMaxX;
 }

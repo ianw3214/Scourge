@@ -289,6 +289,13 @@ public:
                     ImGui::TreePop();
                 }
 
+                if (ImGui::TreeNode("Camera"))
+                {
+                    ImGui::DragFloat("min x", &layout.GetCameraMinXMutable(), 1.f);
+                    ImGui::DragFloat("max x", &layout.GetCameraMaxXMutable(), 1.f);
+                    ImGui::TreePop();
+                }
+
                 if (mMapEditorRef.HasSelected(SelectedType::BACKGROUND))
                 {
                     BackgroundElement& background = backgrounds[mMapEditorRef.GetSelectedIndex()];
@@ -433,6 +440,9 @@ void MapEditor::Render(std::vector<std::unique_ptr<Shade::RenderCommand>>& comma
             commandQueue.emplace_back(std::make_unique<Shade::DrawRectangleCommand>(transitionZone.mZoneDefinition, Shade::Colour{ 0.8f, 0.7f, 0.3f }, false));
         }
         commandQueue.emplace_back(std::make_unique<Shade::DrawCircleCommand>(layout.GetPlayerStart(), 12.f, Shade::Colour{ 0.8f, 0.6f, 0.4f}, false));
+        // TODO: hard coded y position is not a vibe
+        commandQueue.emplace_back(std::make_unique<Shade::DrawCircleCommand>(layout.GetCameraMinX(), 360.f, 8.f, Shade::Colour{ 0.6f, 0.8f, 0.4f}, false));
+        commandQueue.emplace_back(std::make_unique<Shade::DrawCircleCommand>(layout.GetCameraMaxX(), 360.f, 8.f, Shade::Colour{ 0.6f, 0.8f, 0.4f}, false));
 
         // Render widgets on top of map elements
         // TODO: Play zones might be able to be rendered in the same way
