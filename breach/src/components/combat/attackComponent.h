@@ -117,12 +117,16 @@ private:
     bool DoAttack(const std::string& name);
 
 private:
-    std::unordered_map<std::string, AttackInfo> mAttackMap;
+    std::unordered_map<std::string, std::vector<AttackInfo>> mAttackMap;
 
     // In-engine attack state
     std::string mCurrentAttack;
     std::vector<Shade::Entity*> mCurrentHitEnemies; // Entity pointers are used directly for checks, no lifetime safety needed
     float mCurrentAttackTimer = 0.f;
     FacingDirection mCurrentAttackFacing;
-    
+
+    // Combo data
+    size_t mCurrentAttackIndex = 0;
+    float mComboWindow = 0.f;
+    std::string mLastAttack;
 };

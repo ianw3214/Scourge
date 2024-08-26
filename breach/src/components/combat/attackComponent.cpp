@@ -165,14 +165,25 @@ void AttackComponent::ShowImguiDetails()
     // TODO: Ability to play an attack in editor for testing
     // TODO: Ability to change attack name
     if (ImGui::Button("Add attack")) {
-        mAttackMap.insert({"NEW ATTACK (change name in file)", AttackInfo{}});
+        mAttackMap.insert({"NEW ATTACK CHAIN (change name in file)", {}});
     }
     for (auto& it : mAttackMap)
     {
         const std::string& name = it.first;
         if (ImGui::TreeNode(name.empty() ? "unnamed" : name.c_str()))
         {
-            it.second.ShowImguiDetails();
+            if (ImGui::Button("Add attack combo"))
+            {
+                it.second.emplace_back();
+            }
+            for (int n = 0; n < it.second.size(); ++n)
+            {
+                if (ImGui::TreeNode(std::to_string(n).c_str()))
+                {
+                    it.second[n].ShowImguiDetails();
+                    ImGui::TreePop();
+                }
+            }
             ImGui::TreePop();
         }
     }
@@ -184,7 +195,12 @@ void AttackComponent::SaveToKeyValueFile(Shade::KeyValueFile& file) const
     for (auto& it : mAttackMap)
     {
         file.PushList(it.first);
-        it.second.SaveToKeyValueFile(file);
+        for (int n = 0; n < it.second.size(); n++)
+        {
+            file.PushList(std::to_string(n));
+            it.second[n].SaveToKeyValueFile(file);
+            file.PopList();
+        }
         file.PopList();
     }
 }
@@ -293,44 +309,49 @@ AttackComponent* AttackComponent::LoadFromFileHandle(Shade::KeyValueHandle handl
         }
 
         Shade::KeyValueHandle attackHandle = handle.GetListHead();
-        AttackInfo attackInfo;
         while (attackHandle.IsValid())
         {
-            if (attackHandle.GetKey() == "anim")
+            AttackInfo attackInfo;
+            Shade::KeyValueHandle comboAttackHAndle = attackHandle.GetListHead();
+            while (comboAttackHAndle.IsValid())
             {
-                attackInfo.mAnimation = attackHandle.TryGetString(attackInfo.mAnimation);
-            }
-            if (attackHandle.GetKey() == "disable_movement")
-            {
-                attackInfo.mDisableMovement = static_cast<bool>(attackHandle.TryGetInt(static_cast<int>(attackInfo.mDisableMovement)));
-            }
-            if (attackHandle.GetKey() == "invulnerable")
-            {
-                attackInfo.mInvulnerable = static_cast<bool>(attackHandle.TryGetInt(static_cast<int>(attackInfo.mInvulnerable)));
-            }
-            if (attackHandle.GetKey() == "duration")
-            {
-                attackInfo.mDuration = attackHandle.TryGetFloat(attackInfo.mDuration);
-            }
-            if (attackHandle.GetKey() == "speed")
-            {
-                attackInfo.mMoveSpeed = attackHandle.TryGetFloat(attackInfo.mMoveSpeed);
-            }
-            if (attackHandle.GetKey() == "hits")
-            {
-                assert(attackHandle.IsList() && "Attack handle should be list format");
-                Shade::KeyValueHandle hitsHandle = attackHandle.GetListHead();
-                while (hitsHandle.IsValid())
+                if (comboAttackHAndle.GetKey() == "anim")
                 {
-                    Shade::KeyValueHandle hitHandle = hitsHandle.GetListHead();
-                    attackInfo.mHitInfo.emplace_back(AttackHitInfo::LoadFromFileHandle(hitHandle));
-                    hitsHandle.ToNext();
+                    attackInfo.mAnimation = comboAttackHAndle.TryGetString(attackInfo.mAnimation);
                 }
+                if (comboAttackHAndle.GetKey() == "disable_movement")
+                {
+                    attackInfo.mDisableMovement = static_cast<bool>(comboAttackHAndle.TryGetInt(static_cast<int>(attackInfo.mDisableMovement)));
+                }
+                if (comboAttackHAndle.GetKey() == "invulnerable")
+                {
+                    attackInfo.mInvulnerable = static_cast<bool>(comboAttackHAndle.TryGetInt(static_cast<int>(attackInfo.mInvulnerable)));
+                }
+                if (comboAttackHAndle.GetKey() == "duration")
+                {
+                    attackInfo.mDuration = comboAttackHAndle.TryGetFloat(attackInfo.mDuration);
+                }
+                if (comboAttackHAndle.GetKey() == "speed")
+                {
+                    attackInfo.mMoveSpeed = comboAttackHAndle.TryGetFloat(attackInfo.mMoveSpeed);
+                }
+                if (comboAttackHAndle.GetKey() == "hits")
+                {
+                    assert(comboAttackHAndle.IsList() && "Attack handle should be list format");
+                    Shade::KeyValueHandle hitsHandle = comboAttackHAndle.GetListHead();
+                    while (hitsHandle.IsValid())
+                    {
+                        Shade::KeyValueHandle hitHandle = hitsHandle.GetListHead();
+                        attackInfo.mHitInfo.emplace_back(AttackHitInfo::LoadFromFileHandle(hitHandle));
+                        hitsHandle.ToNext();
+                    }
+                }   
+                comboAttackHAndle.ToNext();
             }
             attackHandle.ToNext();
+            attackComponent->RegisterAttackInfo(name, attackInfo);
         }
         
-        attackComponent->RegisterAttackInfo(name, attackInfo);
         handle.ToNext();
     }
 
@@ -349,12 +370,13 @@ AttackInfo& AttackComponent::RegisterAttackInfo(const std::string& name, const A
 {
     if (mAttackMap.find(name) != mAttackMap.end())
     {
-        Shade::LogService* logService = Shade::ServiceProvider::GetCurrentProvider()->GetService<Shade::LogService>();
-        logService->LogWarning(std::string("Registering attack that already exists: ") + name);
+        mAttackMap[name].emplace_back(attack);
     }
-
-    mAttackMap[name] = attack;
-    return mAttackMap[name];
+    else
+    {
+        mAttackMap[name] = { attack };
+    }
+    return mAttackMap[name].back();
 }
 
 // ======================================
@@ -369,12 +391,15 @@ void AttackComponent::RegisterAttacksToAnimFrames()
     }
     for (const auto& pair : mAttackMap)
     {
-        for (const AttackHitInfo& attackHitInfo : pair.second.mHitInfo)
+        for (const AttackInfo& attack : pair.second)
+        {
+            for (const AttackHitInfo& attackHitInfo : attack.mHitInfo)
         {
             const uint32_t attackHitFrame = attackHitInfo.mTriggerFrame;
             anim->mEvents[attackHitFrame] = [this, attackHitInfo](Shade::Entity* triggerEntity) {
                 this->TriggerAttackHitEvent(attackHitInfo);
             };
+        }
         }
     }
 }
@@ -390,8 +415,9 @@ void AttackComponent::Update(float deltaSeconds)
 {
     if (!mCurrentAttack.empty())
     {
+        assert(mComboWindow <= 0.f && "Combo window should not be active while an attack is executing");
         assert(mAttackMap.find(mCurrentAttack) != mAttackMap.end() && "Current attack was not found in list of attacks");
-        const AttackInfo& attackInfo = mAttackMap[mCurrentAttack];
+        const AttackInfo& attackInfo = mAttackMap[mCurrentAttack][mCurrentAttackIndex];
         if (attackInfo.mMoveSpeed > 0.f)
         {
             BaseMovementComponent* movement = mEntityRef->GetComponent<BaseMovementComponent>();
@@ -407,6 +433,10 @@ void AttackComponent::Update(float deltaSeconds)
         mCurrentAttackTimer -= deltaSeconds;
         if (mCurrentAttackTimer <= 0.f)
         {
+            // TODO: Combo window timing should maybe not be hard-coded?
+            mComboWindow = 0.2f;
+            mLastAttack = mCurrentAttack;
+
             mCurrentAttack.clear();
             mCurrentAttackTimer = 0.f;
             if (attackInfo.mDisableMovement)
@@ -424,6 +454,16 @@ void AttackComponent::Update(float deltaSeconds)
             {
                 stagger->EnableStagger();
             }
+        }
+    }
+    if (mComboWindow > 0.f)
+    {
+        mComboWindow -= deltaSeconds;
+        if (mComboWindow <= 0.f)
+        {
+            mLastAttack.clear();
+            mComboWindow = 0.f;
+            mCurrentAttackIndex = 0;
         }
     }
 }
@@ -548,7 +588,23 @@ bool AttackComponent::DoAttack(const std::string& name)
         logService->LogError("Missing facing component on entity with attack component");
         return false;
     }
-    const AttackInfo& attackInfo = it->second;
+
+    // TODO: Combo stuff should be handled one level higher, this function should just cover actually executing a specific combo attack
+    if (mComboWindow > 0.f)
+    {
+        mComboWindow = 0.f;
+        if (mLastAttack == name)
+        {
+            mCurrentAttackIndex++;
+        }
+        mLastAttack.clear();
+    }
+    if (mCurrentAttackIndex >= it->second.size())
+    {
+        mCurrentAttackIndex = 0;
+    }
+
+    const AttackInfo& attackInfo = it->second[mCurrentAttackIndex];
     mEntityRef->GetCachedAnimatedSprite()->ChangeAnimationState(attackInfo.mAnimation);
     if (attackInfo.mDisableMovement)
     {
