@@ -55,8 +55,8 @@ Shade::Resource* Shade::AnimationFrameData::Load(const std::string& path)
     const uint16_t frameWidth = firstFrameInfo["w"];
     const uint16_t frameHeight = firstFrameInfo["h"];
 
-    const uint16_t rows = width / frameWidth;
-    const uint16_t columns = height / frameHeight;
+    const uint16_t rows = height / frameHeight;
+    const uint16_t columns = width / frameWidth;
     return new AnimationFrameData(frameWidth, frameHeight, rows, columns, std::move(animationFrames));
 }
 
