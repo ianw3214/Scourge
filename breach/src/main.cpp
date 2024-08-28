@@ -74,7 +74,7 @@ public:
         mInputMapping.AddAxisEventMapping(Shade::ControllerAxis::SHADE_AXIS_LEFTY, "move_v");
         SetEventsFromMapping(mInputMapping);
 
-        InitializeWorldFromMap("assets/breach/maps/interior.kv");
+        InitializeWorldFromMap("assets/breach/maps/exterior.kv");
         
         Debug_AddEntities();
     }
